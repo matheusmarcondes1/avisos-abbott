@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Avisos — Abbott BR-SH-M</title>
+<style>
+/* ============================================================
+   PALETA — Abbott Color Palette
+   Pares de contraste conforme o guia da marca.
+   ============================================================ */
+:root{
+  --ink:          #344042;   /* Dark Steel — texto principal */
+  --ink-soft:     #4f4843;   /* Dark Stone — texto secundário */
+  --paper:        #FFFFFF;   /* fundo */
+  --paper-dim:    #e4eeef;   /* Light Steel — fundo de blocos */
+  --line:         #d0dddd;   /* Medium Steel — hairlines e trilhos */
+  --accent:       #000075;   /* Signature Blue — superfícies de destaque */
+  --accent-bright:#2e4aed;   /* Primary Blue — progresso e interação */
+  --accent-soft:  #d6dbfc;   /* Light Blue — caixas de apoio */
+  --accent-ink:   #FFFFFF;   /* texto sobre Signature/Primary Blue */
+  --warn:         #ffbf21;   /* Primary Yellow — deslocamento */
+  --warn-ink:     #5c4500;   /* Dark Yellow — texto sobre o amarelo */
+  --ok:           #124f00;   /* Dark Mint — estados concluídos */
+  --ember:        #ff5729;   /* Primary Ember — aviso de silêncio */
+  --ember-ink:    #520000;   /* Dark Ember — texto sobre o laranja */
+  --ember-soft:   #fcded4;   /* Light Ember — fundo do aviso de silêncio */
+
+  /* Escala tipográfica das telas de TV (ajustável nas Configurações).
+     Como serão projetadas em televisões de ~50", o padrão já é ampliado. */
+  --fs: 1.15;
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  font-family: Helvetica, "Helvetica Neue", Arial, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+button{ font-family: inherit; cursor:pointer; }
+input, select, textarea{ font-family: inherit; }
+
+/* ---------- logo Abbott (wordmark vetorial, sem dependência externa) ----------
+   Usa currentColor, então herda a cor do contexto (azul em telas claras,
+   branca nas telas de TV). Pode ser substituída pelo SVG oficial da marca. */
+.logo-slot{ display:inline-block; color: var(--accent); line-height:0; }
+.logo-slot .abbott-svg{ height:100%; width:auto; display:block; }
+.control-logo{ height: 34px; margin-bottom: 22px; }
+
+/* ---------- gerenciamento de telas ---------- */
+.screen{ display:none; }
+.screen.active{ display:block; }
+.screen.tv.active{ display:flex; }
+
+/* ---------- telas de controle ---------- */
+.control{ min-height:100vh; padding: clamp(24px, 5vh, 64px) 24px; }
+.wrap{ max-width: 940px; margin: 0 auto; }
+
+.eyebrow{
+  font-size: 13px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--ink-soft); margin-bottom: 10px;
+}
+.eyebrow.plain{ letter-spacing: normal; }
+h1{ font-size: clamp(28px, 4.2vw, 44px); font-weight: 700; letter-spacing: -0.01em; }
+h2{ font-size: clamp(24px, 3.2vw, 34px); font-weight: 700; letter-spacing: -0.01em; }
+h3{ font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+.sub{ color: var(--ink-soft); margin-top: 8px; font-size: 16px; line-height: 1.5; }
+
+.menu-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 32px; }
+@media (max-width:640px){ .menu-grid{ grid-template-columns: 1fr; } }
+
+.func-card{
+  text-align:left; background: var(--paper); border: 1px solid var(--line);
+  border-radius: 10px; padding: 24px; transition: border-color .15s, transform .15s;
+}
+.func-card:hover{ border-color: var(--accent-bright); transform: translateY(-1px); }
+.func-card .fc-title{ font-size: 21px; font-weight: 700; }
+.func-card .fc-desc{ color: var(--ink-soft); font-size: 15px; margin-top: 6px; line-height:1.5; }
+.func-card .fc-go{ color: var(--accent-bright); font-size: 13px; font-weight: 700; margin-top: 14px;
+  letter-spacing:.06em; text-transform: uppercase; }
+.func-card.wide{ grid-column: 1 / -1; }
+.func-card.cfg{ background: var(--accent-soft); border-color: var(--accent-soft); }
+
+.btn{
+  border: none; border-radius: 8px; padding: 11px 20px; font-size: 15px; font-weight: 700;
+  background: var(--accent); color: var(--accent-ink);
+}
+.btn:hover{ filter: brightness(1.08); }
+.btn:disabled{ opacity:.4; cursor:not-allowed; filter:none; }
+.btn.ghost{ background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.btn.ghost:hover{ border-color: var(--ink-soft); }
+.btn.small{ padding: 8px 14px; font-size: 14px; }
+.btn.danger{ background: transparent; color: var(--ember-ink); border:1px solid var(--line); }
+.btn.danger:hover{ border-color: var(--ember); color: var(--ember); }
+
+.back{
+  background:none; border:none; color: var(--ink-soft); font-size: 15px; font-weight:700;
+  margin-bottom: 20px; padding: 4px 0;
+}
+.back:hover{ color: var(--ink); }
+
+.search{
+  width:100%; margin-top: 22px; padding: 12px 16px; font-size: 16px;
+  border: 1px solid var(--line); border-radius: 8px; outline: none;
+}
+.search:focus{ border-color: var(--accent-bright); }
+
+.action-bar{
+  display:flex; align-items:center; justify-content:space-between; gap: 16px;
+  margin-top: 24px; flex-wrap: wrap;
+}
+.action-note{ color: var(--ink-soft); font-size: 14px; }
+
+.empty{
+  margin-top: 24px; border: 1px dashed var(--line); border-radius: 10px;
+  padding: 40px 24px; text-align:center; color: var(--ink-soft); font-size: 15px; line-height:1.6;
+}
+
+/* tabela do roteiro (tela de seleção das reuniões) */
+.rot{ margin-top: 24px; border: 1px solid var(--line); border-radius: 10px; overflow:hidden; }
+.rot-window{ padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.rot-window:last-child{ border-bottom: none; }
+.rot-time{ font-size: 16px; font-weight: 700; }
+.rot-areas{ color: var(--ink-soft); font-size: 15px; margin-top: 4px; line-height: 1.6; }
+.rot-gap{ padding: 8px 20px; background: var(--paper-dim); color: var(--ink-soft);
+  font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+  border-bottom: 1px solid var(--line); }
+
+/* ---------- telas de TV ---------- */
+.tv{
+  position: fixed; inset: 0; z-index: 10; background: var(--paper);
+  flex-direction: column; padding: 4vh 5vw; overflow: hidden;
+}
+.tv.nocursor{ cursor: none; }
+.tv-top{ display:flex; justify-content:space-between; align-items:flex-start; gap: 2vw; }
+.tv-topright{ display:flex; flex-direction:column; align-items:flex-end; gap: 1vh; }
+/* Logo nas telas de TV: azul Abbott sobre os fundos claros (padrão);
+   branca no relógio (fundo preto/azul); ember no aviso de silêncio. */
+.tv-brand{ color: var(--accent); height: calc(clamp(22px, 2.6vw, 44px) * var(--fs)); }
+.tv.clkmode .tv-brand{ color:#fff; }
+.tv-eyebrow{
+  display:inline-block; font-size: calc(clamp(16px, 1.9vw, 30px) * var(--fs)); font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--accent-ink);
+  background: var(--accent); padding: .5em 1em; border-radius: 6px;
+}
+.tv-eyebrow.warn{ background: var(--warn); color: var(--warn-ink); }
+.tv-eyebrow.ok{ background: var(--ok); }
+.tv-eyebrow.ember{ background: var(--ember); }
+.tv-clock{ font-size: calc(clamp(18px, 2.1vw, 34px) * var(--fs)); font-weight: 700; color: var(--ink-soft);
+  font-variant-numeric: tabular-nums; text-align:right; }
+.tv-clock .sim-tag{ display:block; font-size: .55em; letter-spacing:.14em; color: var(--warn-ink); }
+
+.tv-title{ font-size: calc(clamp(32px, 5.4vw, 92px) * var(--fs)); font-weight: 700; letter-spacing: -0.01em;
+  margin-top: 2.5vh; }
+.tv-sub{ font-size: calc(clamp(18px, 2.4vw, 40px) * var(--fs)); color: var(--ink-soft); margin-top: 1vh; }
+
+.tv-body{ flex: 1; min-height: 0; display:flex; flex-direction: column; margin-top: 3vh; }
+
+/* áreas em reunião */
+.areas{ display:flex; flex-wrap: wrap; gap: 1.5vw; align-content: flex-start; margin-top: 1vh; }
+.area-card{
+  border: 2px solid var(--line); border-radius: 12px; padding: 2.2vh 2.2vw;
+  min-width: 22vw; flex: 1 1 26vw; max-width: 32vw;
+}
+.area-nome{ font-size: calc(clamp(24px, 3.6vw, 60px) * var(--fs)); font-weight: 700; letter-spacing:-0.01em; }
+.area-sup{ font-size: calc(clamp(16px, 2vw, 32px) * var(--fs)); color: var(--ink-soft); margin-top: .6vh; }
+.areas.preview .area-card{ border-style: dashed; }
+
+/* barra de progresso */
+.tv-footer{ margin-top: auto; padding-top: 3vh; }
+.pf-row{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 1.2vh; }
+.pf-label{ font-size: calc(clamp(14px, 1.6vw, 28px) * var(--fs)); letter-spacing:.12em; text-transform:uppercase;
+  color: var(--ink-soft); font-weight: 700; }
+.pf-time{ font-size: calc(clamp(26px, 3.6vw, 60px) * var(--fs)); font-weight: 700;
+  font-variant-numeric: tabular-nums; }
+.pf-track{ height: clamp(14px, 2.4vh, 26px); background: var(--line); border-radius: 999px;
+  overflow: hidden; }
+.pf-fill{ height: 100%; width: 0%; background: var(--accent-bright); border-radius: 999px;
+  transition: width .5s linear; }
+.pf-fill.warn{ background: var(--warn); }
+.pf-fill.ok{ background: var(--ok); }
+
+/* estado centralizado (pré-início / encerrado) */
+.tv-center{ flex:1; display:flex; flex-direction:column; align-items:center;
+  justify-content:center; text-align:center; gap: 1.5vh; }
+.tv-center .big{ font-size: calc(clamp(36px, 6.2vw, 104px) * var(--fs)); font-weight: 700; letter-spacing:-0.01em; }
+.tv-center .mid{ font-size: calc(clamp(20px, 2.6vw, 44px) * var(--fs)); color: var(--ink-soft); }
+.tv-center .count{ font-size: calc(clamp(44px, 8.4vw, 130px) * var(--fs)); font-weight: 700;
+  font-variant-numeric: tabular-nums; color: var(--accent-bright); }
+
+/* saída discreta */
+.tv-exit{
+  position: absolute; top: 18px; right: 18px; z-index: 20;
+  background: var(--ink); color: var(--paper); border:none; border-radius: 8px;
+  padding: 10px 16px; font-size: 14px; font-weight: 700;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.tv.showui .tv-exit{ opacity: .85; pointer-events: auto; }
+
+/* aviso geral */
+textarea.notice{
+  width:100%; margin-top: 22px; padding: 14px 16px; font-size: 17px; line-height: 1.5;
+  border: 1px solid var(--line); border-radius: 8px; outline: none;
+  min-height: 150px; resize: vertical;
+}
+textarea.notice:focus{ border-color: var(--accent-bright); }
+.duration-row{ display:inline-flex; align-items:center; gap: 10px; }
+.duration-row label{ font-size: 15px; color: var(--ink-soft); }
+select.dur{
+  padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px;
+  font-size: 15px; font-family: inherit; background: var(--paper); color: var(--ink);
+}
+.ger-text{
+  font-size: calc(clamp(32px, 5.2vw, 88px) * var(--fs)); font-weight: 700; letter-spacing: -0.01em;
+  line-height: 1.25; white-space: pre-wrap; overflow-wrap: break-word; max-width: 90vw;
+}
+.ger-text.md{ font-size: calc(clamp(26px, 3.8vw, 60px) * var(--fs)); }
+.ger-text.sm{ font-size: calc(clamp(20px, 2.8vw, 44px) * var(--fs)); font-weight: 400; line-height: 1.4; }
+
+/* silêncio */
+.tv.silmode{ background: var(--ember-soft); }
+.tv.silmode .tv-eyebrow{ background: var(--ember); color: var(--ember-ink); }
+.tv.silmode .tv-clock{ color: var(--ember-ink); }
+.tv.silmode .tv-brand{ color: var(--ember); }
+.sil-center{
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; gap: 2.5vh; color: var(--ember-ink);
+}
+.sil-icon{ width: calc(clamp(120px, 24vh, 300px) * var(--fs)); height:auto; color: var(--ember); }
+.sil-title{ font-size: calc(clamp(40px, 6.8vw, 112px) * var(--fs)); font-weight: 700; letter-spacing:-0.01em; }
+.sil-sub{ font-size: calc(clamp(20px, 2.8vw, 46px) * var(--fs)); max-width: 34ch; line-height: 1.35; }
+
+/* relógio (modo de espera) — fundo preto por padrão */
+.tv.clkmode{ background: #000; }
+.tv.clkmode.bg-azul{ background: var(--accent); }
+.clk-center{
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; color: #fff;
+}
+.clk-time{ font-size: clamp(90px, 23vw, 380px); font-weight: 700; letter-spacing: -0.02em;
+  line-height: 1; font-variant-numeric: tabular-nums; }
+.clk-sec{ font-size: clamp(22px, 3.4vw, 54px); color: rgba(255,255,255,.6);
+  margin-top: 1.5vh; font-variant-numeric: tabular-nums; }
+.clk-date{ font-size: clamp(20px, 3vw, 48px); color: rgba(255,255,255,.72); margin-top: 2.5vh; }
+.clk-brand{ font-size: clamp(13px, 1.5vw, 22px); letter-spacing: .12em;
+  text-transform: uppercase; color: rgba(255,255,255,.55); font-weight: 700; }
+
+/* busca por válvulas */
+.val-grid{ display:flex; flex-wrap:wrap; gap: 1.4vw; margin-top: 2.5vh; align-content:flex-start; }
+.val-chip{
+  border: 3px solid var(--ink); border-radius: 12px; padding: 1.6vh 2vw;
+  font-size: calc(clamp(26px, 3.8vw, 64px) * var(--fs)); font-weight: 700;
+  font-variant-numeric: tabular-nums; letter-spacing: .02em;
+  display: flex; align-items: center; gap: 1.2vw;
+}
+.rm-btn{
+  width: clamp(30px, 4.5vh, 46px); height: clamp(30px, 4.5vh, 46px); flex: none;
+  border-radius: 999px; border: 2px solid var(--line); background: var(--paper);
+  color: var(--ink-soft); font-size: clamp(16px, 2.4vh, 26px); font-weight: 700;
+  line-height: 1; padding: 0; opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.tv.showui .rm-btn{ opacity: .9; pointer-events: auto; }
+.rm-btn:hover{ border-color: var(--ember); color: var(--ember); }
+
+/* microfone */
+.warn-card{
+  background: #fff2d4; color: var(--warn-ink); border-radius: 10px;
+  padding: 16px 20px; margin-top: 24px; font-size: 15px; line-height: 1.6;
+}
+.check-row{ display:flex; align-items:flex-start; gap: 10px; margin-top: 18px;
+  font-size: 15px; line-height: 1.5; cursor: pointer; }
+.check-row input{ width: 18px; height: 18px; margin-top: 1px; accent-color: var(--accent); flex:none; }
+.mic-center{
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; gap: 2.5vh;
+}
+.mic-icon{ width: calc(clamp(110px, 20vh, 250px) * var(--fs)); height:auto; color: var(--accent);
+  transition: color .15s; }
+.mic-icon.live{ color: var(--ember); }
+.mic-topic{ font-size: calc(clamp(40px, 7.2vw, 120px) * var(--fs)); font-weight: 700; letter-spacing: -0.01em;
+  line-height: 1.15; max-width: 90vw; overflow-wrap: break-word; }
+.mic-status{ font-size: calc(clamp(15px, 1.7vw, 26px) * var(--fs)); color: var(--ink-soft); margin-top: 2vh; }
+.mic-status.live{ color: var(--ember); font-weight: 700; text-transform: uppercase;
+  letter-spacing: .12em; }
+.field-label{ display:block; margin-top: 24px; font-size: 14px; font-weight: 700;
+  color: var(--ink-soft); }
+.field-label + .search{ margin-top: 8px; }
+
+/* cadeia de ajuda nas reuniões */
+.area-ca{
+  display:flex; align-items:center; gap: .5em; margin-top: 1.2vh;
+  color: var(--accent-bright); font-weight: 700;
+  font-size: calc(clamp(15px, 1.9vw, 30px) * var(--fs));
+}
+.area-ca svg{ width: 1.35em; height: 1.35em; flex:none; }
+
+/* ---------- configurações ---------- */
+.cfg-sec{ margin-top: 34px; border-top: 1px solid var(--line); padding-top: 24px; }
+.cfg-sec:first-of-type{ border-top:none; }
+.cfg-sec > .sub{ margin-bottom: 16px; }
+.cfg-row{ display:flex; align-items:center; gap: 12px; padding: 10px 0;
+  font-size: 15px; line-height: 1.4; flex-wrap: wrap; }
+.cfg-row.check{ cursor: pointer; }
+.cfg-row.check input{ width: 20px; height: 20px; accent-color: var(--accent); flex:none; }
+.cfg-row .cfg-label{ flex:1; min-width: 200px; }
+.cfg-row select, .cfg-row input[type=text]{
+  padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px;
+  font-size: 15px; background: var(--paper); color: var(--ink); }
+
+.series-tabs{ display:flex; flex-wrap:wrap; gap: 8px; margin-bottom: 14px; }
+.series-tab{ padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--paper); color: var(--ink-soft); font-weight: 700; font-size: 14px; }
+.series-tab.on{ background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.series-actions{ display:flex; flex-wrap:wrap; gap: 8px; margin-bottom: 16px; }
+
+.rot-editor{ border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; }
+table.editor{ width:100%; border-collapse: collapse; min-width: 640px; }
+table.editor th{ text-align:left; font-size: 12px; letter-spacing:.08em; text-transform:uppercase;
+  color: var(--ink-soft); font-weight:700; padding: 12px; border-bottom: 1px solid var(--line); }
+table.editor td{ padding: 8px 12px; border-bottom: 1px solid var(--line); }
+table.editor tr:last-child td{ border-bottom:none; }
+table.editor input, table.editor select{
+  width:100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px;
+  font-size: 15px; background: var(--paper); color: var(--ink); }
+table.editor input[type=time]{ width: 120px; }
+table.editor td.tcol{ width: 130px; }
+table.editor td.xcol{ width: 44px; text-align:center; }
+.editor-rm{ width: 30px; height: 30px; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--paper); color: var(--ink-soft); font-size: 16px; font-weight:700; line-height:1; }
+.editor-rm:hover{ border-color: var(--ember); color: var(--ember); }
+.editor-empty{ padding: 20px; color: var(--ink-soft); font-size: 15px; }
+
+.info-card{ background: var(--paper-dim); border-radius: 10px; padding: 22px 24px; }
+.info-card p{ font-size: 15px; line-height: 1.7; color: var(--ink); }
+.info-card .sig{ margin-top: 12px; font-weight: 700; color: var(--accent); }
+.info-card .meta{ margin-top: 4px; font-size: 13px; color: var(--ink-soft); }
+
+@media (prefers-reduced-motion: reduce){
+  *{ transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ================= MENU PRINCIPAL ================= -->
+<section id="scr-menu" class="screen control active">
+  <div class="wrap">
+    <div class="logo-slot control-logo"></div>
+    <p class="eyebrow plain">Abbott · BR-SH-M</p>
+    <h1>Painel de Avisos</h1>
+    <p class="sub">Selecione a função para projetar em tela cheia nas televisões do piso.</p>
+
+    <div class="menu-grid">
+      <button class="func-card" onclick="goN2Select()">
+        <div class="fc-title">Reuniões Escalonadas</div>
+        <div class="fc-desc">Projeta o cronograma escalonado das reuniões, com janelas e deslocamentos acompanhando o relógio.</div>
+        <div class="fc-go">Abrir →</div>
+      </button>
+      <button class="func-card" onclick="goValSelect()">
+        <div class="fc-title">Busca por Válvulas</div>
+        <div class="fc-desc">Solicita a busca de válvulas por número de série, com entrega a um assistente ou supervisor.</div>
+        <div class="fc-go">Abrir →</div>
+      </button>
+      <button class="func-card" onclick="goGerSelect()">
+        <div class="fc-title">Aviso Geral</div>
+        <div class="fc-desc">Projeta um texto livre em tela cheia, com duração configurável ou sem limite.</div>
+        <div class="fc-go">Abrir →</div>
+      </button>
+      <button class="func-card" onclick="startSil()">
+        <div class="fc-title">Silêncio</div>
+        <div class="fc-desc">Pede a redução do ruído no piso, com sinal sonoro e encerramento automático em 3 minutos.</div>
+        <div class="fc-go">Projetar →</div>
+      </button>
+      <button class="func-card" onclick="goMicSetup()">
+        <div class="fc-title">Microfone</div>
+        <div class="fc-desc">Sistema de aviso por voz (push to talk) usando o microfone do dispositivo.</div>
+        <div class="fc-go">Abrir →</div>
+      </button>
+      <button class="func-card" onclick="startClk()">
+        <div class="fc-title">Relógio</div>
+        <div class="fc-desc">Modo de espera: relógio e data em tela cheia para os períodos sem avisos.</div>
+        <div class="fc-go">Projetar →</div>
+      </button>
+      <button class="func-card cfg wide" onclick="goConfig()">
+        <div class="fc-title">Configurações</div>
+        <div class="fc-desc">Editar as janelas e séries de reuniões, o comportamento de inicialização, a exibição e as informações do sistema.</div>
+        <div class="fc-go">Abrir →</div>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= REUNIÕES ESCALONADAS — SELEÇÃO ================= -->
+<section id="scr-n2-select" class="screen control">
+  <div class="wrap">
+    <button class="back" onclick="showScreen('scr-menu')">← Menu principal</button>
+    <div class="logo-slot control-logo"></div>
+    <p class="eyebrow">Reuniões Escalonadas</p>
+    <h2 id="n2-sel-title">Cronograma do dia</h2>
+    <p class="sub">A projeção acompanha o relógio em tempo real: janelas de reunião, deslocamentos e encerramento.</p>
+
+    <div class="rot" id="n2-rot"></div>
+
+    <div class="action-bar">
+      <span class="action-note" id="n2-note"></span>
+      <span style="display:flex; gap:10px; flex-wrap:wrap">
+        <button class="btn ghost" onclick="startN2(true)">Simular exibição</button>
+        <button class="btn" onclick="startN2(false)">Projetar cronograma</button>
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= REUNIÕES ESCALONADAS — TV ================= -->
+<section id="scr-n2-tv" class="screen tv">
+  <button class="tv-exit" onclick="exitN2()">Encerrar (Esc)</button>
+  <div class="tv-top">
+    <span class="tv-eyebrow" id="n2-eyebrow">Reuniões Escalonadas</span>
+    <div class="tv-topright">
+      <div class="logo-slot tv-brand"></div>
+      <span class="tv-clock" id="n2-clock">--:--</span>
+    </div>
+  </div>
+  <div class="tv-body" id="n2-body"></div>
+  <div class="tv-footer" id="n2-footer">
+    <div class="pf-row">
+      <span class="pf-label" id="n2-pf-label">Tempo restante</span>
+      <span class="pf-time" id="n2-remaining">--:--</span>
+    </div>
+    <div class="pf-track"><div class="pf-fill" id="n2-fill"></div></div>
+  </div>
+</section>
+
+<!-- ================= AVISO GERAL — ESCRITA ================= -->
+<section id="scr-ger-select" class="screen control">
+  <div class="wrap">
+    <button class="back" onclick="showScreen('scr-menu')">← Menu principal</button>
+    <div class="logo-slot control-logo"></div>
+    <p class="eyebrow">Aviso Geral</p>
+    <h2>Escrever aviso</h2>
+    <p class="sub">O texto abaixo será projetado em tela cheia nas televisões. Quebras de linha são preservadas.</p>
+
+    <textarea class="notice" id="ger-text" placeholder="Escreva aqui o texto do aviso…" oninput="gerInput()"></textarea>
+
+    <div class="action-bar">
+      <span class="duration-row">
+        <label for="ger-dur">Duração</label>
+        <select class="dur" id="ger-dur">
+          <option value="5" selected>5 minutos</option>
+          <option value="10">10 minutos</option>
+          <option value="15">15 minutos</option>
+          <option value="30">30 minutos</option>
+          <option value="0">Sem limite</option>
+        </select>
+      </span>
+      <button class="btn" id="ger-project" onclick="startGer()" disabled>Projetar aviso</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= AVISO GERAL — TV ================= -->
+<section id="scr-ger-tv" class="screen tv">
+  <button class="tv-exit" onclick="exitGer()">Encerrar (Esc)</button>
+  <div class="tv-top">
+    <span class="tv-eyebrow">Aviso Geral</span>
+    <div class="tv-topright">
+      <div class="logo-slot tv-brand"></div>
+      <span class="tv-clock" id="ger-clock">--:--</span>
+    </div>
+  </div>
+  <div class="tv-center">
+    <div class="ger-text" id="ger-display"></div>
+  </div>
+  <div class="tv-footer" id="ger-footer">
+    <div class="pf-row">
+      <span class="pf-label">Tempo restante do aviso</span>
+      <span class="pf-time" id="ger-remaining">--:--</span>
+    </div>
+    <div class="pf-track"><div class="pf-fill" id="ger-fill"></div></div>
+  </div>
+</section>
+
+<!-- ================= SILÊNCIO — TV ================= -->
+<section id="scr-sil-tv" class="screen tv silmode">
+  <button class="tv-exit" onclick="exitSil()">Encerrar (Esc)</button>
+  <div class="tv-top">
+    <span class="tv-eyebrow">Silêncio</span>
+    <div class="tv-topright">
+      <div class="logo-slot tv-brand"></div>
+      <span class="tv-clock" id="sil-clock">--:--</span>
+    </div>
+  </div>
+  <div class="sil-center">
+    <svg class="sil-icon" viewBox="0 0 120 120" fill="none" stroke="currentColor"
+         stroke-width="7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M54 28 L34 46 H16 v28 h18 l20 18 z"/>
+      <line x1="78" y1="48" x2="104" y2="74"/>
+      <line x1="104" y1="48" x2="78" y2="74"/>
+    </svg>
+    <div class="sil-title">Silêncio, por favor</div>
+    <div class="sil-sub">Vamos reduzir o ruído para manter a concentração nas atividades de rotina.</div>
+  </div>
+</section>
+
+<!-- ================= RELÓGIO — TV (MODO DE ESPERA) ================= -->
+<section id="scr-clk-tv" class="screen tv clkmode">
+  <button class="tv-exit" onclick="showMenu()">Menu (Esc)</button>
+  <div class="tv-top">
+    <span class="clk-brand">Abbott · BR-SH-M</span>
+    <div class="logo-slot tv-brand"></div>
+  </div>
+  <div class="clk-center">
+    <div class="clk-time" id="clk-time">--:--</div>
+    <div class="clk-sec" id="clk-sec"></div>
+    <div class="clk-date" id="clk-date"></div>
+  </div>
+</section>
+
+<!-- ================= BUSCA POR VÁLVULAS — SELEÇÃO ================= -->
+<section id="scr-val-select" class="screen control">
+  <div class="wrap">
+    <button class="back" onclick="showScreen('scr-menu')">← Menu principal</button>
+    <div class="logo-slot control-logo"></div>
+    <p class="eyebrow">Busca por Válvulas</p>
+    <h2>Números de série</h2>
+    <p class="sub">Insira os números de série das válvulas com alto lead time, separados por vírgulas.</p>
+
+    <textarea class="notice" id="val-text" placeholder="Ex.: 240118-0342, 240118-0357, 240119-0021" oninput="valInput()"></textarea>
+
+    <div class="action-bar">
+      <span class="action-note" id="val-note">Duração do aviso: 5 minutos, com sinal sonoro repetido a cada 15 segundos.</span>
+      <button class="btn" id="val-project" onclick="startVal()" disabled>Projetar aviso</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BUSCA POR VÁLVULAS — TV ================= -->
+<section id="scr-val-tv" class="screen tv">
+  <button class="tv-exit" onclick="exitVal()">Encerrar (Esc)</button>
+  <div class="tv-top">
+    <span class="tv-eyebrow ember">Busca por Válvulas</span>
+    <div class="tv-topright">
+      <div class="logo-slot tv-brand"></div>
+      <span class="tv-clock" id="val-clock">--:--</span>
+    </div>
+  </div>
+  <div class="tv-title">Busque pelas séries abaixo</div>
+  <div class="tv-sub">Entregue as válvulas encontradas a um assistente ou supervisor.</div>
+  <div class="tv-body">
+    <div class="val-grid" id="val-grid"></div>
+  </div>
+  <div class="tv-footer">
+    <div class="pf-row">
+      <span class="pf-label">Tempo restante do aviso</span>
+      <span class="pf-time" id="val-remaining">5:00</span>
+    </div>
+    <div class="pf-track"><div class="pf-fill" id="val-fill" style="width:100%"></div></div>
+  </div>
+</section>
+
+<!-- ================= MICROFONE — PREPARAÇÃO ================= -->
+<section id="scr-mic-setup" class="screen control">
+  <div class="wrap">
+    <button class="back" onclick="showScreen('scr-menu')">← Menu principal</button>
+    <div class="logo-slot control-logo"></div>
+    <p class="eyebrow">Microfone</p>
+    <h2>Sistema de aviso por voz</h2>
+    <p class="sub">A entrada do microfone deste dispositivo será reproduzida na saída de som externa, no modo push to talk.</p>
+
+    <div class="warn-card">
+      <strong>Atenção ao risco de microfonia.</strong> Antes de entrar, confirme que a saída de som
+      está configurada para um dispositivo diferente daquele conectado ao microfone
+      (por exemplo: microfone no computador, som nos alto-falantes do piso).
+      Use o botão abaixo para testar em qual saída o áudio está tocando.
+    </div>
+
+    <label class="field-label" for="mic-topic-input">Nome de quem dá o aviso, área ou assunto do chamado</label>
+    <input type="text" class="search" id="mic-topic-input">
+
+    <label class="check-row">
+      <input type="checkbox" id="mic-confirm" onchange="document.getElementById('mic-enter').disabled = !this.checked">
+      <span>Confirmo que a saída de som está configurada para um dispositivo diferente do conectado ao microfone.</span>
+    </label>
+
+    <div class="action-bar">
+      <button class="btn ghost" onclick="chime()">Testar saída de áudio</button>
+      <button class="btn" id="mic-enter" onclick="startMic()" disabled>Entrar</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MICROFONE — TV ================= -->
+<section id="scr-mic-tv" class="screen tv">
+  <button class="tv-exit" onclick="exitMic()">Encerrar (Esc)</button>
+  <div class="tv-top">
+    <span class="tv-eyebrow">Microfone</span>
+    <div class="tv-topright">
+      <div class="logo-slot tv-brand"></div>
+      <span class="tv-clock" id="mic-clock">--:--</span>
+    </div>
+  </div>
+  <div class="mic-center">
+    <svg class="mic-icon" id="mic-icon" viewBox="0 0 120 120" fill="none" stroke="currentColor"
+         stroke-width="7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M54 28 L34 46 H16 v28 h18 l20 18 z"/>
+      <path d="M76 46 q10 14 0 28"/>
+      <path d="M90 36 q18 24 0 48"/>
+    </svg>
+    <div class="mic-topic" id="mic-topic">Aviso por voz</div>
+    <div class="mic-status" id="mic-status">Pressione e segure a barra de espaço para falar</div>
+  </div>
+</section>
+
+<!-- ================= CONFIGURAÇÕES ================= -->
+<section id="scr-config" class="screen control">
+  <div class="wrap">
+    <button class="back" onclick="showScreen('scr-menu')">← Menu principal</button>
+    <div class="logo-slot control-logo"></div>
+    <p class="eyebrow">Configurações</p>
+    <h2>Ajustes do painel</h2>
+    <p class="sub">Todas as informações são inseridas manualmente e ficam salvas apenas neste navegador.
+      Nenhum arquivo é enviado ou armazenado fora do dispositivo.</p>
+
+    <!-- Séries de reuniões -->
+    <div class="cfg-sec">
+      <h3>Séries de reuniões</h3>
+      <p class="sub">Crie mais de uma série para cobrir turnos diferentes — por exemplo, manhã e tarde,
+        com horários e supervisores próprios. Edite as janelas da série selecionada abaixo.</p>
+
+      <div class="series-tabs" id="series-tabs"></div>
+      <div class="series-actions">
+        <button class="btn ghost small" onclick="addSeries()">+ Nova série</button>
+        <button class="btn ghost small" onclick="duplicateSeries()">Duplicar série</button>
+        <button class="btn ghost small" onclick="renameSeries()">Renomear</button>
+        <button class="btn danger small" onclick="deleteSeries()">Excluir série</button>
+      </div>
+
+      <div class="rot-editor" id="rot-editor"></div>
+      <div style="margin-top:12px">
+        <button class="btn ghost small" onclick="addWindow()">+ Adicionar janela</button>
+      </div>
+    </div>
+
+    <!-- Comportamento -->
+    <div class="cfg-sec">
+      <h3>Comportamento</h3>
+      <label class="cfg-row check">
+        <input type="checkbox" id="cfg-autostart" onchange="setCfg('autoStart', this.checked)">
+        <span class="cfg-label">Abrir automaticamente na tela de <strong>Reuniões Escalonadas</strong> ao iniciar o sistema</span>
+      </label>
+      <label class="cfg-row check">
+        <input type="checkbox" id="cfg-autoreturn" onchange="setCfg('autoReturnClock', this.checked)">
+        <span class="cfg-label">Retornar automaticamente ao <strong>relógio</strong> ao encerrar uma projeção</span>
+      </label>
+      <div class="cfg-row">
+        <span class="cfg-label">Série usada na projeção</span>
+        <select id="cfg-active" onchange="setActiveSeries(this.value)"></select>
+      </div>
+    </div>
+
+    <!-- Exibição -->
+    <div class="cfg-sec">
+      <h3>Exibição</h3>
+      <div class="cfg-row">
+        <span class="cfg-label">Tamanho das fontes nas TVs</span>
+        <select id="cfg-fontscale" onchange="setCfg('fontScale', this.value)">
+          <option value="n">Normal</option>
+          <option value="g">Grande (recomendado para 50")</option>
+          <option value="xg">Extra grande</option>
+        </select>
+      </div>
+      <div class="cfg-row">
+        <span class="cfg-label">Fundo do relógio</span>
+        <select id="cfg-clockbg" onchange="setCfg('clockBg', this.value)">
+          <option value="preto">Preto</option>
+          <option value="azul">Azul Abbott</option>
+        </select>
+      </div>
+      <label class="cfg-row check">
+        <input type="checkbox" id="cfg-seconds" onchange="setCfg('showSeconds', this.checked)">
+        <span class="cfg-label">Mostrar os segundos no relógio</span>
+      </label>
+      <label class="cfg-row check">
+        <input type="checkbox" id="cfg-date" onchange="setCfg('showDate', this.checked)">
+        <span class="cfg-label">Mostrar a data no relógio</span>
+      </label>
+      <label class="cfg-row check">
+        <input type="checkbox" id="cfg-chain" onchange="setCfg('showChain', this.checked)">
+        <span class="cfg-label">Mostrar a <strong>Cadeia de Ajuda</strong> do dia nas reuniões</span>
+      </label>
+    </div>
+
+    <!-- Informações / Disclaimer -->
+    <div class="cfg-sec">
+      <h3>Informações</h3>
+      <div class="info-card">
+        <p>Este é um <strong>projeto pessoal e de código aberto</strong> — uma <strong>plataforma
+          genérica de avisos/andon para produção</strong>, criada por iniciativa própria. Funciona
+          apenas como apoio à organização e à gestão da rotina: <strong>não registra nenhuma
+          informação</strong> (os ajustes ficam somente neste navegador) e <strong>não se integra a
+          sistemas corporativos</strong>.</p>
+        <p class="sig">Desenvolvido por Matheus Marcondes.</p>
+        <p class="meta" id="info-meta">Plataforma de avisos para produção · código aberto</p>
+      </div>
+      <div style="margin-top:16px">
+        <button class="btn danger small" onclick="resetAll()">Restaurar configurações padrão</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ============================================================
+   LOGO ABBOTT (wordmark vetorial reutilizável)
+   Injetada em todas as telas via .logo-slot. Herda a cor do contexto.
+   ============================================================ */
+const LOGO_SVG = `<svg class="abbott-svg" viewBox="0 0 236 60" role="img" aria-label="Abbott">
+  <text x="0" y="47" fill="currentColor"
+        font-family="'Helvetica Neue',Helvetica,Arial,sans-serif"
+        font-weight="700" font-size="56" letter-spacing="-3">Abbott</text>
+</svg>`;
+function injectLogos(){
+  document.querySelectorAll('.logo-slot').forEach(el => { el.innerHTML = LOGO_SVG; });
+}
+
+/* ============================================================
+   DADOS
+   ============================================================ */
+const STORE_KEY = 'painel-avisos-v2';
+
+/* Roteiro atual (turno da manhã) usado como semente inicial. */
+const ROTEIRO_MANHA = [
+  { inicio: 540, fim: 555, area: 'Material Biológico',  supervisor: 'Márcia',    cadeia: 2 },
+  { inicio: 540, fim: 555, area: 'SVE',                 supervisor: 'Deivid',    cadeia: 4 },
+  { inicio: 560, fim: 575, area: 'Anel Revestido',      supervisor: 'Henrique',  cadeia: 2 },
+  { inicio: 560, fim: 575, area: 'SVE',                 supervisor: 'Julia',     cadeia: 4 },
+  { inicio: 560, fim: 575, area: 'SVS',                 supervisor: 'Silvia',    cadeia: 5 },
+  { inicio: 580, fim: 595, area: 'Sizing & Trimming',   supervisor: 'Guilherme', cadeia: 2 },
+  { inicio: 580, fim: 595, area: 'SVE',                 supervisor: 'Inês',      cadeia: 4 },
+  { inicio: 580, fim: 595, area: 'Revisão Final',       supervisor: 'Regina',    cadeia: 5 }
+];
+const DIA_TAG = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
+
+const CONFIG_PADRAO = {
+  autoStart: true,        // abrir direto nas Reuniões Escalonadas
+  autoReturnClock: true,  // voltar ao relógio ao encerrar uma projeção
+  fontScale: 'g',         // 'n' | 'g' | 'xg'
+  clockBg: 'preto',       // 'preto' | 'azul'
+  showSeconds: true,
+  showDate: true,
+  showChain: true
+};
+
+let DATA = defaultData();
+
+function uid(){ return 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+function defaultData(){
+  const manhaId = uid();
+  return {
+    version: 2,
+    series: [
+      { id: manhaId, nome: 'Turno da Manhã', roteiro: ROTEIRO_MANHA.map(r => ({...r})) },
+      { id: uid(),   nome: 'Turno da Tarde', roteiro: ROTEIRO_MANHA.map(r => ({...r})) }
+    ],
+    activeSeriesId: manhaId,     // 'auto' escolhe pela hora atual
+    config: { ...CONFIG_PADRAO },
+    atualizadoEm: null
+  };
+}
+
+function loadData(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(parsed && Array.isArray(parsed.series) && parsed.series.length){
+        DATA = parsed;
+      }
+    }
+  }catch(e){ /* dados corrompidos: mantém padrão */ }
+  ensureShape();
+}
+function ensureShape(){
+  if(!Array.isArray(DATA.series) || !DATA.series.length) DATA = defaultData();
+  DATA.config = { ...CONFIG_PADRAO, ...(DATA.config || {}) };
+  DATA.series.forEach(s => {
+    if(!s.id) s.id = uid();
+    if(!Array.isArray(s.roteiro)) s.roteiro = [];
+  });
+  if(DATA.activeSeriesId !== 'auto' && !DATA.series.some(s => s.id === DATA.activeSeriesId)){
+    DATA.activeSeriesId = DATA.series[0].id;
+  }
+}
+function saveData(){
+  DATA.atualizadoEm = new Date().toISOString();
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(DATA)); }catch(e){}
+}
+function resetAll(){
+  if(!confirm('Restaurar todas as configurações e séries para o padrão? As alterações locais serão perdidas.')) return;
+  DATA = defaultData();
+  saveData();
+  applyDisplay();
+  renderConfig();
+}
+
+/* ============================================================
+   SÉRIES
+   ============================================================ */
+function seriesById(id){ return DATA.series.find(s => s.id === id); }
+
+function activeSeriesResolved(){
+  if(DATA.activeSeriesId === 'auto'){
+    const now = new Date().getHours()*60 + new Date().getMinutes();
+    // escolhe a série cuja faixa (primeiro início → último fim) contém o horário atual
+    for(const s of DATA.series){
+      if(!s.roteiro.length) continue;
+      const ini = Math.min(...s.roteiro.map(r => r.inicio));
+      const fim = Math.max(...s.roteiro.map(r => r.fim));
+      if(now >= ini && now < fim) return s;
+    }
+    // fora de qualquer janela: usa a próxima série do dia, senão a primeira
+    const futuras = DATA.series
+      .filter(s => s.roteiro.length)
+      .map(s => ({ s, ini: Math.min(...s.roteiro.map(r => r.inicio)) }))
+      .filter(o => o.ini >= now)
+      .sort((a,b) => a.ini - b.ini);
+    if(futuras.length) return futuras[0].s;
+    return DATA.series.find(s => s.roteiro.length) || DATA.series[0];
+  }
+  return seriesById(DATA.activeSeriesId) || DATA.series[0];
+}
+
+/* ============================================================
+   UTILIDADES
+   ============================================================ */
+function norm(s){
+  return String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g,'').trim().toLowerCase();
+}
+function fmtHM(min){
+  const h = Math.floor(min/60), m = Math.round(min%60);
+  return h + 'h' + String(m).padStart(2,'0');
+}
+function fmtClock(min){
+  const h = Math.floor(min/60)%24, m = Math.floor(min%60);
+  return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+}
+function fmtMS(totalSec){
+  totalSec = Math.max(0, Math.ceil(totalSec));
+  const m = Math.floor(totalSec/60), s = totalSec%60;
+  return m + ':' + String(s).padStart(2,'0');
+}
+function updClock(el){
+  const a = new Date();
+  el.textContent = String(a.getHours()).padStart(2,'0') + ':' + String(a.getMinutes()).padStart(2,'0');
+}
+function esc(s){
+  return String(s ?? '').replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function parseTempo(v){
+  if(v === null || v === undefined || v === '') return null;
+  const s = String(v).trim().toLowerCase().replace(/h/g, ':');
+  let m = s.match(/(\d{1,2})[:.](\d{1,2})/);
+  if(m) return (+m[1])*60 + (+m[2]);
+  m = s.match(/^(\d{1,2}):?$/);
+  if(m) return (+m[1])*60;
+  return null;
+}
+
+/* ============================================================
+   NAVEGAÇÃO E TELA CHEIA
+   ============================================================ */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showMenu(){
+  leaveFullscreen();
+  showScreen('scr-menu');
+}
+function enterFullscreen(){
+  const el = document.documentElement;
+  if(!document.fullscreenElement && el.requestFullscreen){
+    el.requestFullscreen().catch(()=>{});
+  }
+}
+function leaveFullscreen(){
+  if(document.fullscreenElement && document.exitFullscreen){
+    document.exitFullscreen().catch(()=>{});
+  }
+}
+/* Ao encerrar uma projeção, retorna ao relógio (modo de espera) — ou ao menu,
+   conforme a configuração. */
+function returnToStandby(){
+  if(DATA.config.autoReturnClock) startClk();
+  else showScreen('scr-menu');
+}
+
+/* cursor e botão de saída nas telas de TV */
+let uiTimer = null;
+document.addEventListener('mousemove', ()=>{
+  const tv = document.querySelector('.screen.tv.active');
+  if(!tv) return;
+  tv.classList.add('showui');
+  tv.classList.remove('nocursor');
+  clearTimeout(uiTimer);
+  uiTimer = setTimeout(()=>{
+    tv.classList.remove('showui');
+    tv.classList.add('nocursor');
+  }, 3000);
+});
+document.addEventListener('keydown', (e)=>{
+  if(e.code === 'Space'){
+    if(document.getElementById('scr-mic-tv').classList.contains('active')){
+      e.preventDefault();
+      if(!e.repeat) micKeyDown();
+      return;
+    }
+    const som = {
+      'scr-n2-tv':  ()=> chime(),
+      'scr-ger-tv': ()=> chime(),
+      'scr-sil-tv': ()=> warnTone(),
+      'scr-val-tv': ()=> alertTone()
+    };
+    for(const id in som){
+      if(document.getElementById(id).classList.contains('active')){
+        e.preventDefault();
+        som[id]();
+        return;
+      }
+    }
+  }
+  if(e.key !== 'Escape') return;
+  if(document.getElementById('scr-n2-tv').classList.contains('active')) exitN2();
+  if(document.getElementById('scr-ger-tv').classList.contains('active')) exitGer();
+  if(document.getElementById('scr-sil-tv').classList.contains('active')) exitSil();
+  if(document.getElementById('scr-clk-tv').classList.contains('active')) showMenu();
+  if(document.getElementById('scr-val-tv').classList.contains('active')) exitVal();
+  if(document.getElementById('scr-mic-tv').classList.contains('active')) exitMic();
+});
+document.addEventListener('keyup', (e)=>{
+  if(e.code === 'Space' && document.getElementById('scr-mic-tv').classList.contains('active')){
+    micKeyUp();
+  }
+});
+
+/* ============================================================
+   SINAL SONORO
+   ============================================================ */
+function chime(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if(ctx.state === 'suspended') ctx.resume();
+    const nota = (freq, t0)=>{
+      const osc = ctx.createOscillator(), g = ctx.createGain();
+      osc.type = 'sine'; osc.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, ctx.currentTime + t0);
+      g.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime + t0 + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + t0 + 0.5);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(ctx.currentTime + t0); osc.stop(ctx.currentTime + t0 + 0.55);
+    };
+    nota(880, 0); nota(1174.7, 0.28);
+    setTimeout(()=> ctx.close().catch(()=>{}), 1500);
+  }catch(e){}
+}
+function warnTone(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if(ctx.state === 'suspended') ctx.resume();
+    const nota = (freq, t0, dur)=>{
+      const osc = ctx.createOscillator(), g = ctx.createGain();
+      osc.type = 'sine'; osc.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, ctx.currentTime + t0);
+      g.gain.exponentialRampToValueAtTime(0.14, ctx.currentTime + t0 + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + t0 + dur);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(ctx.currentTime + t0); osc.stop(ctx.currentTime + t0 + dur + 0.05);
+    };
+    nota(740, 0, 0.55); nota(554.4, 0.4, 0.8);
+    setTimeout(()=> ctx.close().catch(()=>{}), 2000);
+  }catch(e){}
+}
+function alertTone(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if(ctx.state === 'suspended') ctx.resume();
+    const nota = (freq, t0, dur)=>{
+      const osc = ctx.createOscillator(), g = ctx.createGain();
+      osc.type = 'triangle'; osc.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, ctx.currentTime + t0);
+      g.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + t0 + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + t0 + dur);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(ctx.currentTime + t0); osc.stop(ctx.currentTime + t0 + dur + 0.05);
+    };
+    nota(659.3, 0, 0.4); nota(880, 0.22, 0.4); nota(1174.7, 0.44, 0.8);
+    setTimeout(()=> ctx.close().catch(()=>{}), 2200);
+  }catch(e){}
+}
+
+/* ============================================================
+   REUNIÕES ESCALONADAS
+   ============================================================ */
+let n2Timer = null;
+let n2Sim = null;          // { realStart, simStartMin, speed }
+let n2LastKey = null;
+
+const CA_BADGE = `<div class="area-ca">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+  </svg>Cadeia de Ajuda</div>`;
+
+function buildWindows(roteiro){
+  const map = new Map();
+  for(const r of (roteiro || [])){
+    const key = r.inicio + '-' + r.fim;
+    if(!map.has(key)) map.set(key, { inicio: r.inicio, fim: r.fim, areas: [] });
+    map.get(key).areas.push(r);
+  }
+  return [...map.values()].sort((a,b) => a.inicio - b.inicio);
+}
+
+function goN2Select(){
+  const serie = activeSeriesResolved();
+  const wins = buildWindows(serie.roteiro);
+  document.getElementById('n2-sel-title').textContent = 'Cronograma · ' + serie.nome;
+  const rot = document.getElementById('n2-rot');
+  if(!wins.length){
+    rot.innerHTML = '<div class="rot-window"><div class="rot-areas">Nenhuma janela configurada para esta série. Cadastre as reuniões em <strong>Configurações</strong>.</div></div>';
+  } else {
+    let html = '';
+    wins.forEach((w, i) => {
+      html += `
+        <div class="rot-window">
+          <div class="rot-time">${fmtHM(w.inicio)} – ${fmtHM(w.fim)}</div>
+          <div class="rot-areas">${w.areas.map(a =>
+            esc(a.area) + (a.supervisor ? ' <strong>(Supervisão ' + esc(a.supervisor) + ')</strong>' : '')
+            + (a.cadeia != null ? ' — Cadeia de Ajuda ' + DIA_TAG[a.cadeia] : '')
+          ).join(' · ')}</div>
+        </div>`;
+      const next = wins[i+1];
+      if(next && next.inicio > w.fim){
+        html += `<div class="rot-gap">Deslocamento — ${next.inicio - w.fim} min</div>`;
+      }
+    });
+    rot.innerHTML = html;
+  }
+  document.getElementById('n2-note').textContent = wins.length
+    ? 'A projeção segue o relógio real, de ' + fmtHM(wins[0].inicio) + ' a ' + fmtHM(wins[wins.length-1].fim) + '.'
+    : '';
+  showScreen('scr-n2-select');
+}
+
+function n2NowMin(){
+  const now = new Date();
+  const real = now.getHours()*60 + now.getMinutes() + now.getSeconds()/60;
+  if(!n2Sim) return real;
+  return n2Sim.simStartMin + ((Date.now() - n2Sim.realStart) / 60000) * n2Sim.speed;
+}
+
+function n2State(m, wins){
+  if(!wins.length) return { type: 'fim' };
+  if(m < wins[0].inicio) return { type: 'pre', next: wins[0] };
+  for(let i = 0; i < wins.length; i++){
+    const w = wins[i];
+    if(m >= w.inicio && m < w.fim) return { type: 'janela', w, idx: i, total: wins.length };
+    const next = wins[i+1];
+    if(next && m >= w.fim && m < next.inicio) return { type: 'gap', de: w, next };
+  }
+  return { type: 'fim' };
+}
+
+function startN2(simular){
+  const serie = activeSeriesResolved();
+  const wins = buildWindows(serie.roteiro);
+  if(!wins.length){
+    // sem janelas: não há o que projetar — recai no relógio
+    startClk();
+    return;
+  }
+  n2Sim = simular
+    ? { realStart: Date.now(), simStartMin: wins[0].inicio - 0.5, speed: 30 }
+    : null;
+  n2LastKey = null;
+  showScreen('scr-n2-tv');
+  enterFullscreen();
+
+  clearInterval(n2Timer);
+  const tick = ()=> renderN2(wins);
+  tick();
+  n2Timer = setInterval(tick, 500);
+}
+
+function renderN2(wins){
+  const m = n2NowMin();
+  const st = n2State(m, wins);
+  const diaHoje = new Date().getDay();
+  const showChain = DATA.config.showChain;
+
+  const clock = document.getElementById('n2-clock');
+  clock.innerHTML = fmtClock(m) + (n2Sim ? '<span class="sim-tag">Simulação ' + n2Sim.speed + '×</span>' : '');
+
+  const eyebrow = document.getElementById('n2-eyebrow');
+  const body = document.getElementById('n2-body');
+  const footer = document.getElementById('n2-footer');
+  const fill = document.getElementById('n2-fill');
+  const rem = document.getElementById('n2-remaining');
+  const pfLabel = document.getElementById('n2-pf-label');
+
+  const areaCard = a => `
+    <div class="area-card">
+      <div class="area-nome">${esc(a.area)}</div>
+      ${a.supervisor ? '<div class="area-sup">Supervisão ' + esc(a.supervisor) + '</div>' : ''}
+      ${showChain && a.cadeia === diaHoje ? CA_BADGE : ''}
+    </div>`;
+
+  const key = st.type + '-' + (st.idx ?? '') + '-' + (st.next ? st.next.inicio : '');
+  if(key !== n2LastKey){
+    n2LastKey = key;
+
+    if(st.type === 'pre'){
+      eyebrow.textContent = 'Reuniões Escalonadas';
+      eyebrow.className = 'tv-eyebrow';
+      body.innerHTML = `
+        <div class="tv-center">
+          <div class="mid">Primeira reunião</div>
+          <div class="big">Início às ${fmtHM(st.next.inicio)}</div>
+          <div class="count" id="n2-count"></div>
+        </div>`;
+      footer.style.visibility = 'hidden';
+
+    } else if(st.type === 'janela'){
+      chime();
+      eyebrow.textContent = 'Reuniões Escalonadas em andamento';
+      eyebrow.className = 'tv-eyebrow';
+      fill.className = 'pf-fill';
+      pfLabel.textContent = 'Tempo restante da reunião';
+      body.innerHTML = `
+        <div class="tv-title" style="margin-top:0">${fmtHM(st.w.inicio)} – ${fmtHM(st.w.fim)}</div>
+        <div class="areas">${st.w.areas.map(areaCard).join('')}</div>`;
+      footer.style.visibility = 'visible';
+
+    } else if(st.type === 'gap'){
+      eyebrow.textContent = 'Deslocamento';
+      eyebrow.className = 'tv-eyebrow warn';
+      fill.className = 'pf-fill warn';
+      pfLabel.textContent = 'Próxima reunião às ' + fmtHM(st.next.inicio) + ' · tempo restante';
+      body.innerHTML = `
+        <div class="tv-title" style="margin-top:0">Deslocamento para a próxima área</div>
+        <div class="tv-sub">Próxima reunião · ${fmtHM(st.next.inicio)} – ${fmtHM(st.next.fim)}</div>
+        <div class="areas preview">${st.next.areas.map(areaCard).join('')}</div>`;
+      footer.style.visibility = 'visible';
+
+    } else { // fim
+      eyebrow.textContent = 'Reuniões Escalonadas';
+      eyebrow.className = 'tv-eyebrow ok';
+      body.innerHTML = `
+        <div class="tv-center">
+          <div class="big">Reuniões escalonadas encerradas</div>
+          <div class="mid">O painel retornará ao relógio em instantes.</div>
+        </div>`;
+      footer.style.visibility = 'hidden';
+      setTimeout(()=>{
+        if(document.getElementById('scr-n2-tv').classList.contains('active') && n2LastKey === key) exitN2();
+      }, n2Sim ? 8000 : 60000);
+    }
+  }
+
+  // atualizações contínuas
+  if(st.type === 'pre'){
+    const el = document.getElementById('n2-count');
+    if(el) el.textContent = fmtMS((st.next.inicio - m) * 60);
+  } else if(st.type === 'janela' || st.type === 'gap'){
+    const ini = st.type === 'janela' ? st.w.inicio : st.de.fim;
+    const fim = st.type === 'janela' ? st.w.fim : st.next.inicio;
+    const pct = Math.min(100, Math.max(0, ((m - ini) / (fim - ini)) * 100));
+    fill.style.width = pct + '%';
+    rem.textContent = fmtMS((fim - m) * 60);
+  }
+}
+
+function exitN2(){
+  clearInterval(n2Timer);
+  n2Timer = null;
+  n2Sim = null;
+  returnToStandby();
+}
+
+/* ============================================================
+   AVISO GERAL
+   ============================================================ */
+let gerTimer = null;
+
+function goGerSelect(){
+  gerInput();
+  showScreen('scr-ger-select');
+}
+function gerInput(){
+  document.getElementById('ger-project').disabled =
+    !document.getElementById('ger-text').value.trim();
+}
+
+function startGer(){
+  const txt = document.getElementById('ger-text').value.trim();
+  if(!txt) return;
+  const min = +document.getElementById('ger-dur').value;
+
+  const disp = document.getElementById('ger-display');
+  disp.textContent = txt;
+  disp.className = 'ger-text' + (txt.length > 300 ? ' sm' : txt.length > 140 ? ' md' : '');
+
+  const footer = document.getElementById('ger-footer');
+  const clock = document.getElementById('ger-clock');
+  showScreen('scr-ger-tv');
+  enterFullscreen();
+  clearInterval(gerTimer);
+
+  if(min > 0){
+    footer.style.visibility = 'visible';
+    const DURACAO = min * 60 * 1000;
+    const fim = Date.now() + DURACAO;
+    const fill = document.getElementById('ger-fill');
+    const rem = document.getElementById('ger-remaining');
+    const tick = ()=>{
+      updClock(clock);
+      const resta = fim - Date.now();
+      fill.style.width = Math.max(0, (resta / DURACAO) * 100) + '%';
+      rem.textContent = fmtMS(resta / 1000);
+      if(resta <= 0) exitGer();
+    };
+    tick();
+    gerTimer = setInterval(tick, 500);
+  } else {
+    footer.style.visibility = 'hidden';
+    const tick = ()=> updClock(clock);
+    tick();
+    gerTimer = setInterval(tick, 1000);
+  }
+}
+
+function exitGer(){
+  clearInterval(gerTimer);
+  gerTimer = null;
+  returnToStandby();
+}
+
+/* ============================================================
+   SILÊNCIO
+   ============================================================ */
+let silTimer = null;
+let silChime = null;
+
+function startSil(){
+  showScreen('scr-sil-tv');
+  enterFullscreen();
+  warnTone();
+  clearInterval(silChime);
+  silChime = setInterval(warnTone, 15000);
+  const fim = Date.now() + 3 * 60 * 1000;   // 3 minutos, sem contagem em tela
+  const clock = document.getElementById('sil-clock');
+  clearInterval(silTimer);
+  const tick = ()=>{
+    updClock(clock);
+    if(Date.now() >= fim) exitSil();
+  };
+  tick();
+  silTimer = setInterval(tick, 1000);
+}
+
+function exitSil(){
+  clearInterval(silTimer);
+  clearInterval(silChime);
+  silTimer = null;
+  silChime = null;
+  returnToStandby();
+}
+
+/* ============================================================
+   RELÓGIO — MODO DE ESPERA
+   ============================================================ */
+let clkTimer = null;
+
+function startClk(){
+  showScreen('scr-clk-tv');
+  enterFullscreen();
+  clearInterval(clkTimer);
+  const t = document.getElementById('clk-time');
+  const s = document.getElementById('clk-sec');
+  const d = document.getElementById('clk-date');
+  const tick = ()=>{
+    const a = new Date();
+    t.textContent = String(a.getHours()).padStart(2,'0') + ':' + String(a.getMinutes()).padStart(2,'0');
+    s.style.display = DATA.config.showSeconds ? '' : 'none';
+    s.textContent = String(a.getSeconds()).padStart(2,'0');
+    d.style.display = DATA.config.showDate ? '' : 'none';
+    d.textContent = a.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  };
+  tick();
+  clkTimer = setInterval(tick, 250);
+}
+
+function exitClk(){
+  clearInterval(clkTimer);
+  clkTimer = null;
+  showMenu();
+}
+
+/* ============================================================
+   BUSCA POR VÁLVULAS
+   ============================================================ */
+let valTimer = null;
+let valChime = null;
+let valSeriesAtual = [];
+
+function goValSelect(){
+  valInput();
+  showScreen('scr-val-select');
+}
+function parseSeries(){
+  const raw = document.getElementById('val-text').value;
+  return [...new Set(raw.split(/[,;\n]+/).map(s => s.trim()).filter(Boolean))];
+}
+function valInput(){
+  const n = parseSeries().length;
+  document.getElementById('val-project').disabled = n === 0;
+  document.getElementById('val-note').textContent = n
+    ? n + (n === 1 ? ' série inserida' : ' séries inseridas') +
+      ' · duração de 5 minutos, com sinal sonoro repetido a cada 15 segundos.'
+    : 'Duração do aviso: 5 minutos, com sinal sonoro repetido a cada 15 segundos.';
+}
+
+function startVal(){
+  const series = parseSeries();
+  if(!series.length) return;
+
+  valSeriesAtual = series;
+  renderValGrid();
+
+  showScreen('scr-val-tv');
+  enterFullscreen();
+  alertTone();
+  clearInterval(valChime);
+  valChime = setInterval(alertTone, 15000);
+
+  const DURACAO = 5 * 60 * 1000;
+  const fim = Date.now() + DURACAO;
+  const fill = document.getElementById('val-fill');
+  const rem = document.getElementById('val-remaining');
+  const clock = document.getElementById('val-clock');
+
+  clearInterval(valTimer);
+  const tick = ()=>{
+    updClock(clock);
+    const resta = fim - Date.now();
+    fill.style.width = Math.max(0, (resta / DURACAO) * 100) + '%';
+    rem.textContent = fmtMS(resta / 1000);
+    if(resta <= 0) exitVal();
+  };
+  tick();
+  valTimer = setInterval(tick, 500);
+}
+
+function renderValGrid(){
+  document.getElementById('val-grid').innerHTML = valSeriesAtual.map((s, i) => `
+    <div class="val-chip">
+      <span>${esc(s)}</span>
+      <button class="rm-btn" onclick="removeValSerie(${i})" aria-label="Remover série resolvida">×</button>
+    </div>`).join('');
+}
+
+function removeValSerie(i){
+  valSeriesAtual.splice(i, 1);
+  if(!valSeriesAtual.length){ exitVal(); return; }
+  renderValGrid();
+}
+
+function exitVal(){
+  clearInterval(valTimer);
+  clearInterval(valChime);
+  valTimer = null;
+  valChime = null;
+  returnToStandby();
+}
+
+/* ============================================================
+   MICROFONE — PUSH TO TALK
+   ============================================================ */
+let micCtx = null, micStream = null, micGain = null;
+let micTimer = null, micOpen = false;
+
+function goMicSetup(){
+  showScreen('scr-mic-setup');
+}
+
+async function startMic(){
+  try{
+    micStream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+    });
+  }catch(e){
+    alert('Não foi possível acessar o microfone. Verifique as permissões do navegador e tente novamente.');
+    return;
+  }
+  micCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if(micCtx.state === 'suspended') micCtx.resume();
+  const src = micCtx.createMediaStreamSource(micStream);
+  micGain = micCtx.createGain();
+  micGain.gain.value = 0;
+  src.connect(micGain);
+  micGain.connect(micCtx.destination);
+
+  const topico = document.getElementById('mic-topic-input').value.trim();
+  document.getElementById('mic-topic').textContent = topico || 'Aviso por voz';
+
+  micOpen = false;
+  micUI(false);
+  showScreen('scr-mic-tv');
+  enterFullscreen();
+
+  const clock = document.getElementById('mic-clock');
+  clearInterval(micTimer);
+  const tick = ()=> updClock(clock);
+  tick();
+  micTimer = setInterval(tick, 1000);
+}
+
+function micUI(live){
+  document.getElementById('mic-icon').classList.toggle('live', live);
+  const st = document.getElementById('mic-status');
+  st.classList.toggle('live', live);
+  st.textContent = live
+    ? 'No ar'
+    : 'Pressione e segure a barra de espaço para falar';
+}
+
+function micKeyDown(){
+  if(micOpen || !micGain) return;
+  micOpen = true;
+  chime();
+  micUI(true);
+  // abre a entrada após o sinal sonoro, mantendo o push to talk
+  setTimeout(()=>{
+    if(micOpen && micGain) micGain.gain.setTargetAtTime(1, micCtx.currentTime, 0.05);
+  }, 550);
+}
+
+function micKeyUp(){
+  if(!micOpen) return;
+  micOpen = false;
+  if(micGain) micGain.gain.setTargetAtTime(0, micCtx.currentTime, 0.03);
+  micUI(false);
+}
+
+function exitMic(){
+  micKeyUp();
+  clearInterval(micTimer);
+  micTimer = null;
+  if(micStream){ micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+  if(micCtx){ micCtx.close().catch(()=>{}); micCtx = null; }
+  micGain = null;
+  returnToStandby();
+}
+
+/* ============================================================
+   CONFIGURAÇÕES — TELA
+   ============================================================ */
+let cfgEditId = null;
+
+function goConfig(){
+  renderConfig();
+  showScreen('scr-config');
+}
+
+function editingSeries(){
+  return seriesById(cfgEditId) || DATA.series[0];
+}
+
+function renderConfig(){
+  ensureShape();
+  if(!seriesById(cfgEditId)) cfgEditId = DATA.series[0].id;
+
+  // abas de séries
+  document.getElementById('series-tabs').innerHTML = DATA.series.map(s => `
+    <button class="series-tab ${s.id === cfgEditId ? 'on' : ''}" onclick="selectEditSeries('${s.id}')">
+      ${esc(s.nome)}
+    </button>`).join('');
+
+  renderRoteiroEditor();
+
+  // série ativa
+  const active = document.getElementById('cfg-active');
+  active.innerHTML = `<option value="auto" ${DATA.activeSeriesId === 'auto' ? 'selected' : ''}>Automática (pelo horário atual)</option>` +
+    DATA.series.map(s => `<option value="${s.id}" ${DATA.activeSeriesId === s.id ? 'selected' : ''}>${esc(s.nome)}</option>`).join('');
+
+  // comportamento + exibição
+  document.getElementById('cfg-autostart').checked  = !!DATA.config.autoStart;
+  document.getElementById('cfg-autoreturn').checked = !!DATA.config.autoReturnClock;
+  document.getElementById('cfg-fontscale').value    = DATA.config.fontScale;
+  document.getElementById('cfg-clockbg').value      = DATA.config.clockBg;
+  document.getElementById('cfg-seconds').checked    = !!DATA.config.showSeconds;
+  document.getElementById('cfg-date').checked       = !!DATA.config.showDate;
+  document.getElementById('cfg-chain').checked      = !!DATA.config.showChain;
+}
+
+function renderRoteiroEditor(){
+  const s = editingSeries();
+  const el = document.getElementById('rot-editor');
+  const diaOpts = (sel) => {
+    let o = `<option value="" ${sel == null ? 'selected' : ''}>—</option>`;
+    [1,2,3,4,5,6,0].forEach(d => {
+      o += `<option value="${d}" ${sel === d ? 'selected' : ''}>${DIA_TAG[d]}</option>`;
+    });
+    return o;
+  };
+  if(!s.roteiro.length){
+    el.innerHTML = '<div class="editor-empty">Nenhuma janela nesta série. Use “Adicionar janela” para começar.</div>';
+    return;
+  }
+  el.innerHTML = `
+    <table class="editor">
+      <thead><tr>
+        <th>Início</th><th>Fim</th><th>Área</th><th>Supervisor(a)</th><th>Cadeia de Ajuda</th><th></th>
+      </tr></thead>
+      <tbody>${s.roteiro.map((r, i) => `
+        <tr>
+          <td class="tcol"><input type="time" value="${fmtClock(r.inicio)}" onchange="editWin(${i},'inicio',this.value)"></td>
+          <td class="tcol"><input type="time" value="${fmtClock(r.fim)}" onchange="editWin(${i},'fim',this.value)"></td>
+          <td><input type="text" value="${esc(r.area)}" placeholder="Área" onchange="editWin(${i},'area',this.value)"></td>
+          <td><input type="text" value="${esc(r.supervisor)}" placeholder="Supervisor(a)" onchange="editWin(${i},'supervisor',this.value)"></td>
+          <td><select onchange="editWin(${i},'cadeia',this.value)">${diaOpts(r.cadeia)}</select></td>
+          <td class="xcol"><button class="editor-rm" onclick="removeWindow(${i})" aria-label="Remover janela">×</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+function selectEditSeries(id){ cfgEditId = id; renderConfig(); }
+
+function editWin(i, field, value){
+  const s = editingSeries();
+  const r = s.roteiro[i];
+  if(!r) return;
+  if(field === 'inicio' || field === 'fim'){
+    const t = parseTempo(value);
+    if(t != null) r[field] = t;
+  } else if(field === 'cadeia'){
+    r.cadeia = value === '' ? null : +value;
+  } else {
+    r[field] = value;
+  }
+  saveData();
+}
+
+function addWindow(){
+  const s = editingSeries();
+  const last = s.roteiro[s.roteiro.length - 1];
+  const inicio = last ? last.fim + 5 : 540;
+  s.roteiro.push({ inicio, fim: inicio + 15, area: '', supervisor: '', cadeia: null });
+  saveData();
+  renderRoteiroEditor();
+}
+
+function removeWindow(i){
+  editingSeries().roteiro.splice(i, 1);
+  saveData();
+  renderRoteiroEditor();
+}
+
+function addSeries(){
+  const nome = (prompt('Nome da nova série (ex.: Turno da Tarde):', 'Nova série') || '').trim();
+  if(!nome) return;
+  const nova = { id: uid(), nome, roteiro: [] };
+  DATA.series.push(nova);
+  cfgEditId = nova.id;
+  saveData();
+  renderConfig();
+}
+
+function duplicateSeries(){
+  const s = editingSeries();
+  const nova = { id: uid(), nome: s.nome + ' (cópia)', roteiro: s.roteiro.map(r => ({...r})) };
+  DATA.series.push(nova);
+  cfgEditId = nova.id;
+  saveData();
+  renderConfig();
+}
+
+function renameSeries(){
+  const s = editingSeries();
+  const nome = (prompt('Novo nome da série:', s.nome) || '').trim();
+  if(!nome) return;
+  s.nome = nome;
+  saveData();
+  renderConfig();
+}
+
+function deleteSeries(){
+  if(DATA.series.length <= 1){
+    alert('É necessário manter pelo menos uma série.');
+    return;
+  }
+  const s = editingSeries();
+  if(!confirm('Excluir a série “' + s.nome + '”? Esta ação não pode ser desfeita.')) return;
+  DATA.series = DATA.series.filter(x => x.id !== s.id);
+  if(DATA.activeSeriesId === s.id) DATA.activeSeriesId = DATA.series[0].id;
+  cfgEditId = DATA.series[0].id;
+  saveData();
+  renderConfig();
+}
+
+function setActiveSeries(id){
+  DATA.activeSeriesId = id;
+  saveData();
+}
+
+function setCfg(key, value){
+  DATA.config[key] = value;
+  saveData();
+  applyDisplay();
+}
+
+/* ============================================================
+   EXIBIÇÃO (aplica preferências)
+   ============================================================ */
+function applyDisplay(){
+  const c = DATA.config;
+  const fs = { n: 1, g: 1.15, xg: 1.35 }[c.fontScale] || 1.15;
+  document.documentElement.style.setProperty('--fs', fs);
+  document.getElementById('scr-clk-tv').classList.toggle('bg-azul', c.clockBg === 'azul');
+}
+
+/* ============================================================
+   INICIALIZAÇÃO
+   ============================================================ */
+function initApp(){
+  injectLogos();
+  loadData();
+  applyDisplay();
+  // Abre diretamente nas Reuniões Escalonadas ao iniciar (se configurado);
+  // caso não haja janelas, startN2 recai automaticamente no relógio.
+  if(DATA.config.autoStart){
+    startN2(false);
+  } else {
+    startClk();
+  }
+}
+initApp();
+</script>
+</body>
+</html>
