@@ -390,7 +390,8 @@ function buildPin(){
   box.innerHTML = '';
   for(let i=0;i<PIN_LEN;i++){
     const inp = document.createElement('input');
-    inp.type='tel'; inp.inputMode='numeric'; inp.maxLength=1; inp.autocomplete = i===0 ? 'one-time-code' : 'off';
+    // type=password oculta o dígito com um ponto; inputMode numérico mantém o teclado numérico
+    inp.type='password'; inp.inputMode='numeric'; inp.maxLength=1; inp.autocomplete='off';
     inp.setAttribute('aria-label', 'Dígito '+(i+1)+' do PIN');
     inp.dataset.i = i;
 
