@@ -1,0 +1,16 @@
+# Dependências / build
+node_modules/
+dist/
+
+# Ambiente e segredos (NUNCA comitar service_role, .env, etc.)
+.env
+.env.*
+*.local
+
+# Supabase CLI
+supabase/.branches/
+supabase/.temp/
+
+# Sistema
+.DS_Store
+Thumbs.db
