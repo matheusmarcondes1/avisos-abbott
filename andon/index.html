@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Andon — Chamados de Produção</title>
+<style>
+:root{
+  --ink:#344042; --ink-soft:#4f4843; --paper:#fff; --paper-dim:#eef3f4;
+  --line:#d0dddd; --accent:#000075; --accent-bright:#2e4aed; --accent-soft:#d6dbfc;
+  --accent-ink:#fff; --warn:#ffbf21; --warn-ink:#5c4500; --ok:#124f00; --ok-soft:#dff2d6;
+  --ember:#ff5729; --ember-ink:#520000; --ember-soft:#fcded4;
+}
+*{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+html,body{ height:100%; }
+body{ font-family:Helvetica,"Helvetica Neue",Arial,sans-serif; background:var(--paper);
+  color:var(--ink); -webkit-font-smoothing:antialiased; }
+button{ font-family:inherit; cursor:pointer; }
+input,select,textarea{ font-family:inherit; }
+
+.logo{ color:var(--accent); height:30px; }
+.logo svg{ height:100%; width:auto; display:block; }
+
+.screen{ display:none; min-height:100dvh; }
+.screen.active{ display:flex; flex-direction:column; }
+.wrap{ width:100%; max-width:760px; margin:0 auto; padding:24px clamp(16px,4vw,32px) 40px; flex:1;
+  display:flex; flex-direction:column; }
+
+.topbar{ display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:14px clamp(16px,4vw,32px); border-bottom:1px solid var(--line); }
+.topbar .who{ text-align:right; }
+.topbar .who b{ display:block; font-size:16px; }
+.topbar .who span{ font-size:13px; color:var(--ink-soft); }
+
+.eyebrow{ font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); }
+h1{ font-size:clamp(24px,5vw,32px); font-weight:700; letter-spacing:-.01em; margin-top:6px; }
+h2{ font-size:20px; font-weight:700; margin-top:4px; }
+.muted{ color:var(--ink-soft); font-size:15px; line-height:1.5; }
+
+.btn{ border:none; border-radius:12px; padding:16px 22px; font-size:17px; font-weight:700;
+  background:var(--accent); color:var(--accent-ink); min-height:56px; }
+.btn:hover{ filter:brightness(1.08); }
+.btn:disabled{ opacity:.4; cursor:not-allowed; filter:none; }
+.btn.ghost{ background:transparent; color:var(--ink); border:1px solid var(--line); }
+.btn.block{ width:100%; }
+.btn.big{ font-size:20px; min-height:76px; }
+.linkbtn{ background:none; border:none; color:var(--accent-bright); font-weight:700;
+  font-size:15px; text-decoration:underline; padding:8px; }
+
+.card{ border:1px solid var(--line); border-radius:14px; padding:20px; }
+
+/* ---------- login ---------- */
+.login-center{ flex:1; display:flex; flex-direction:column; justify-content:center; gap:22px;
+  max-width:440px; margin:0 auto; width:100%; }
+.field{ display:flex; flex-direction:column; gap:8px; }
+.field label{ font-size:14px; font-weight:700; color:var(--ink-soft); }
+.field .big-input{ font-size:26px; font-weight:700; text-align:center; letter-spacing:.12em;
+  padding:16px; border:2px solid var(--line); border-radius:12px; outline:none;
+  font-variant-numeric:tabular-nums; }
+.field .big-input:focus{ border-color:var(--accent-bright); }
+
+.pin-boxes{ display:flex; gap:10px; justify-content:space-between; }
+.pin-boxes input{
+  width:100%; aspect-ratio:3/4; min-width:0; text-align:center;
+  font-size:clamp(28px,9vw,40px); font-weight:700; font-variant-numeric:tabular-nums;
+  border:2px solid var(--line); border-radius:12px; outline:none; background:var(--paper);
+  color:var(--ink); caret-color:var(--accent-bright);
+}
+.pin-boxes input:focus{ border-color:var(--accent-bright); box-shadow:0 0 0 4px var(--accent-soft); }
+.pin-boxes input.filled{ border-color:var(--accent); }
+
+.msg{ font-size:15px; border-radius:10px; padding:12px 14px; line-height:1.45; display:none; }
+.msg.show{ display:block; }
+.msg.err{ background:var(--ember-soft); color:var(--ember-ink); }
+.msg.ok{ background:var(--ok-soft); color:var(--ok); }
+.msg.info{ background:var(--accent-soft); color:var(--accent); }
+
+/* ---------- operador ---------- */
+.type-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:8px; }
+.type-btn{ display:flex; flex-direction:column; align-items:flex-start; gap:6px; text-align:left;
+  border:2px solid var(--line); border-radius:16px; padding:22px 20px; background:var(--paper);
+  min-height:110px; transition:border-color .12s, transform .12s; }
+.type-btn:hover{ border-color:var(--accent-bright); transform:translateY(-1px); }
+.type-btn:active{ transform:translateY(0); }
+.type-btn .t-name{ font-size:20px; font-weight:700; }
+.type-btn .t-desc{ font-size:13px; color:var(--ink-soft); line-height:1.4; }
+.type-btn.ember{ border-color:var(--ember-soft); }
+.type-btn.ember:hover{ border-color:var(--ember); }
+
+.section-title{ font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft);
+  font-weight:700; margin:26px 0 10px; }
+
+.call-row{ display:flex; align-items:center; gap:14px; padding:14px 16px; border:1px solid var(--line);
+  border-radius:12px; margin-bottom:10px; }
+.call-row .c-main{ flex:1; min-width:0; }
+.call-row .c-title{ font-size:17px; font-weight:700; }
+.call-row .c-meta{ font-size:13px; color:var(--ink-soft); margin-top:2px; }
+.pill{ font-size:12px; font-weight:700; padding:5px 10px; border-radius:999px; letter-spacing:.04em;
+  text-transform:uppercase; white-space:nowrap; }
+.pill.aberto{ background:var(--ember-soft); color:var(--ember-ink); }
+.pill.em_atendimento{ background:var(--warn); color:var(--warn-ink); }
+.pill.resolvido{ background:var(--ok-soft); color:var(--ok); }
+.pill.cancelado{ background:var(--paper-dim); color:var(--ink-soft); }
+
+.empty{ border:1px dashed var(--line); border-radius:12px; padding:30px; text-align:center;
+  color:var(--ink-soft); font-size:15px; }
+
+/* ---------- board ---------- */
+.filters{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+.chip{ padding:9px 15px; border-radius:999px; border:1px solid var(--line); background:var(--paper);
+  color:var(--ink-soft); font-weight:700; font-size:14px; }
+.chip.on{ background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
+.board-card{ border:2px solid var(--line); border-radius:14px; padding:16px 18px; margin-bottom:12px; }
+.board-card.aberto{ border-color:var(--ember); }
+.board-card.em_atendimento{ border-color:var(--warn); }
+.board-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.board-title{ font-size:20px; font-weight:700; }
+.board-meta{ font-size:14px; color:var(--ink-soft); margin-top:4px; }
+.board-actions{ display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+.board-actions .btn{ min-height:48px; padding:12px 18px; font-size:15px; flex:1; }
+.age{ font-variant-numeric:tabular-nums; font-weight:700; }
+
+/* ---------- admin ---------- */
+.form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.form-grid .full{ grid-column:1/-1; }
+.form-grid label{ font-size:13px; font-weight:700; color:var(--ink-soft); display:block; margin-bottom:6px; }
+.form-grid input, .form-grid select{ width:100%; padding:12px 14px; border:1px solid var(--line);
+  border-radius:10px; font-size:16px; background:var(--paper); color:var(--ink); }
+.user-row{ display:flex; align-items:center; gap:12px; padding:12px 14px; border:1px solid var(--line);
+  border-radius:10px; margin-bottom:8px; }
+.user-row .u-main{ flex:1; min-width:0; }
+.user-row .u-name{ font-weight:700; }
+.user-row .u-meta{ font-size:13px; color:var(--ink-soft); }
+.role-tag{ font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px; text-transform:uppercase;
+  letter-spacing:.04em; background:var(--accent-soft); color:var(--accent); }
+
+.foot{ margin-top:auto; padding-top:26px; }
+.disclaimer{ font-size:12px; color:var(--ink-soft); line-height:1.6; border-top:1px solid var(--line);
+  padding-top:16px; }
+.disclaimer b{ color:var(--ink); }
+
+.spinner{ display:inline-block; width:18px; height:18px; border:3px solid var(--accent-soft);
+  border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; vertical-align:-3px; }
+@keyframes spin{ to{ transform:rotate(360deg); } }
+@media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+@media (max-width:520px){ .type-grid{ grid-template-columns:1fr; } .form-grid{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<!-- ============ SETUP (sem configuração) ============ -->
+<section id="scr-setup" class="screen">
+  <div class="wrap login-center">
+    <div class="logo" id="logo-setup"></div>
+    <div>
+      <p class="eyebrow">Configuração</p>
+      <h1>Conectar ao Supabase</h1>
+      <p class="muted">Informe a URL do projeto e a chave publishable/anon. Ficam salvas neste dispositivo.</p>
+    </div>
+    <div class="field"><label>URL do projeto</label>
+      <input class="big-input" id="setup-url" style="font-size:15px;letter-spacing:0;text-align:left"
+        placeholder="https://xxxx.supabase.co"></div>
+    <div class="field"><label>Chave publishable / anon</label>
+      <input class="big-input" id="setup-key" style="font-size:15px;letter-spacing:0;text-align:left"
+        placeholder="sb_publishable_… ou anon key"></div>
+    <div class="msg err" id="setup-msg"></div>
+    <button class="btn block" onclick="saveSetup()">Salvar e continuar</button>
+  </div>
+</section>
+
+<!-- ============ LOGIN ============ -->
+<section id="scr-login" class="screen">
+  <div class="wrap login-center">
+    <div class="logo" id="logo-login"></div>
+    <div>
+      <p class="eyebrow">Andon de Produção</p>
+      <h1>Entrar</h1>
+      <p class="muted">Use sua matrícula e o PIN de 6 dígitos.</p>
+    </div>
+
+    <form id="login-form" autocomplete="off" onsubmit="return doLogin(event)">
+      <div class="field">
+        <label for="matricula">Matrícula</label>
+        <input class="big-input" id="matricula" inputmode="numeric" autocomplete="username"
+          pattern="[0-9]*" placeholder="000000" oninput="onMatriculaInput()">
+      </div>
+
+      <div class="field" style="margin-top:20px">
+        <label>PIN</label>
+        <div class="pin-boxes" id="pin-boxes"></div>
+      </div>
+
+      <div class="msg err" id="login-msg" style="margin-top:18px"></div>
+
+      <button class="btn block" id="login-btn" type="submit" style="margin-top:22px" disabled>Entrar</button>
+    </form>
+
+    <div style="text-align:center">
+      <button class="linkbtn" onclick="showSetup()">Configurar conexão</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ OPERADOR ============ -->
+<section id="scr-operator" class="screen">
+  <div class="topbar">
+    <div class="logo" id="logo-op"></div>
+    <div class="who"><b id="op-name">—</b><span id="op-area">—</span></div>
+  </div>
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">Registrar chamado</p>
+      <h1 id="op-greeting">Olá</h1>
+      <p class="muted">Toque no tipo de ocorrência. O material handler será avisado na hora.</p>
+    </div>
+
+    <div class="type-grid" id="type-grid"></div>
+
+    <div class="section-title">Meus chamados</div>
+    <div id="op-calls"></div>
+
+    <div class="foot">
+      <button class="btn ghost block" onclick="logout()">Sair</button>
+      <p class="disclaimer" style="margin-top:16px" id="disc-op"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PAINEL (material handler / admin) ============ -->
+<section id="scr-board" class="screen">
+  <div class="topbar">
+    <div class="logo" id="logo-board"></div>
+    <div class="who"><b id="board-name">—</b><span id="board-role">Painel</span></div>
+  </div>
+  <div class="wrap">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div>
+        <p class="eyebrow">Chamados ativos</p>
+        <h1>Painel do Material Handler</h1>
+      </div>
+      <span class="muted" id="board-count">—</span>
+    </div>
+
+    <div class="filters" id="board-filters" style="margin-top:16px"></div>
+    <div id="board-list"></div>
+
+    <div class="foot">
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn ghost" id="board-admin-btn" style="display:none;flex:1" onclick="showAdmin()">Usuários</button>
+        <button class="btn ghost" style="flex:1" onclick="logout()">Sair</button>
+      </div>
+      <p class="disclaimer" style="margin-top:16px" id="disc-board"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ADMIN — usuários ============ -->
+<section id="scr-admin" class="screen">
+  <div class="topbar">
+    <div class="logo" id="logo-admin"></div>
+    <div class="who"><b>Administração</b><span>Usuários</span></div>
+  </div>
+  <div class="wrap">
+    <button class="linkbtn" onclick="showBoard()">← Voltar ao painel</button>
+    <h1 style="margin-top:8px">Novo usuário</h1>
+    <p class="muted">A credencial é criada com segurança no servidor (Edge Function). O PIN nunca trafega em texto para o banco.</p>
+
+    <div class="card" style="margin-top:16px">
+      <div class="form-grid">
+        <div><label>Matrícula (dígitos)</label><input id="nu-mat" inputmode="numeric" placeholder="000000"></div>
+        <div><label>PIN (6 dígitos)</label><input id="nu-pin" inputmode="numeric" maxlength="6" placeholder="••••••"></div>
+        <div class="full"><label>Nome de exibição</label><input id="nu-name" placeholder="Nome que aparece no painel"></div>
+        <div><label>Área / supervisão</label><select id="nu-area"></select></div>
+        <div><label>Papel</label><select id="nu-role">
+          <option value="operator">Operador(a)</option>
+          <option value="material_handler">Material Handler</option>
+          <option value="admin">Administrador(a)</option>
+        </select></div>
+      </div>
+      <div class="msg" id="nu-msg" style="margin-top:14px"></div>
+      <button class="btn block" id="nu-btn" style="margin-top:14px" onclick="createUser()">Criar usuário</button>
+    </div>
+
+    <div class="section-title">Usuários</div>
+    <div id="admin-users"></div>
+
+    <div class="foot"><p class="disclaimer" id="disc-admin"></p></div>
+  </div>
+</section>
+
+<script src="config.js"></script>
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+/* ============================================================
+   LOGO (wordmark vetorial reutilizável)
+   ============================================================ */
+const LOGO = `<svg viewBox="0 0 236 60" role="img" aria-label="Andon"><text x="0" y="47"
+  fill="currentColor" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif"
+  font-weight="700" font-size="56" letter-spacing="-3">Abbott</text></svg>`;
+document.querySelectorAll('.logo').forEach(el => el.innerHTML = LOGO);
+
+const DISCLAIMER = `Plataforma <b>genérica de andon para produção</b> — projeto pessoal, de
+  <b>código aberto</b>, criado por iniciativa própria. Registra apenas sinais operacionais de
+  chamado (área, tipo, horário) para coordenar o atendimento; não se integra a sistemas
+  corporativos. Desenvolvido por <b>Matheus Marcondes</b>.`;
+['disc-op','disc-board','disc-admin'].forEach(id => document.getElementById(id).innerHTML = DISCLAIMER);
+
+/* ============================================================
+   CONFIG + CLIENTE
+   ============================================================ */
+const LS = 'andon-config-v1';
+function loadConfig(){
+  let c = window.ANDON_CONFIG || {};
+  try{ const s = JSON.parse(localStorage.getItem(LS) || 'null'); if(s) c = { ...c, ...s }; }catch(e){}
+  return c;
+}
+let CFG = loadConfig();
+let sb = null;
+
+const TYPES = [
+  { id:'falta_material', name:'Falta de material', desc:'Reposição de insumo/componente', ember:true },
+  { id:'qualidade',      name:'Qualidade',         desc:'Desvio, dúvida ou verificação' },
+  { id:'manutencao',     name:'Manutenção',        desc:'Equipamento ou ferramenta' },
+  { id:'seguranca',      name:'Segurança',         desc:'Condição de risco / EHS', ember:true },
+  { id:'outro',          name:'Outro',             desc:'Outro tipo de apoio' },
+];
+const TYPE_NAME = Object.fromEntries(TYPES.map(t => [t.id, t.name]));
+
+let ME = null;           // perfil do usuário logado
+let idleTimer = null;
+let realtimeCh = null;
+let boardAreaFilter = 'todas';
+
+/* ============================================================
+   NAVEGAÇÃO
+   ============================================================ */
+function show(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ============================================================
+   SETUP
+   ============================================================ */
+window.showSetup = () => {
+  document.getElementById('setup-url').value = CFG.SUPABASE_URL || '';
+  document.getElementById('setup-key').value = CFG.SUPABASE_KEY || '';
+  show('scr-setup');
+};
+window.saveSetup = () => {
+  const url = document.getElementById('setup-url').value.trim();
+  const key = document.getElementById('setup-key').value.trim();
+  const msg = document.getElementById('setup-msg');
+  if(!/^https:\/\/.+\.supabase\.co/.test(url)){ msg.textContent='URL inválida.'; msg.classList.add('show'); return; }
+  if(!key){ msg.textContent='Informe a chave.'; msg.classList.add('show'); return; }
+  localStorage.setItem(LS, JSON.stringify({ SUPABASE_URL:url, SUPABASE_KEY:key }));
+  CFG = loadConfig();
+  initClient();
+  show('scr-login');
+};
+
+function initClient(){
+  if(!CFG.SUPABASE_URL || !CFG.SUPABASE_KEY) return false;
+  sb = createClient(CFG.SUPABASE_URL, CFG.SUPABASE_KEY, {
+    auth: { persistSession:true, autoRefreshToken:true, storageKey:'andon-auth' }
+  });
+  return true;
+}
+const emailFor = m => `${String(m).trim()}@${CFG.EMAIL_DOMAIN || 'andon.local'}`;
+
+/* ============================================================
+   PIN — quadradinhos tolerantes a teclado físico/virtual, paste e autofill
+   ============================================================ */
+const PIN_LEN = 6;
+function buildPin(){
+  const box = document.getElementById('pin-boxes');
+  box.innerHTML = '';
+  for(let i=0;i<PIN_LEN;i++){
+    const inp = document.createElement('input');
+    inp.type='tel'; inp.inputMode='numeric'; inp.maxLength=1; inp.autocomplete = i===0 ? 'one-time-code' : 'off';
+    inp.setAttribute('aria-label', 'Dígito '+(i+1)+' do PIN');
+    inp.dataset.i = i;
+
+    // Entrada (cobre teclado virtual, que muitas vezes só dispara 'input')
+    inp.addEventListener('input', () => {
+      let v = inp.value.replace(/\D/g,'');
+      if(v.length > 1){ distribute(v, i); return; }   // colagem / digitação rápida
+      inp.value = v;
+      inp.classList.toggle('filled', !!v);
+      if(v) focusBox(i+1);
+      refreshPin();
+    });
+    // Backspace / navegação por teclado físico
+    inp.addEventListener('keydown', (e) => {
+      if(e.key === 'Backspace'){
+        if(inp.value){ inp.value=''; inp.classList.remove('filled'); refreshPin(); }
+        else { focusBox(i-1, true); }
+        e.preventDefault();
+      } else if(e.key === 'ArrowLeft'){ focusBox(i-1); e.preventDefault(); }
+      else if(e.key === 'ArrowRight'){ focusBox(i+1); e.preventDefault(); }
+      else if(e.key === 'Enter'){ e.preventDefault(); document.getElementById('login-form').requestSubmit(); }
+    });
+    inp.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const t = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'');
+      if(t) distribute(t, i);
+    });
+    inp.addEventListener('focus', () => inp.select());
+    box.appendChild(inp);
+  }
+}
+function pinInputs(){ return [...document.querySelectorAll('#pin-boxes input')]; }
+function focusBox(i, clear){
+  const arr = pinInputs();
+  const j = Math.max(0, Math.min(PIN_LEN-1, i));
+  const el = arr[j]; if(!el) return;
+  el.focus();
+  if(clear && el.value){ el.value=''; el.classList.remove('filled'); refreshPin(); }
+}
+function distribute(digits, from){
+  const arr = pinInputs();
+  let k = from;
+  for(const ch of digits){ if(k>=PIN_LEN) break; arr[k].value=ch; arr[k].classList.add('filled'); k++; }
+  focusBox(Math.min(k, PIN_LEN-1));
+  refreshPin();
+}
+function getPin(){ return pinInputs().map(i => i.value).join(''); }
+function clearPin(){ pinInputs().forEach(i => { i.value=''; i.classList.remove('filled'); }); refreshPin(); }
+function refreshPin(){
+  const mat = document.getElementById('matricula').value.trim();
+  const ok = /^[0-9]{1,20}$/.test(mat) && getPin().length === PIN_LEN;
+  document.getElementById('login-btn').disabled = !ok;
+}
+window.onMatriculaInput = () => {
+  const el = document.getElementById('matricula');
+  el.value = el.value.replace(/\D/g,'');
+  refreshPin();
+};
+
+/* ============================================================
+   LOGIN
+   ============================================================ */
+function msg(id, text, kind){
+  const el = document.getElementById(id);
+  el.className = 'msg show ' + (kind||'err'); el.innerHTML = text;
+}
+function clearMsg(id){ document.getElementById(id).classList.remove('show'); }
+
+window.doLogin = async (ev) => {
+  ev.preventDefault();
+  if(!sb){ msg('login-msg','Conexão não configurada.'); return false; }
+  const matricula = document.getElementById('matricula').value.trim();
+  const pin = getPin();
+  if(!/^[0-9]{1,20}$/.test(matricula) || pin.length!==PIN_LEN) return false;
+
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Entrando…';
+  clearMsg('login-msg');
+
+  const { error } = await sb.auth.signInWithPassword({ email: emailFor(matricula), password: pin });
+  if(error){
+    clearPin(); focusBox(0);
+    msg('login-msg', /rate|many/i.test(error.message)
+      ? 'Muitas tentativas. Aguarde alguns instantes e tente novamente.'
+      : 'Matrícula ou PIN incorretos.');
+    btn.innerHTML = 'Entrar'; refreshPin();
+    return false;
+  }
+  await afterLogin();
+  btn.innerHTML = 'Entrar';
+  return false;
+};
+
+async function afterLogin(){
+  const { data:{ user } } = await sb.auth.getUser();
+  if(!user){ show('scr-login'); return; }
+  const { data: profile, error } = await sb.from('profiles')
+    .select('id, matricula, display_name, area, role, active').eq('id', user.id).maybeSingle();
+  if(error || !profile || !profile.active){
+    await sb.auth.signOut();
+    show('scr-login'); msg('login-msg','Usuário sem perfil ativo. Procure o administrador.');
+    return;
+  }
+  ME = profile;
+  clearPin(); clearMsg('login-msg');
+  if(profile.role === 'operator') enterOperator();
+  else enterBoard();
+}
+
+window.logout = async () => {
+  stopIdle(); stopRealtime();
+  if(sb) await sb.auth.signOut();
+  ME = null;
+  document.getElementById('matricula').value=''; clearPin();
+  show('scr-login');
+  document.getElementById('matricula').focus();
+};
+
+/* ============================================================
+   OPERADOR
+   ============================================================ */
+function enterOperator(){
+  document.getElementById('op-name').textContent = ME.display_name;
+  document.getElementById('op-area').textContent = ME.area || 'Sem área';
+  document.getElementById('op-greeting').textContent = 'Olá, ' + ME.display_name.split(' ')[0];
+  const grid = document.getElementById('type-grid');
+  grid.innerHTML = TYPES.map(t => `
+    <button class="type-btn ${t.ember?'ember':''}" data-type="${t.id}">
+      <span class="t-name">${esc(t.name)}</span>
+      <span class="t-desc">${esc(t.desc)}</span>
+    </button>`).join('');
+  grid.querySelectorAll('.type-btn').forEach(b =>
+    b.addEventListener('click', () => raiseCall(b.dataset.type)));
+  show('scr-operator');
+  startRealtime(loadMyCalls);
+  loadMyCalls();
+  startIdle();
+}
+
+async function raiseCall(type){
+  const btn = [...document.querySelectorAll('.type-btn')].find(b => b.dataset.type===type);
+  if(btn){ btn.style.pointerEvents='none'; btn.style.opacity='.6'; }
+  const { error } = await sb.from('andon_events').insert({
+    raised_by: ME.id, display_name: ME.display_name, area: ME.area, type, status:'aberto'
+  });
+  if(btn){ btn.style.pointerEvents=''; btn.style.opacity=''; }
+  if(error){ alert('Não foi possível registrar o chamado: ' + error.message); return; }
+  loadMyCalls();
+}
+
+async function loadMyCalls(){
+  const { data } = await sb.from('andon_events')
+    .select('*').eq('raised_by', ME.id)
+    .in('status', ['aberto','em_atendimento'])
+    .order('created_at', { ascending:false });
+  const box = document.getElementById('op-calls');
+  if(!data || !data.length){ box.innerHTML = '<div class="empty">Nenhum chamado ativo.</div>'; return; }
+  box.innerHTML = data.map(c => `
+    <div class="call-row">
+      <div class="c-main">
+        <div class="c-title">${esc(TYPE_NAME[c.type]||c.type)}</div>
+        <div class="c-meta">${esc(c.area||'')} · aberto às ${hm(c.created_at)}${
+          c.status==='em_atendimento' && c.acknowledged_name ? ' · atende: '+esc(c.acknowledged_name) : ''}</div>
+      </div>
+      <span class="pill ${c.status}">${statusLabel(c.status)}</span>
+      <button class="linkbtn" data-cancel="${c.id}">Cancelar</button>
+    </div>`).join('');
+  box.querySelectorAll('[data-cancel]').forEach(b =>
+    b.addEventListener('click', () => cancelCall(b.dataset.cancel)));
+}
+async function cancelCall(id){
+  if(!confirm('Cancelar este chamado?')) return;
+  await sb.from('andon_events').update({ status:'cancelado', resolved_at:new Date().toISOString() }).eq('id', id);
+  loadMyCalls();
+}
+
+/* ============================================================
+   PAINEL (material handler / admin)
+   ============================================================ */
+function enterBoard(){
+  document.getElementById('board-name').textContent = ME.display_name;
+  document.getElementById('board-role').textContent = ME.role==='admin' ? 'Administrador' : 'Material Handler';
+  document.getElementById('board-admin-btn').style.display = ME.role==='admin' ? '' : 'none';
+  show('scr-board');
+  startRealtime(loadBoard);
+  loadBoard();
+  clearInterval(window._ageTimer);
+  window._ageTimer = setInterval(updateAges, 1000);
+  // sem auto-logout para o painel (fica em exibição contínua)
+}
+window.showBoard = () => enterBoard();
+
+async function loadBoard(){
+  const { data: areas } = await sb.from('areas').select('name').eq('active', true).order('sort_order');
+  const filters = document.getElementById('board-filters');
+  const opts = [{name:'todas'}, ...(areas||[])];
+  filters.innerHTML = opts.map(a => `
+    <button class="chip ${boardAreaFilter===a.name?'on':''}" data-area="${esc(a.name)}">${a.name==='todas'?'Todas':esc(a.name)}</button>`).join('');
+  filters.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+    boardAreaFilter = c.dataset.area; loadBoard();
+  }));
+
+  let q = sb.from('andon_events').select('*')
+    .in('status', ['aberto','em_atendimento']).order('created_at', { ascending:true });
+  if(boardAreaFilter!=='todas') q = q.eq('area', boardAreaFilter);
+  const { data } = await q;
+
+  const list = document.getElementById('board-list');
+  document.getElementById('board-count').textContent =
+    (data?.length||0) + (data?.length===1?' chamado ativo':' chamados ativos');
+  if(!data || !data.length){ list.innerHTML = '<div class="empty">Nenhum chamado ativo. 👍</div>'; return; }
+  list.innerHTML = data.map(c => `
+    <div class="board-card ${c.status}">
+      <div class="board-head">
+        <div>
+          <div class="board-title">${esc(TYPE_NAME[c.type]||c.type)}</div>
+          <div class="board-meta">${esc(c.display_name||'—')} · <b>${esc(c.area||'—')}</b> · aberto às ${hm(c.created_at)}</div>
+          ${c.note ? '<div class="board-meta">“'+esc(c.note)+'”</div>' : ''}
+        </div>
+        <span class="pill ${c.status}"><span class="age" data-since="${c.created_at}">--</span></span>
+      </div>
+      <div class="board-actions">
+        ${c.status==='aberto'
+          ? `<button class="btn" data-ack="${c.id}">Assumir</button>`
+          : `<span class="pill em_atendimento" style="align-self:center">Em atendimento · ${esc(c.acknowledged_name||'')}</span>`}
+        <button class="btn ghost" data-resolve="${c.id}">Resolver</button>
+      </div>
+    </div>`).join('');
+  list.querySelectorAll('[data-ack]').forEach(b => b.addEventListener('click', () => ackCall(b.dataset.ack)));
+  list.querySelectorAll('[data-resolve]').forEach(b => b.addEventListener('click', () => resolveCall(b.dataset.resolve)));
+  updateAges();
+}
+async function ackCall(id){
+  await sb.from('andon_events').update({
+    status:'em_atendimento', acknowledged_by:ME.id, acknowledged_name:ME.display_name,
+    acknowledged_at:new Date().toISOString()
+  }).eq('id', id);
+  loadBoard();
+}
+async function resolveCall(id){
+  await sb.from('andon_events').update({ status:'resolvido', resolved_at:new Date().toISOString() }).eq('id', id);
+  loadBoard();
+}
+function updateAges(){
+  document.querySelectorAll('.age[data-since]').forEach(el => {
+    const s = Math.max(0, Math.floor((Date.now() - new Date(el.dataset.since).getTime())/1000));
+    const m = Math.floor(s/60);
+    el.textContent = m>0 ? m+' min' : s+' s';
+  });
+}
+
+/* ============================================================
+   ADMIN — usuários (via Edge Function admin-manage-user)
+   ============================================================ */
+window.showAdmin = async () => {
+  if(!ME || ME.role!=='admin') return;
+  const areaSel = document.getElementById('nu-area');
+  const { data: areas } = await sb.from('areas').select('name').eq('active',true).order('sort_order');
+  areaSel.innerHTML = '<option value="">— sem área —</option>' +
+    (areas||[]).map(a => `<option value="${esc(a.name)}">${esc(a.name)}</option>`).join('');
+  document.getElementById('nu-pin').oninput = (e)=> e.target.value = e.target.value.replace(/\D/g,'').slice(0,6);
+  document.getElementById('nu-mat').oninput = (e)=> e.target.value = e.target.value.replace(/\D/g,'');
+  show('scr-admin');
+  loadUsers();
+};
+async function edgeCall(payload){
+  const { data:{ session } } = await sb.auth.getSession();
+  const res = await fetch(`${CFG.SUPABASE_URL}/functions/v1/admin-manage-user`, {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${session?.access_token}`,
+      'apikey': CFG.SUPABASE_KEY },
+    body: JSON.stringify(payload)
+  });
+  let body = {}; try{ body = await res.json(); }catch(e){}
+  return { ok: res.ok, status: res.status, body };
+}
+window.createUser = async () => {
+  const mat = document.getElementById('nu-mat').value.trim();
+  const pin = document.getElementById('nu-pin').value.trim();
+  const name = document.getElementById('nu-name').value.trim();
+  const area = document.getElementById('nu-area').value || null;
+  const role = document.getElementById('nu-role').value;
+  const m = document.getElementById('nu-msg');
+  if(!/^[0-9]+$/.test(mat) || pin.length!==6 || !name){
+    m.className='msg show err'; m.textContent='Preencha matrícula, PIN de 6 dígitos e nome.'; return;
+  }
+  const btn = document.getElementById('nu-btn'); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Criando…';
+  const r = await edgeCall({ action:'create', matricula:mat, pin, display_name:name, area, role });
+  btn.disabled=false; btn.textContent='Criar usuário';
+  if(r.ok){
+    m.className='msg show ok'; m.textContent='Usuário criado.';
+    document.getElementById('nu-mat').value=''; document.getElementById('nu-pin').value='';
+    document.getElementById('nu-name').value='';
+    loadUsers();
+  } else {
+    m.className='msg show err';
+    m.textContent = r.status===404
+      ? 'Edge Function não encontrada. Faça o deploy de admin-manage-user (ver supabase/README.md).'
+      : (r.body?.error || 'Falha ao criar usuário.');
+  }
+};
+async function loadUsers(){
+  const { data } = await sb.from('profiles').select('*').order('display_name');
+  const box = document.getElementById('admin-users');
+  if(!data || !data.length){ box.innerHTML='<div class="empty">Nenhum usuário.</div>'; return; }
+  const roleTag = { operator:'Operador', material_handler:'Material Handler', admin:'Admin' };
+  box.innerHTML = data.map(u => `
+    <div class="user-row">
+      <div class="u-main">
+        <div class="u-name">${esc(u.display_name)} ${u.active?'':'· <span style="color:var(--ember)">inativo</span>'}</div>
+        <div class="u-meta">mat. ${esc(u.matricula)} · ${esc(u.area||'sem área')}</div>
+      </div>
+      <span class="role-tag">${roleTag[u.role]||u.role}</span>
+      <button class="linkbtn" data-reset="${u.id}">PIN</button>
+      <button class="linkbtn" data-toggle="${u.id}" data-active="${u.active}">${u.active?'Desativar':'Ativar'}</button>
+    </div>`).join('');
+  box.querySelectorAll('[data-reset]').forEach(b => b.addEventListener('click', () => resetPin(b.dataset.reset)));
+  box.querySelectorAll('[data-toggle]').forEach(b => b.addEventListener('click', () =>
+    toggleActive(b.dataset.toggle, b.dataset.active!=='true')));
+}
+async function resetPin(id){
+  const pin = prompt('Novo PIN de 6 dígitos:');
+  if(pin===null) return;
+  if(!/^[0-9]{6}$/.test(pin)){ alert('PIN deve ter 6 dígitos.'); return; }
+  const r = await edgeCall({ action:'reset_pin', id, pin });
+  alert(r.ok ? 'PIN redefinido.' : (r.body?.error || 'Falha.'));
+}
+async function toggleActive(id, active){
+  const r = await edgeCall({ action:'set_active', id, active });
+  if(r.ok) loadUsers(); else alert(r.body?.error || 'Falha.');
+}
+
+/* ============================================================
+   REALTIME
+   ============================================================ */
+function startRealtime(onChange){
+  stopRealtime();
+  realtimeCh = sb.channel('andon-changes')
+    .on('postgres_changes', { event:'*', schema:'public', table:'andon_events' }, () => onChange())
+    .subscribe();
+}
+function stopRealtime(){ if(realtimeCh){ sb.removeChannel(realtimeCh); realtimeCh=null; } clearInterval(window._ageTimer); }
+
+/* ============================================================
+   AUTO-LOGOUT POR INATIVIDADE (tablet compartilhado do operador)
+   ============================================================ */
+function startIdle(){
+  stopIdle();
+  const secs = Number(CFG.IDLE_LOGOUT_SECONDS || 0);
+  if(!secs) return;
+  const reset = () => { clearTimeout(idleTimer); idleTimer = setTimeout(() => {
+    if(ME && ME.role==='operator') logout();
+  }, secs*1000); };
+  ['click','keydown','touchstart','mousemove'].forEach(ev => document.addEventListener(ev, reset, { passive:true }));
+  window._idleReset = reset; reset();
+}
+function stopIdle(){ clearTimeout(idleTimer);
+  if(window._idleReset){ ['click','keydown','touchstart','mousemove'].forEach(ev =>
+    document.removeEventListener(ev, window._idleReset)); window._idleReset=null; } }
+
+/* ============================================================
+   UTIL
+   ============================================================ */
+function hm(iso){ const d=new Date(iso); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+function statusLabel(s){ return { aberto:'Aberto', em_atendimento:'Em atendimento', resolvido:'Resolvido', cancelado:'Cancelado' }[s] || s; }
+
+/* ============================================================
+   INICIALIZAÇÃO
+   ============================================================ */
+buildPin();
+async function init(){
+  if(!initClient()){ show('scr-setup'); return; }
+  // sessão persistida?
+  const { data:{ session } } = await sb.auth.getSession();
+  if(session){ await afterLogin(); }
+  else { show('scr-login'); document.getElementById('matricula').focus(); }
+}
+init();
+</script>
+</body>
+</html>
