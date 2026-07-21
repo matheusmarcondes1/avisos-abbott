@@ -344,6 +344,23 @@ table.editor td.xcol{ width: 44px; text-align:center; }
 .info-card .sig{ margin-top: 12px; font-weight: 700; color: var(--accent); }
 .info-card .meta{ margin-top: 4px; font-size: 13px; color: var(--ink-soft); }
 
+/* ---------- notificação de andon (aparece sobre qualquer tela de TV) ---------- */
+.andon-notice{
+  position: fixed; left: 50%; top: 4vh; transform: translate(-50%, -140%);
+  z-index: 40; min-width: min(80vw, 900px); max-width: 92vw;
+  background: var(--ember); color: var(--ember-ink);
+  border-radius: 16px; padding: 2.4vh 3vw; box-shadow: 0 12px 40px rgba(0,0,0,.35);
+  text-align: center; opacity: 0; transition: transform .35s ease, opacity .35s ease;
+  pointer-events: none;
+}
+.andon-notice.show{ transform: translate(-50%, 0); opacity: 1; }
+.an-tag{ font-size: calc(clamp(14px, 1.7vw, 26px) * var(--fs)); font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase; }
+.an-type{ font-size: calc(clamp(30px, 5vw, 76px) * var(--fs)); font-weight: 700;
+  letter-spacing: -.01em; margin-top: .4vh; line-height: 1.1; }
+.an-meta{ font-size: calc(clamp(18px, 2.4vw, 38px) * var(--fs)); font-weight: 700;
+  margin-top: .6vh; opacity: .9; }
+
 @media (prefers-reduced-motion: reduce){
   *{ transition: none !important; }
 }
@@ -697,6 +714,32 @@ table.editor td.xcol{ width: 44px; text-align:center; }
         <input type="checkbox" id="cfg-chain" onchange="setCfg('showChain', this.checked)">
         <span class="cfg-label">Mostrar a <strong>Cadeia de Ajuda</strong> do dia nas reuniões</span>
       </label>
+      <div class="cfg-row">
+        <span class="cfg-label">Testar o volume do sinal sonoro</span>
+        <button class="btn ghost small" onclick="alertTone()">Testar som</button>
+      </div>
+    </div>
+
+    <!-- Integração Andon -->
+    <div class="cfg-sec">
+      <h3>Notificações de Andon</h3>
+      <p class="sub">Quando um chamado de andon é aberto, o painel exibe brevemente a notificação
+        sobre a tela atual e emite o sinal sonoro. Requer a política de leitura anônima dos
+        chamados ativos (ver <code>supabase/migrations/0002_andon_tv_notify.sql</code>).</p>
+      <label class="cfg-row check">
+        <input type="checkbox" id="cfg-andon" onchange="setCfg('andonNotify', this.checked)">
+        <span class="cfg-label">Exibir notificações de chamados de andon nas TVs</span>
+      </label>
+      <div class="cfg-row">
+        <span class="cfg-label">URL do Supabase (opcional; vazio usa o padrão)</span>
+        <input type="text" id="cfg-andon-url" placeholder="https://…supabase.co"
+          onchange="setCfg('andonUrl', this.value.trim())" style="min-width:240px">
+      </div>
+      <div class="cfg-row">
+        <span class="cfg-label">Chave publishable (opcional; vazio usa o padrão)</span>
+        <input type="text" id="cfg-andon-key" placeholder="sb_publishable_…"
+          onchange="setCfg('andonKey', this.value.trim())" style="min-width:240px">
+      </div>
     </div>
 
     <!-- Informações / Disclaimer -->
@@ -717,6 +760,13 @@ table.editor td.xcol{ width: 44px; text-align:center; }
     </div>
   </div>
 </section>
+
+<!-- ================= NOTIFICAÇÃO DE ANDON (overlay) ================= -->
+<div id="andon-notice" class="andon-notice" role="status" aria-live="polite">
+  <div class="an-tag">Chamado de produção</div>
+  <div class="an-type" id="an-type"></div>
+  <div class="an-meta" id="an-meta"></div>
+</div>
 
 <script>
 /* ============================================================
@@ -765,8 +815,18 @@ const CONFIG_PADRAO = {
   clockBg: 'preto',       // 'preto' | 'azul'
   showSeconds: true,
   showDate: true,
-  showChain: true
+  showChain: true,
+  andonNotify: true,      // exibir notificações de chamados de andon nas TVs
+  andonUrl: '',           // vazio -> usa ANDON_URL_DEFAULT
+  andonKey: ''            // vazio -> usa ANDON_KEY_DEFAULT
 };
+
+/* Conexão de leitura ao Supabase para as notificações de andon (valores
+   publicáveis; a proteção real é o RLS). Podem ser trocados nas Configurações. */
+const ANDON_URL_DEFAULT = 'https://swcflnemmjnrvbqbrguw.supabase.co';
+const ANDON_KEY_DEFAULT = 'sb_publishable_cT0lJ0L1ZtXTy8XPsgFFRA_TfMb6YwA';
+const ANDON_TIPO = { falta_material:'Falta de material', qualidade:'Qualidade',
+  manutencao:'Manutenção', seguranca:'Segurança', outro:'Chamado' };
 
 let DATA = defaultData();
 
@@ -1032,18 +1092,31 @@ document.addEventListener('keyup', (e)=>{
 
 /* ============================================================
    SINAL SONORO
+   Volume bem elevado: cada nota vai a um limitador (DynamicsCompressor) e a
+   um ganho mestre alto, aproveitando quase toda a amplitude disponível sem
+   distorcer. O volume final ainda depende do volume da TV/alto-falante.
    ============================================================ */
+function masterOut(ctx){
+  const comp = ctx.createDynamicsCompressor();
+  comp.threshold.value = -14; comp.knee.value = 24; comp.ratio.value = 12;
+  comp.attack.value = 0.003; comp.release.value = 0.25;
+  const master = ctx.createGain();
+  master.gain.value = 0.95;                 // ganho mestre alto
+  comp.connect(master); master.connect(ctx.destination);
+  return comp;
+}
 function chime(){
   try{
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     if(ctx.state === 'suspended') ctx.resume();
+    const out = masterOut(ctx);
     const nota = (freq, t0)=>{
       const osc = ctx.createOscillator(), g = ctx.createGain();
       osc.type = 'sine'; osc.frequency.value = freq;
       g.gain.setValueAtTime(0.0001, ctx.currentTime + t0);
-      g.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime + t0 + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.9, ctx.currentTime + t0 + 0.03);
       g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + t0 + 0.5);
-      osc.connect(g); g.connect(ctx.destination);
+      osc.connect(g); g.connect(out);
       osc.start(ctx.currentTime + t0); osc.stop(ctx.currentTime + t0 + 0.55);
     };
     nota(880, 0); nota(1174.7, 0.28);
@@ -1054,13 +1127,14 @@ function warnTone(){
   try{
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     if(ctx.state === 'suspended') ctx.resume();
+    const out = masterOut(ctx);
     const nota = (freq, t0, dur)=>{
       const osc = ctx.createOscillator(), g = ctx.createGain();
       osc.type = 'sine'; osc.frequency.value = freq;
       g.gain.setValueAtTime(0.0001, ctx.currentTime + t0);
-      g.gain.exponentialRampToValueAtTime(0.14, ctx.currentTime + t0 + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.95, ctx.currentTime + t0 + 0.04);
       g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + t0 + dur);
-      osc.connect(g); g.connect(ctx.destination);
+      osc.connect(g); g.connect(out);
       osc.start(ctx.currentTime + t0); osc.stop(ctx.currentTime + t0 + dur + 0.05);
     };
     nota(740, 0, 0.55); nota(554.4, 0.4, 0.8);
@@ -1071,13 +1145,14 @@ function alertTone(){
   try{
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     if(ctx.state === 'suspended') ctx.resume();
+    const out = masterOut(ctx);
     const nota = (freq, t0, dur)=>{
       const osc = ctx.createOscillator(), g = ctx.createGain();
       osc.type = 'triangle'; osc.frequency.value = freq;
       g.gain.setValueAtTime(0.0001, ctx.currentTime + t0);
-      g.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + t0 + 0.04);
+      g.gain.exponentialRampToValueAtTime(1.0, ctx.currentTime + t0 + 0.03);
       g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + t0 + dur);
-      osc.connect(g); g.connect(ctx.destination);
+      osc.connect(g); g.connect(out);
       osc.start(ctx.currentTime + t0); osc.stop(ctx.currentTime + t0 + dur + 0.05);
     };
     nota(659.3, 0, 0.4); nota(880, 0.22, 0.4); nota(1174.7, 0.44, 0.8);
@@ -1588,6 +1663,9 @@ function renderConfig(){
   document.getElementById('cfg-seconds').checked    = !!DATA.config.showSeconds;
   document.getElementById('cfg-date').checked       = !!DATA.config.showDate;
   document.getElementById('cfg-chain').checked      = !!DATA.config.showChain;
+  document.getElementById('cfg-andon').checked      = !!DATA.config.andonNotify;
+  document.getElementById('cfg-andon-url').value    = DATA.config.andonUrl || '';
+  document.getElementById('cfg-andon-key').value    = DATA.config.andonKey || '';
 }
 
 function renderRoteiroEditor(){
@@ -1705,6 +1783,10 @@ function setCfg(key, value){
   DATA.config[key] = value;
   saveData();
   applyDisplay();
+  if(key === 'andonNotify' || key === 'andonUrl' || key === 'andonKey'){
+    stopAndonNotify();
+    initAndonNotify();
+  }
 }
 
 /* ============================================================
@@ -1715,6 +1797,50 @@ function applyDisplay(){
   const fs = { n: 1, g: 1.15, xg: 1.35 }[c.fontScale] || 1.15;
   document.documentElement.style.setProperty('--fs', fs);
   document.getElementById('scr-clk-tv').classList.toggle('bg-azul', c.clockBg === 'azul');
+}
+
+/* ============================================================
+   NOTIFICAÇÃO DE ANDON NAS TVs
+   O painel assina (somente leitura) os chamados de andon no Supabase e, ao
+   receber um novo chamado, exibe brevemente uma notificação sobre a tela
+   atual (relógio, reuniões, etc.) e emite o sinal sonoro. Requer a chave
+   publishable + uma política que permita a leitura anônima dos chamados
+   ativos (ver supabase/migrations/0002_andon_tv_notify.sql).
+   ============================================================ */
+let andonClient = null, andonCh = null, andonNoticeTimer = null;
+
+function showAndonNotice(ev){
+  const el = document.getElementById('andon-notice');
+  if(!el) return;
+  document.getElementById('an-type').textContent = ANDON_TIPO[ev.type] || 'Chamado';
+  document.getElementById('an-meta').textContent =
+    [ev.area, ev.display_name].filter(Boolean).join(' · ');
+  el.classList.add('show');
+  alertTone();
+  clearTimeout(andonNoticeTimer);
+  andonNoticeTimer = setTimeout(()=> el.classList.remove('show'), 15000);
+}
+
+async function initAndonNotify(){
+  const c = DATA.config;
+  if(!c.andonNotify) return;
+  const url = (c.andonUrl || ANDON_URL_DEFAULT).trim();
+  const key = (c.andonKey || ANDON_KEY_DEFAULT).trim();
+  if(!url || !key) return;
+  try{
+    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+    andonClient = createClient(url, key, { auth: { persistSession: false } });
+    andonCh = andonClient.channel('tv-andon')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'andon_events' }, payload => {
+        const ev = payload && payload.new;
+        if(ev && ev.status === 'aberto') showAndonNotice(ev);
+      })
+      .subscribe();
+  }catch(e){ /* offline / CDN indisponível: o painel segue funcionando normalmente */ }
+}
+function stopAndonNotify(){
+  try{ if(andonCh && andonClient) andonClient.removeChannel(andonCh); }catch(e){}
+  andonCh = null; andonClient = null;
 }
 
 /* ============================================================
@@ -1731,6 +1857,7 @@ function initApp(){
   } else {
     showMenu();
   }
+  initAndonNotify();
 }
 initApp();
 </script>

@@ -53,13 +53,28 @@ Sem a função, você ainda pode cadastrar usuários manualmente (passo 3 repeti
 anon key e a service_role key são injetadas automaticamente no ambiente da função — **não
 comite nenhuma delas**.
 
-## 5. Conferir a segurança (checklist)
+## 5. (Opcional) Notificações de andon nas TVs
+
+Para o **Painel de Avisos** mostrar, sobre o relógio, uma notificação quando um chamado é
+aberto (com som), aplique também `migrations/0002_andon_tv_notify.sql`. Ele permite ao papel
+**anônimo** apenas **ler os chamados ativos** (status `aberto`/`em_atendimento`), para o painel
+assinar em tempo real usando só a chave publishable — sem login na TV.
+
+As informações expostas (área, tipo, nome, horário) são as mesmas já exibidas publicamente nas
+TVs do piso. Se preferir não expor nada ao papel anônimo, **não** aplique o 0002 e use uma conta
+de exibição (material_handler) — posso ajustar o painel para esse modo se quiser.
+
+O painel já vem com a URL e a chave publishable padrão; dá para trocá-las em
+**Configurações → Notificações de Andon**.
+
+## 6. Conferir a segurança (checklist)
 
 - [ ] RLS **habilitado** em `areas`, `profiles` e `andon_events` (o SQL já faz isso).
 - [ ] `service_role` **nunca** aparece em `andon/config.js` nem no front-end.
 - [ ] Confirmação de e-mail **desativada**; Auto Confirm ligado ao criar usuários.
 - [ ] `EMAIL_DOMAIN` igual em `config.js` e na Edge Function.
-- [ ] Testar: sem login, a chave publishable **não** lê `andon_events` (deve retornar vazio/erro).
+- [ ] Sem o 0002: sem login, a chave publishable **não** lê `andon_events`.
+      Com o 0002: o papel anônimo lê apenas os chamados **ativos** (para as TVs).
 
 ## Modelo de dados
 
