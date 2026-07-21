@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Painel de Avisos — Abbott BR-SH-M</title>
+<link rel="icon" type="image/jpeg" href="https://cdn.brandfetch.io/idtqCIB40M/w/200/h/200/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&amp;t=1756696667154">
 <style>
 /* ============================================================
    PALETA — Abbott Color Palette
@@ -46,7 +47,11 @@ input, select, textarea{ font-family: inherit; }
    Usa currentColor, então herda a cor do contexto (azul em telas claras,
    branca nas telas de TV). Pode ser substituída pelo SVG oficial da marca. */
 .logo-slot{ display:inline-block; color: var(--accent); line-height:0; }
-.logo-slot .abbott-svg{ height:100%; width:auto; display:block; }
+.logo-slot img.lg{ height:100%; width:auto; display:none; }
+.logo-slot .lg-fallback{ display:block; }        /* wordmark de reserva (offline) */
+.logo-slot .lg-fallback svg{ height:100%; width:auto; display:block; }
+.logo-slot.img-ok .lg-fallback{ display:none; }
+.logo-slot.img-ok .lg-blue{ display:block; }      /* fundo claro: logo azul escuro */
 .control-logo{ height: 34px; margin-bottom: 22px; }
 
 /* ---------- gerenciamento de telas ---------- */
@@ -139,7 +144,9 @@ h3{ font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
 /* Logo nas telas de TV: azul Abbott sobre os fundos claros (padrão);
    branca no relógio (fundo preto/azul); ember no aviso de silêncio. */
 .tv-brand{ color: var(--accent); height: calc(clamp(22px, 2.6vw, 44px) * var(--fs)); }
-.tv.clkmode .tv-brand{ color:#fff; }
+.tv.clkmode .tv-brand{ color:#fff; }                        /* fallback branco no relógio */
+.tv.clkmode .tv-brand.img-ok .lg-blue{ display:none; }      /* fundo escuro: logo branca */
+.tv.clkmode .tv-brand.img-ok .lg-white{ display:block; }
 .tv-eyebrow{
   display:inline-block; font-size: calc(clamp(16px, 1.9vw, 30px) * var(--fs)); font-weight: 700;
   letter-spacing: .16em; text-transform: uppercase; color: var(--accent-ink);
@@ -378,9 +385,9 @@ table.editor td.xcol{ width: 44px; text-align:center; }
         <div class="fc-desc">Sistema de aviso por voz (push to talk) usando o microfone do dispositivo.</div>
         <div class="fc-go">Abrir →</div>
       </button>
-      <button class="func-card" onclick="startClk()">
+      <button class="func-card" onclick="enterStandby()">
         <div class="fc-title">Relógio</div>
-        <div class="fc-desc">Modo de espera: relógio e data em tela cheia para os períodos sem avisos.</div>
+        <div class="fc-desc">Modo de espera: relógio em tela cheia. As Reuniões Escalonadas entram sozinhas 5 min antes de cada janela.</div>
         <div class="fc-go">Projetar →</div>
       </button>
       <button class="func-card cfg wide" onclick="goConfig()">
@@ -648,7 +655,7 @@ table.editor td.xcol{ width: 44px; text-align:center; }
       <h3>Comportamento</h3>
       <label class="cfg-row check">
         <input type="checkbox" id="cfg-autostart" onchange="setCfg('autoStart', this.checked)">
-        <span class="cfg-label">Abrir automaticamente na tela de <strong>Reuniões Escalonadas</strong> ao iniciar o sistema</span>
+        <span class="cfg-label">Iniciar em <strong>modo automático</strong>: relógio no piso, com as <strong>Reuniões Escalonadas</strong> entrando 5 min antes de cada janela</span>
       </label>
       <label class="cfg-row check">
         <input type="checkbox" id="cfg-autoreturn" onchange="setCfg('autoReturnClock', this.checked)">
@@ -713,16 +720,24 @@ table.editor td.xcol{ width: 44px; text-align:center; }
 
 <script>
 /* ============================================================
-   LOGO ABBOTT (wordmark vetorial reutilizável)
-   Injetada em todas as telas via .logo-slot. Herda a cor do contexto.
+   LOGO ABBOTT — imagens oficiais (brandfetch), com wordmark vetorial de
+   reserva caso as imagens não carreguem (offline). A logo azul escuro é
+   usada em fundos claros; a branca, no relógio (fundo escuro).
    ============================================================ */
-const LOGO_SVG = `<svg class="abbott-svg" viewBox="0 0 236 60" role="img" aria-label="Abbott">
-  <text x="0" y="47" fill="currentColor"
-        font-family="'Helvetica Neue',Helvetica,Arial,sans-serif"
-        font-weight="700" font-size="56" letter-spacing="-3">Abbott</text>
-</svg>`;
+const LOGO_BLUE  = 'https://cdn.brandfetch.io/idtqCIB40M/theme/dark/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1756696705337';
+const LOGO_WHITE = 'https://cdn.brandfetch.io/idtqCIB40M/theme/light/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1756696575880';
+const LOGO_FALLBACK = `<span class="lg-fallback"><svg viewBox="0 0 236 60" role="img" aria-label="Abbott">
+  <text x="0" y="47" fill="currentColor" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif"
+        font-weight="700" font-size="56" letter-spacing="-3">Abbott</text></svg></span>`;
 function injectLogos(){
-  document.querySelectorAll('.logo-slot').forEach(el => { el.innerHTML = LOGO_SVG; });
+  document.querySelectorAll('.logo-slot').forEach(el => {
+    el.innerHTML =
+      '<img class="lg lg-blue" src="' + LOGO_BLUE + '" alt="Abbott"' +
+        ' onload="this.closest(\'.logo-slot\').classList.add(\'img-ok\')">' +
+      '<img class="lg lg-white" src="' + LOGO_WHITE + '" alt="Abbott"' +
+        ' onload="this.closest(\'.logo-slot\').classList.add(\'img-ok\')">' +
+      LOGO_FALLBACK;
+  });
 }
 
 /* ============================================================
@@ -744,7 +759,7 @@ const ROTEIRO_MANHA = [
 const DIA_TAG = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
 
 const CONFIG_PADRAO = {
-  autoStart: true,        // abrir direto nas Reuniões Escalonadas
+  autoStart: true,        // iniciar em modo automático (relógio + reuniões no horário)
   autoReturnClock: true,  // voltar ao relógio ao encerrar uma projeção
   fontScale: 'g',         // 'n' | 'g' | 'xg'
   clockBg: 'preto',       // 'preto' | 'azul'
@@ -878,6 +893,9 @@ function showScreen(id){
   document.getElementById(id).classList.add('active');
 }
 function showMenu(){
+  stopStandby();
+  clearInterval(clkTimer); clkTimer = null;
+  clearInterval(n2Timer);  n2Timer = null;
   leaveFullscreen();
   showScreen('scr-menu');
 }
@@ -892,11 +910,76 @@ function leaveFullscreen(){
     document.exitFullscreen().catch(()=>{});
   }
 }
-/* Ao encerrar uma projeção, retorna ao relógio (modo de espera) — ou ao menu,
-   conforme a configuração. */
+/* Ao encerrar uma projeção, retorna ao modo de espera (relógio + reuniões no
+   horário) — ou ao menu, conforme a configuração. */
 function returnToStandby(){
-  if(DATA.config.autoReturnClock) startClk();
-  else showScreen('scr-menu');
+  if(DATA.config.autoReturnClock) enterStandby();
+  else showMenu();
+}
+
+/* ============================================================
+   MODO AUTOMÁTICO (director)
+   O relógio fica no piso o tempo todo; as Reuniões Escalonadas entram em
+   cena a partir de LEAD_MIN minutos antes de cada janela e saem assim que a
+   janela termina. Janelas separadas por até LEAD_MIN min formam um bloco
+   contínuo; intervalos maiores voltam ao relógio.
+   ============================================================ */
+const LEAD_MIN = 5;
+let directorTimer = null, autoActive = false, dirMode = null, dirBlockKey = null;
+
+function nowMinReal(){ const n = new Date(); return n.getHours()*60 + n.getMinutes() + n.getSeconds()/60; }
+
+function buildBlocks(wins){
+  const blocks = [];
+  for(const w of wins){
+    const last = blocks[blocks.length-1];
+    if(last && w.inicio - LEAD_MIN <= last.end){
+      last.end = Math.max(last.end, w.fim);
+      last.windows.push(w);
+    } else {
+      blocks.push({ activeStart: w.inicio - LEAD_MIN, end: w.fim, windows: [w] });
+    }
+  }
+  return blocks;
+}
+function currentBlock(m, blocks){
+  return blocks.find(b => m >= b.activeStart && m < b.end) || null;
+}
+
+function enterStandby(){
+  clearInterval(n2Timer); n2Timer = null; n2Sim = null;
+  autoActive = true; dirMode = null; dirBlockKey = null;
+  enterFullscreen();
+  directorTick();
+  clearInterval(directorTimer);
+  directorTimer = setInterval(directorTick, 1000);
+}
+function stopStandby(){
+  autoActive = false;
+  clearInterval(directorTimer); directorTimer = null;
+  dirMode = null; dirBlockKey = null;
+}
+function directorTick(){
+  if(!autoActive) return;
+  const wins = buildWindows(activeSeriesResolved().roteiro);
+  const blk = currentBlock(nowMinReal(), buildBlocks(wins));
+  const want = blk ? 'n2' : 'clk';
+  const blockKey = blk ? blk.activeStart + '-' + blk.end : '';
+  if(want === dirMode && blockKey === dirBlockKey) return;   // já na tela certa
+  dirMode = want; dirBlockKey = blockKey;
+  if(want === 'n2'){
+    clearInterval(clkTimer); clkTimer = null;
+    n2Sim = null; n2LastKey = null;
+    showScreen('scr-n2-tv');
+    clearInterval(n2Timer);
+    const wl = blk.windows;
+    const tick = ()=> renderN2(wl);
+    tick();
+    n2Timer = setInterval(tick, 500);
+  } else {
+    clearInterval(n2Timer); n2Timer = null;
+    runClock();
+  }
 }
 
 /* cursor e botão de saída nas telas de TV */
@@ -1079,11 +1162,12 @@ function n2State(m, wins){
 }
 
 function startN2(simular){
+  stopStandby();                       // projeção manual: assume o controle
   const serie = activeSeriesResolved();
   const wins = buildWindows(serie.roteiro);
   if(!wins.length){
-    // sem janelas: não há o que projetar — recai no relógio
-    startClk();
+    // sem janelas: não há o que projetar — recai no modo de espera
+    enterStandby();
     return;
   }
   n2Sim = simular
@@ -1169,7 +1253,7 @@ function renderN2(wins){
         </div>`;
       footer.style.visibility = 'hidden';
       setTimeout(()=>{
-        if(document.getElementById('scr-n2-tv').classList.contains('active') && n2LastKey === key) exitN2();
+        if(!autoActive && document.getElementById('scr-n2-tv').classList.contains('active') && n2LastKey === key) exitN2();
       }, n2Sim ? 8000 : 60000);
     }
   }
@@ -1191,7 +1275,8 @@ function exitN2(){
   clearInterval(n2Timer);
   n2Timer = null;
   n2Sim = null;
-  returnToStandby();
+  if(autoActive) showMenu();     // sair do modo automático → menu
+  else returnToStandby();
 }
 
 /* ============================================================
@@ -1288,9 +1373,10 @@ function exitSil(){
    ============================================================ */
 let clkTimer = null;
 
-function startClk(){
+/* Renderiza o relógio (modo de espera). Chamado pelo director; não decide
+   navegação por si só. */
+function runClock(){
   showScreen('scr-clk-tv');
-  enterFullscreen();
   clearInterval(clkTimer);
   const t = document.getElementById('clk-time');
   const s = document.getElementById('clk-sec');
@@ -1305,12 +1391,6 @@ function startClk(){
   };
   tick();
   clkTimer = setInterval(tick, 250);
-}
-
-function exitClk(){
-  clearInterval(clkTimer);
-  clkTimer = null;
-  showMenu();
 }
 
 /* ============================================================
@@ -1644,12 +1724,12 @@ function initApp(){
   injectLogos();
   loadData();
   applyDisplay();
-  // Abre diretamente nas Reuniões Escalonadas ao iniciar (se configurado);
-  // caso não haja janelas, startN2 recai automaticamente no relógio.
+  // Modo automático: relógio no piso, com as Reuniões Escalonadas entrando
+  // 5 min antes de cada janela e saindo quando a janela termina.
   if(DATA.config.autoStart){
-    startN2(false);
+    enterStandby();
   } else {
-    startClk();
+    showMenu();
   }
 }
 initApp();

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="robots" content="noindex, nofollow">
 <title>Andon — Chamados de Produção</title>
+<link rel="icon" type="image/jpeg" href="https://cdn.brandfetch.io/idtqCIB40M/w/200/h/200/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&amp;t=1756696667154">
 <style>
 :root{
   --ink:#344042; --ink-soft:#4f4843; --paper:#fff; --paper-dim:#eef3f4;
@@ -19,8 +20,12 @@ body{ font-family:Helvetica,"Helvetica Neue",Arial,sans-serif; background:var(--
 button{ font-family:inherit; cursor:pointer; }
 input,select,textarea{ font-family:inherit; }
 
-.logo{ color:var(--accent); height:30px; }
-.logo svg{ height:100%; width:auto; display:block; }
+.logo{ color:var(--accent); height:30px; line-height:0; }
+.logo img{ height:100%; width:auto; display:none; }
+.logo.img-ok img{ display:block; }
+.logo.img-ok .lg-fallback{ display:none; }
+.logo .lg-fallback{ display:block; }
+.logo .lg-fallback svg{ height:100%; width:auto; display:block; }
 
 .screen{ display:none; min-height:100dvh; }
 .screen.active{ display:flex; flex-direction:column; }
@@ -294,12 +299,16 @@ h2{ font-size:20px; font-weight:700; margin-top:4px; }
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 /* ============================================================
-   LOGO (wordmark vetorial reutilizável)
+   LOGO ABBOTT — imagem oficial (azul escuro, para fundo claro), com
+   wordmark vetorial de reserva caso a imagem não carregue.
    ============================================================ */
-const LOGO = `<svg viewBox="0 0 236 60" role="img" aria-label="Andon"><text x="0" y="47"
-  fill="currentColor" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif"
-  font-weight="700" font-size="56" letter-spacing="-3">Abbott</text></svg>`;
-document.querySelectorAll('.logo').forEach(el => el.innerHTML = LOGO);
+const LOGO_BLUE = 'https://cdn.brandfetch.io/idtqCIB40M/theme/dark/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1756696705337';
+const LOGO_HTML =
+  '<img src="' + LOGO_BLUE + '" alt="Abbott" onload="this.closest(\'.logo\').classList.add(\'img-ok\')">' +
+  '<span class="lg-fallback"><svg viewBox="0 0 236 60" role="img" aria-label="Abbott"><text x="0" y="47"' +
+  ' fill="currentColor" font-family="\'Helvetica Neue\',Helvetica,Arial,sans-serif"' +
+  ' font-weight="700" font-size="56" letter-spacing="-3">Abbott</text></svg></span>';
+document.querySelectorAll('.logo').forEach(el => el.innerHTML = LOGO_HTML);
 
 const DISCLAIMER = `Plataforma <b>genérica de andon para produção</b> — projeto pessoal, de
   <b>código aberto</b>, criado por iniciativa própria. Registra apenas sinais operacionais de
