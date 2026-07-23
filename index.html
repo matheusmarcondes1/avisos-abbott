@@ -346,27 +346,34 @@ table.editor td.xcol{ width: 44px; text-align:center; }
 .info-card .sig{ margin-top: 12px; font-weight: 700; color: var(--accent); }
 .info-card .meta{ margin-top: 4px; font-size: 13px; color: var(--ink-soft); }
 
-/* ---------- notificação de andon (aparece sobre qualquer tela de TV) ---------- */
-.andon-notice{
-  position: fixed; left: 50%; top: 4vh; transform: translate(-50%, -140%);
-  z-index: 40; min-width: min(80vw, 900px); max-width: 92vw;
-  background: var(--ember); color: var(--ember-ink);
-  border-radius: 16px; padding: 2.4vh 3vw; box-shadow: 0 12px 40px rgba(0,0,0,.35);
-  text-align: center; opacity: 0; transition: transform .35s ease, opacity .35s ease;
-  pointer-events: none;
+/* ---------- fila de andon na lateral da TV ----------
+   Ao receber chamados, a tela principal "encolhe" (right = --qw) e a fila
+   aparece numa coluna própria — sem cobrir o relógio. Os mais antigos ficam
+   no topo. Tudo em caixa alta e alto contraste (TV vista de longe). */
+:root{ --qw: clamp(200px, 20vw, 340px); }
+#tv-queue{
+  position: fixed; top: 0; right: 0; bottom: 0; width: var(--qw); z-index: 40;
+  background: #fff; display: none; flex-direction: column; gap: 12px;
+  padding: 14px; overflow: hidden; border-left: 2px solid #e5ecf0;
 }
-.andon-notice.show{ transform: translate(-50%, 0); opacity: 1; }
-/* cor conforme o tipo do chamado */
-.andon-notice.t-falta_material{ background:#ffbf21; color:#5a4500; }
-.andon-notice.t-qualidade{ background:#7259bd; color:#fff; }
-.andon-notice.t-inspecao{ background:#ff5729; color:#fff; }
-.andon-notice.t-assistente{ background:#3a9d6b; color:#fff; }
-.an-tag{ font-size: calc(clamp(14px, 1.7vw, 26px) * var(--fs)); font-weight: 700;
-  letter-spacing: .16em; text-transform: uppercase; }
-.an-type{ font-size: calc(clamp(30px, 5vw, 76px) * var(--fs)); font-weight: 700;
-  letter-spacing: -.01em; margin-top: .4vh; line-height: 1.1; }
-.an-meta{ font-size: calc(clamp(18px, 2.4vw, 38px) * var(--fs)); font-weight: 700;
-  margin-top: .6vh; opacity: .9; }
+body.has-calls #tv-queue{ display: flex; }
+body.has-calls .tv{ right: var(--qw); }   /* a tela principal chega pro lado */
+.tvq{
+  flex: 0 0 auto; border-radius: 16px; padding: 12px 10px 14px; text-align: center;
+  color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-transform: uppercase;
+}
+.tvq.t-falta_material{ background:#ffbf21; color:#3d2f00; }
+.tvq.t-qualidade{ background:#7c4bd0; }
+.tvq.t-inspecao{ background:#ff5729; }
+.tvq.t-assistente{ background:#1f8f57; }
+.tvq .q-type{ font-size: clamp(13px, 1.4vw, 22px); font-weight: 800; letter-spacing: .06em; line-height: 1.05; }
+.tvq .q-mesa{ font-size: clamp(44px, 5.4vw, 90px); font-weight: 900; line-height: 1;
+  font-variant-numeric: tabular-nums; margin: 2px 0; }
+.tvq .q-etapa{ font-size: clamp(13px, 1.4vw, 22px); font-weight: 800; letter-spacing: .04em; line-height: 1.05; }
+/* com a fila aberta, o relógio encolhe um pouco para caber à esquerda */
+body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
+.clk-date{ text-transform: uppercase; letter-spacing: .04em; }
 
 @media (prefers-reduced-motion: reduce){
   *{ transition: none !important; }
@@ -769,11 +776,8 @@ table.editor td.xcol{ width: 44px; text-align:center; }
 </section>
 
 <!-- ================= NOTIFICAÇÃO DE ANDON (overlay) ================= -->
-<div id="andon-notice" class="andon-notice" role="status" aria-live="polite">
-  <div class="an-tag">Chamado de produção</div>
-  <div class="an-type" id="an-type"></div>
-  <div class="an-meta" id="an-meta"></div>
-</div>
+<!-- fila de chamados de andon (coluna lateral da TV) -->
+<div id="tv-queue" role="status" aria-live="polite"></div>
 
 <script>
 /* ============================================================
@@ -958,6 +962,7 @@ function parseTempo(v){
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  if(typeof renderTvQueue === 'function') renderTvQueue();  // fila só sobre telas de TV
 }
 function showMenu(){
   stopStandby();
@@ -1807,26 +1812,36 @@ function applyDisplay(){
 }
 
 /* ============================================================
-   NOTIFICAÇÃO DE ANDON NAS TVs
-   O painel assina (somente leitura) os chamados de andon no Supabase e, ao
-   receber um novo chamado, exibe brevemente uma notificação sobre a tela
-   atual (relógio, reuniões, etc.) e emite o sinal sonoro. Requer a chave
-   publishable + uma política que permita a leitura anônima dos chamados
-   ativos (ver supabase/migrations/0002_andon_tv_notify.sql).
+   FILA DE ANDON NAS TVs
+   O painel assina (somente leitura) os chamados de andon no Supabase. Quando
+   há chamados abertos, a tela principal "encolhe" e a fila aparece na coluna
+   lateral — só cor + número da mesa, em caixa alta e alto contraste, com os
+   mais antigos no topo. Emite o sinal sonoro ao chegar um novo chamado.
+   Requer a política de leitura anônima (migração 0003).
    ============================================================ */
-let andonClient = null, andonCh = null, andonNoticeTimer = null;
+let andonClient = null, andonCh = null, panelCalls = [];
 
-function showAndonNotice(ev){
-  const el = document.getElementById('andon-notice');
-  if(!el) return;
-  document.getElementById('an-type').textContent = ANDON_TIPO[ev.type] || 'Chamado';
-  document.getElementById('an-meta').textContent =
-    (ev.mesa != null ? 'Mesa ' + String(ev.mesa).padStart(2,'0') : '') +
-    (ev.etapa ? (ev.mesa != null ? ' · ' : '') + ev.etapa : '');
-  el.className = 'andon-notice show t-' + ev.type;   // cor conforme o tipo
-  alertTone();
-  clearTimeout(andonNoticeTimer);
-  andonNoticeTimer = setTimeout(()=> el.classList.remove('show'), 15000);
+function renderTvQueue(){
+  const wrap = document.getElementById('tv-queue');
+  if(!wrap) return;
+  const tvActive = !!document.querySelector('.screen.tv.active');
+  document.body.classList.toggle('has-calls', tvActive && panelCalls.length > 0);
+  wrap.innerHTML = panelCalls.map(c => `
+    <div class="tvq t-${c.type}">
+      <div class="q-type">${esc((ANDON_TIPO[c.type] || 'Chamado').toUpperCase())}</div>
+      <div class="q-mesa">${c.mesa != null ? String(c.mesa).padStart(2,'0') : '—'}</div>
+      ${c.etapa ? '<div class="q-etapa">' + esc(String(c.etapa).toUpperCase()) + '</div>' : ''}
+    </div>`).join('');
+}
+
+async function fetchPanelCalls(){
+  if(!andonClient) return;
+  try{
+    const { data } = await andonClient.from('andon_events')
+      .select('*').eq('status','aberto').order('created_at', { ascending: true }); // mais antigos primeiro
+    panelCalls = data || [];
+    renderTvQueue();
+  }catch(e){}
 }
 
 async function initAndonNotify(){
@@ -1839,16 +1854,19 @@ async function initAndonNotify(){
     const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
     andonClient = createClient(url, key, { auth: { persistSession: false } });
     andonCh = andonClient.channel('tv-andon')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'andon_events' }, payload => {
-        const ev = payload && payload.new;
-        if(ev && ev.status === 'aberto') showAndonNotice(ev);
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'andon_events' }, payload => {
+        if(payload.eventType === 'INSERT' && payload.new && payload.new.status === 'aberto') alertTone();
+        fetchPanelCalls();
       })
       .subscribe();
+    fetchPanelCalls();
   }catch(e){ /* offline / CDN indisponível: o painel segue funcionando normalmente */ }
 }
 function stopAndonNotify(){
   try{ if(andonCh && andonClient) andonClient.removeChannel(andonCh); }catch(e){}
   andonCh = null; andonClient = null;
+  panelCalls = [];
+  renderTvQueue();
 }
 
 /* ============================================================
