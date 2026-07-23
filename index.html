@@ -52,7 +52,9 @@ input, select, textarea{ font-family: inherit; }
 .logo-slot .lg-fallback svg{ height:100%; width:auto; display:block; }
 .logo-slot.img-ok .lg-fallback{ display:none; }
 .logo-slot.img-ok .lg-blue{ display:block; }      /* fundo claro: logo azul escuro */
-.control-logo{ height: 34px; margin-bottom: 22px; }
+/* display:block garante que a logo fique na própria linha, sem o botão
+   "voltar" (inline-block) empurrá-la para o lado. */
+.control-logo{ display: block; height: 34px; width: fit-content; margin-bottom: 22px; }
 
 /* ---------- gerenciamento de telas ---------- */
 .screen{ display:none; }
@@ -354,6 +356,11 @@ table.editor td.xcol{ width: 44px; text-align:center; }
   pointer-events: none;
 }
 .andon-notice.show{ transform: translate(-50%, 0); opacity: 1; }
+/* cor conforme o tipo do chamado */
+.andon-notice.t-falta_material{ background:#ffbf21; color:#5a4500; }
+.andon-notice.t-qualidade{ background:#7259bd; color:#fff; }
+.andon-notice.t-inspecao{ background:#ff5729; color:#fff; }
+.andon-notice.t-assistente{ background:#3a9d6b; color:#fff; }
 .an-tag{ font-size: calc(clamp(14px, 1.7vw, 26px) * var(--fs)); font-weight: 700;
   letter-spacing: .16em; text-transform: uppercase; }
 .an-type{ font-size: calc(clamp(30px, 5vw, 76px) * var(--fs)); font-weight: 700;
@@ -826,7 +833,7 @@ const CONFIG_PADRAO = {
 const ANDON_URL_DEFAULT = 'https://swcflnemmjnrvbqbrguw.supabase.co';
 const ANDON_KEY_DEFAULT = 'sb_publishable_cT0lJ0L1ZtXTy8XPsgFFRA_TfMb6YwA';
 const ANDON_TIPO = { falta_material:'Falta de material', qualidade:'Qualidade',
-  manutencao:'Manutenção', seguranca:'Segurança', outro:'Chamado' };
+  inspecao:'Inspeção', assistente:'Assistente' };
 
 let DATA = defaultData();
 
@@ -1814,8 +1821,9 @@ function showAndonNotice(ev){
   if(!el) return;
   document.getElementById('an-type').textContent = ANDON_TIPO[ev.type] || 'Chamado';
   document.getElementById('an-meta').textContent =
-    [ev.area, ev.display_name].filter(Boolean).join(' · ');
-  el.classList.add('show');
+    (ev.mesa != null ? 'Mesa ' + String(ev.mesa).padStart(2,'0') : '') +
+    (ev.etapa ? (ev.mesa != null ? ' · ' : '') + ev.etapa : '');
+  el.className = 'andon-notice show t-' + ev.type;   // cor conforme o tipo
   alertTone();
   clearTimeout(andonNoticeTimer);
   andonNoticeTimer = setTimeout(()=> el.classList.remove('show'), 15000);
