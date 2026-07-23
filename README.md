@@ -7,15 +7,16 @@ inteiramente no navegador, sem instalação e sem integração com sistemas corp
 1. **Painel de Avisos** (`index.html`): telas para projeção em TVs do piso: reuniões
    escalonadas, busca por itens, avisos gerais, silêncio, microfone (push-to-talk) e relógio.
    Não usa servidor: as configurações ficam apenas no `localStorage` do navegador.
-2. **Andon** (`andon/`): chamados de produção em tempo real (ex.: *falta de material*):
-   operadores registram por um login simples; o material handler acompanha e atende em um
-   painel ao vivo. Usa [Supabase](https://supabase.com) (Postgres + Auth + Realtime).
+2. **Andon** (`andon/`): chamados de produção em tempo real (ex.: *falta de material*),
+   **sem login** — a operadora é identificada por mesa/etapa e cada perfil (Material Handler,
+   Coordenação Técnica, Inspeção, Assistente) acompanha e atende em um painel ao vivo. Usa
+   [Supabase](https://supabase.com) (Postgres + Realtime).
 
 > **Disclaimer.** Projeto pessoal, de código aberto, criado por iniciativa própria. É uma
 > plataforma **genérica** de andon para produção, não é um produto oficial de nenhuma
 > empresa e não se integra a sistemas corporativos. O Painel de Avisos não registra
 > informação alguma (dados só no navegador). O módulo Andon registra apenas **sinais
-> operacionais de chamado** (área, tipo, horário) para coordenar o atendimento.
+> operacionais de chamado** (tipo, mesa, etapa, horário) para coordenar o atendimento.
 
 ---
 
@@ -36,20 +37,24 @@ Tudo é inserido **manualmente** pela tela de **Configurações** e salvo no nav
 
 ## Módulo 2: Andon (`andon/`)
 
-- **Login simples**: matrícula numérica + **PIN de 6 dígitos** (em quadradinhos separados,
-  tolerantes a teclado físico, virtual, colagem e preenchimento automático — pensado para
-  tablet). A autenticação é do **Supabase Auth**; o PIN é guardado apenas como **hash (bcrypt)**.
-- Cada usuário tem **nome de exibição** e **área** (as mesmas supervisões das reuniões), usados
-  para direcionar o chamado ao material handler.
-- **Operador**: botões grandes por tipo de ocorrência; vê e cancela os próprios chamados;
-  logout automático por inatividade (tablet compartilhado).
-- **Material handler / admin**: painel ao vivo dos chamados ativos, com filtro por área e ações
-  *Assumir* / *Resolver*.
-- **Admin**: cadastro de usuários (via Edge Function, sem expor segredo no cliente).
+**Sem login.** Ao abrir, o app mostra uma seleção em três colunas (**Perfil → Etapa → Mesa**):
+- **Operadora** escolhe a etapa (SVE, SVS, Anel Revestido, Sizing & Trimming, Revisão Final) e a
+  mesa (1–25). É identificada apenas pelo número da mesa. Cada mesa pode ter vários tablets — todos
+  compartilham o mesmo estado.
+- **Material Handler, Coordenação Técnica, Inspeção, Assistente** entram direto no seu painel.
 
-Segurança: todo acesso a dados exige login válido — **Row Level Security** no banco garante
-que a chave publishable, sozinha, não lê nem escreve nada. Nenhum segredo (service_role) vai
-para o repositório. Ver [`supabase/README.md`](supabase/README.md) para o passo a passo.
+Tela de chamado da operadora (tablet Windows na horizontal, sem digitação/rolagem): quatro botões
+retangulares grandes — **Falta de Material** (amarelo → Material Handler), **Qualidade** (roxo →
+Coordenação Técnica), **Inspeção** (laranja → Inspetores), **Assistente** (verde → Assistentes).
+Cada botão mostra se há chamado em aberto e permite cancelar num toque.
+
+Cada perfil receptor vê, em tempo real, a **fila** dos seus chamados — um quadrado com o número da
+mesa, no fundo da cor do tipo — com som ao chegar um novo e ✓ para concluir. O **Assistente** tem
+ainda **Estatísticas** (com exportação CSV/Excel) e **Mesas** (define quais mesas ficam disponíveis
+por etapa).
+
+Segurança: ferramenta interna sem login; as tabelas expõem só dados operacionais (tipo, mesa,
+etapa, horário), sem nomes. Ver [`supabase/README.md`](supabase/README.md) para o passo a passo.
 
 ---
 
@@ -68,12 +73,11 @@ real é o RLS).
 ```
 index.html                 Painel de Avisos (projeção nas TVs)
 andon/
-  index.html               App de andon (operador + painel + admin)
+  index.html               App de andon (seleção + operadora + painéis)
   config.js                URL + chave publishable do Supabase (editável)
   config.example.js        Modelo de configuração
 supabase/
-  migrations/0001_andon_pager.sql   Esquema + RLS + Realtime
-  functions/admin-manage-user/      Edge Function (gerência de usuários)
+  migrations/0003_andon_sem_login.sql   Esquema atual (sem login) + Realtime
   README.md                Passo a passo de configuração
 LICENSE                    MIT
 ```

@@ -1,92 +1,57 @@
-# Andon — configuração do Supabase
+# Andon — configuração do Supabase (sem login)
 
-Backend do módulo de andon: **Postgres + Auth + Realtime**, com **Row Level Security** em
-todas as tabelas. Segue o passo a passo para deixar tudo pronto.
+Backend do módulo de andon: **Postgres + Realtime**, sem autenticação. A plataforma é uma
+ferramenta interna de piso; a identificação da operadora é apenas **número da mesa + etapa**.
+O acesso é feito com a **chave publishable** e as tabelas ficam abertas ao papel anônimo via RLS
+(não há dados pessoais — apenas sinais operacionais de chamado).
 
 ## 1. Aplicar o esquema
 
-**SQL Editor → New query →** cole [`migrations/0001_andon_pager.sql`](migrations/0001_andon_pager.sql)
-**→ Run**. Cria: `areas`, `profiles`, `andon_events`, funções de papel, políticas RLS e o Realtime.
+**SQL Editor → New query →** cole [`migrations/0003_andon_sem_login.sql`](migrations/0003_andon_sem_login.sql)
+**→ Run**.
 
-## 2. Ajustar o Auth (login por matrícula + PIN)
+Esse arquivo **substitui** os anteriores (0001 e 0002): remove o modelo com login (profiles/PIN) e
+recria `andon_events` e `etapa_config` para uso anônimo, com Realtime habilitado. Se você já tinha
+aplicado o 0001/0002, tudo bem — o 0003 dá `drop` no que for necessário e recria.
 
-O login usa um **e-mail sintético** `matricula@andon.local` (não é um e-mail real) com o PIN
-como senha. Em **Authentication → Providers → Email**:
+> Os arquivos `0001_*` e `0002_*` ficam no histórico apenas como referência; **não** precisam ser
+> aplicados. A Edge Function `admin-manage-user` foi removida (não há mais usuários).
 
-- **Desative** "Confirm email" (senão o login não funciona sem caixa de entrada).
-- Mantenha o provedor **Email** habilitado.
-- Opcional: em **Authentication → Rate limits**, ajuste o limite de tentativas.
+## 2. Conectar o app
 
-> O domínio `andon.local` deve ser o mesmo em `andon/config.js` (`EMAIL_DOMAIN`) e, se usar a
-> Edge Function, na variável `ANDON_EMAIL_DOMAIN`.
+A URL e a chave publishable já estão em [`andon/config.js`](../andon/config.js). Para outro projeto,
+troque os valores lá (ou use a tela de configuração do próprio app na primeira abertura).
 
-## 3. Criar o primeiro admin
+## 3. Pronto
 
-Ainda não há usuários. Crie o primeiro admin manualmente:
-
-1. **Authentication → Users → Add user**
-   - Email: `SUA_MATRICULA@andon.local`  ·  Password: seu PIN de 6 dígitos  ·  **Auto Confirm: on**
-2. Copie o **User UID** gerado e rode no SQL Editor:
-
-```sql
-insert into public.profiles (id, matricula, display_name, area, role)
-values ('COLE_O_USER_UID', 'SUA_MATRICULA', 'Seu Nome', null, 'admin');
-```
-
-Pronto: entre no app `andon/` com essa matrícula + PIN. Como admin, você cria os demais
-usuários pela própria tela **Usuários**.
-
-## 4. (Opcional) Edge Function para gerenciar usuários
-
-A tela de admin cria/edita usuários chamando a função `admin-manage-user`, que roda no
-servidor com a `service_role` (nunca exposta ao cliente) e só aceita chamadas de um admin.
-
-```bash
-# Requer o Supabase CLI e login (supabase login)
-supabase link --project-ref SEU_PROJECT_REF
-supabase functions deploy admin-manage-user
-# defina o domínio (o mesmo do config.js), se diferente do padrão:
-supabase secrets set ANDON_EMAIL_DOMAIN=andon.local
-```
-
-Sem a função, você ainda pode cadastrar usuários manualmente (passo 3 repetido). A URL, a
-anon key e a service_role key são injetadas automaticamente no ambiente da função — **não
-comite nenhuma delas**.
-
-## 5. (Opcional) Notificações de andon nas TVs
-
-Para o **Painel de Avisos** mostrar, sobre o relógio, uma notificação quando um chamado é
-aberto (com som), aplique também `migrations/0002_andon_tv_notify.sql`. Ele permite ao papel
-**anônimo** apenas **ler os chamados ativos** (status `aberto`/`em_atendimento`), para o painel
-assinar em tempo real usando só a chave publishable — sem login na TV.
-
-As informações expostas (área, tipo, nome, horário) são as mesmas já exibidas publicamente nas
-TVs do piso. Se preferir não expor nada ao papel anônimo, **não** aplique o 0002 e use uma conta
-de exibição (material_handler) — posso ajustar o painel para esse modo se quiser.
-
-O painel já vem com a URL e a chave publishable padrão; dá para trocá-las em
-**Configurações → Notificações de Andon**.
-
-## 6. Conferir a segurança (checklist)
-
-- [ ] RLS **habilitado** em `areas`, `profiles` e `andon_events` (o SQL já faz isso).
-- [ ] `service_role` **nunca** aparece em `andon/config.js` nem no front-end.
-- [ ] Confirmação de e-mail **desativada**; Auto Confirm ligado ao criar usuários.
-- [ ] `EMAIL_DOMAIN` igual em `config.js` e na Edge Function.
-- [ ] Sem o 0002: sem login, a chave publishable **não** lê `andon_events`.
-      Com o 0002: o papel anônimo lê apenas os chamados **ativos** (para as TVs).
+Abra o `andon/` e siga o fluxo:
+- **Operadora** → escolhe a etapa e a mesa → tela de chamados (Falta de Material, Qualidade,
+  Inspeção, Assistente).
+- **Material Handler / Coordenação Técnica / Inspeção / Assistente** → veem a fila de chamados do
+  seu tipo, em tempo real, e concluem no ✓.
+- **Assistente** → além da fila, tem **Estatísticas** (com exportação CSV/Excel) e **Mesas**
+  (define quais mesas ficam disponíveis por etapa).
 
 ## Modelo de dados
 
-| Tabela         | Papel                                                                 |
-|----------------|-----------------------------------------------------------------------|
-| `areas`        | supervisões do piso (as mesmas das reuniões)                          |
-| `profiles`     | matrícula, nome de exibição, área, papel (operator/handler/admin)     |
-| `andon_events` | chamados: tipo, status, autor, quem assumiu, horários                 |
+| Tabela          | Papel                                                                   |
+|-----------------|-------------------------------------------------------------------------|
+| `andon_events`  | chamados: tipo, mesa, etapa, status, horários                           |
+| `etapa_config`  | mesas disponíveis por etapa (vazio = todas as 25)                       |
 
-Fluxo de status: `aberto → em_atendimento → resolvido` (ou `cancelado`).
+Tipos de chamado e destino:
 
-Papéis:
-- **operator** — abre e cancela os próprios chamados; vê só os seus.
-- **material_handler** — vê todos os chamados e atende (assume/resolve).
-- **admin** — tudo do material handler + gerência de usuários.
+| Tipo             | Aciona               | Cor      |
+|------------------|----------------------|----------|
+| `falta_material` | Material Handler     | amarelo  |
+| `qualidade`      | Coordenação Técnica  | roxo     |
+| `inspecao`       | Inspeção             | laranja  |
+| `assistente`     | Assistentes          | verde    |
+
+Fluxo de status: `aberto → resolvido` (concluído pelo receptor) ou `cancelado` (pela operadora).
+
+## Segurança
+
+Sem login por decisão de uso (piso). As tabelas expõem apenas dados operacionais (tipo, mesa,
+etapa, horário) — sem nomes ou informação pessoal. Se no futuro quiser restringir escrita/leitura,
+dá para reintroduzir uma camada de autenticação leve; me avise.
