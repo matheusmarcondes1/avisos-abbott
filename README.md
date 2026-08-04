@@ -22,18 +22,45 @@ inteiramente no navegador, sem instalação e sem integração com sistemas corp
 
 ## Módulo 1: Painel de Avisos (`index.html`)
 
-Arquivo estático único, **sem dependências externas**. Funções: Reuniões Escalonadas
-(tela inicial), Busca por Válvulas/itens, Aviso Geral, Silêncio, Microfone e Relógio.
+Arquivo estático único. Funções: Reuniões Escalonadas (tela inicial), **Reuniões de N1**,
+Busca por Válvulas/itens, Aviso Geral, Silêncio, Microfone e Relógio.
+
+No **modo automático**, o relógio fica no piso o tempo todo e as telas entram sozinhas:
+as **Reuniões Escalonadas** a partir de 5 min antes de cada janela (saindo quando ela acaba) e
+as **Reuniões de N1** durante os períodos configurados. Se os dois coincidirem, as Escalonadas
+têm prioridade.
 
 Tudo é inserido **manualmente** pela tela de **Configurações** e salvo no navegador:
 
 - **Séries de reuniões**: janelas editáveis (início, fim, área, supervisor, Cadeia de Ajuda)
   e **múltiplas séries** (ex.: *Turno da Manhã* e *Turno da Tarde*, com horários e supervisores
   próprios), com seleção fixa ou **automática pelo horário**.
-- **Comportamento**: abrir automaticamente nas Reuniões Escalonadas; retornar ao relógio ao
-  encerrar uma projeção.
+- **Reuniões de N1**: períodos editáveis (padrão **08:00–09:00** e **14:00–15:00**) com
+  **título e mensagem personalizáveis** — por padrão *"Reuniões de N1 em andamento"* e
+  *"Agora é a hora de rever o dia anterior."*, exibidos com barra de progresso do tempo restante.
+- **Comportamento**: iniciar em modo automático; retornar ao relógio ao encerrar uma projeção.
 - **Exibição**: tamanho das fontes (ampliado para TVs de ~50"), fundo do relógio, segundos,
   data e Cadeia de Ajuda.
+- **Dados**: exportar/importar a configuração completa (`.json`) e o cronograma da série em
+  **`.csv` que abre no Excel** — útil para levar os ajustes a outra TV ou manter o cronograma
+  numa planilha. Os arquivos são lidos e gravados **localmente**, sem envio a servidores.
+
+### Versão offline (`offline.html`)
+
+Cópia **100% offline** do painel: **um único arquivo HTML**, sem nenhuma requisição externa —
+funciona salvo em pen drive, pasta de rede ou disco local, aberto direto no navegador, **sem
+internet e sem servidor**. Tem todas as funções acima (incluindo Reuniões de N1 e a
+exportação/importação por planilha); apenas a integração de andon fica de fora, por depender
+de rede.
+
+O arquivo é **gerado** a partir do `index.html` — não edite à mão:
+
+```bash
+node tools/build-offline.js
+```
+
+O script remove os trechos marcados como `ONLINE-ONLY` (favicon e logo de CDN, integração de
+andon) e confere que não restou nenhuma requisição externa.
 
 ## Módulo 2: Andon (`andon/`)
 
@@ -72,6 +99,8 @@ real é o RLS).
 
 ```
 index.html                 Painel de Avisos (projeção nas TVs)
+offline.html               Painel 100% offline, arquivo único (gerado)
+tools/build-offline.js     Gera o offline.html a partir do index.html
 andon/
   index.html               App de andon (seleção + operadora + painéis)
   config.js                URL + chave publishable do Supabase (editável)

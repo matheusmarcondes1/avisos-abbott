@@ -1,12 +1,12 @@
 <!DOCTYPE html>
+<!-- GERADO AUTOMATICAMENTE por tools/build-offline.js a partir de index.html.
+     Não edite este arquivo à mão: altere index.html e rode o script de novo.
+     Versão 100% offline: um único arquivo, sem requisições externas. -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel de Avisos — Abbott BR-SH-M</title>
-<!-- ONLINE-ONLY:START (removido na versão offline) -->
-<link rel="icon" type="image/jpeg" href="https://cdn.brandfetch.io/idtqCIB40M/w/200/h/200/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&amp;t=1756696667154">
-<!-- ONLINE-ONLY:END -->
+<title>Painel de Avisos (offline) — Abbott BR-SH-M</title>
 <style>
 /* ============================================================
    PALETA — Abbott Color Palette
@@ -350,35 +350,6 @@ table.editor td.xcol{ width: 44px; text-align:center; }
 .info-card .sig{ margin-top: 12px; font-weight: 700; color: var(--accent); }
 .info-card .meta{ margin-top: 4px; font-size: 13px; color: var(--ink-soft); }
 
-/* ONLINE-ONLY:START (removido na versão offline) */
-/* ---------- fila de andon na lateral da TV ----------
-   Ao receber chamados, a tela principal "encolhe" (right = --qw) e a fila
-   aparece numa coluna própria — sem cobrir o relógio. Os mais antigos ficam
-   no topo. Tudo em caixa alta e alto contraste (TV vista de longe). */
-:root{ --qw: clamp(200px, 20vw, 340px); }
-#tv-queue{
-  position: fixed; top: 0; right: 0; bottom: 0; width: var(--qw); z-index: 40;
-  background: #fff; display: none; flex-direction: column; gap: 12px;
-  padding: 14px; overflow: hidden; border-left: 2px solid #e5ecf0;
-}
-body.has-calls #tv-queue{ display: flex; }
-body.has-calls .tv{ right: var(--qw); }   /* a tela principal chega pro lado */
-.tvq{
-  flex: 0 0 auto; border-radius: 16px; padding: 12px 10px 14px; text-align: center;
-  color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  text-transform: uppercase;
-}
-.tvq.t-falta_material{ background:#ffbf21; color:#3d2f00; }
-.tvq.t-qualidade{ background:#7c4bd0; }
-.tvq.t-inspecao{ background:#ff5729; }
-.tvq.t-assistente{ background:#1f8f57; }
-.tvq .q-type{ font-size: clamp(13px, 1.4vw, 22px); font-weight: 800; letter-spacing: .06em; line-height: 1.05; }
-.tvq .q-mesa{ font-size: clamp(44px, 5.4vw, 90px); font-weight: 900; line-height: 1;
-  font-variant-numeric: tabular-nums; margin: 2px 0; }
-.tvq .q-etapa{ font-size: clamp(13px, 1.4vw, 22px); font-weight: 800; letter-spacing: .04em; line-height: 1.05; }
-/* com a fila aberta, o relógio encolhe um pouco para caber à esquerda */
-body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
-/* ONLINE-ONLY:END */
 .clk-date{ text-transform: uppercase; letter-spacing: .04em; }
 
 @media (prefers-reduced-motion: reduce){
@@ -793,29 +764,6 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
       </div>
     </div>
 
-    <!-- ONLINE-ONLY:START (removido na versão offline) -->
-    <!-- Integração Andon -->
-    <div class="cfg-sec">
-      <h3>Notificações de Andon</h3>
-      <p class="sub">Quando há chamados de andon abertos, a TV exibe a fila na coluna lateral
-        e emite o sinal sonoro ao chegar um novo. Requer a política de leitura anônima
-        (ver <code>supabase/migrations/0003_andon_sem_login.sql</code>).</p>
-      <label class="cfg-row check">
-        <input type="checkbox" id="cfg-andon" onchange="setCfg('andonNotify', this.checked)">
-        <span class="cfg-label">Exibir notificações de chamados de andon nas TVs</span>
-      </label>
-      <div class="cfg-row">
-        <span class="cfg-label">URL do Supabase (opcional; vazio usa o padrão)</span>
-        <input type="text" id="cfg-andon-url" placeholder="https://…supabase.co"
-          onchange="setCfg('andonUrl', this.value.trim())" style="min-width:240px">
-      </div>
-      <div class="cfg-row">
-        <span class="cfg-label">Chave publishable (opcional; vazio usa o padrão)</span>
-        <input type="text" id="cfg-andon-key" placeholder="sb_publishable_…"
-          onchange="setCfg('andonKey', this.value.trim())" style="min-width:240px">
-      </div>
-    </div>
-    <!-- ONLINE-ONLY:END -->
 
     <!-- Dados (backup / planilha) -->
     <div class="cfg-sec">
@@ -862,11 +810,6 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
   </div>
 </section>
 
-<!-- ONLINE-ONLY:START (removido na versão offline) -->
-<!-- ================= FILA DE ANDON (overlay) ================= -->
-<!-- fila de chamados de andon (coluna lateral da TV) -->
-<div id="tv-queue" role="status" aria-live="polite"></div>
-<!-- ONLINE-ONLY:END -->
 
 <script>
 /* ============================================================
@@ -874,16 +817,12 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
    online, as imagens oficiais da marca são carregadas por cima (azul escuro
    em fundos claros; branca no relógio) e o wordmark serve de reserva.
    ============================================================ */
-/* ONLINE-ONLY:START (removido na versão offline) */
-const LOGO_BLUE  = 'https://cdn.brandfetch.io/idtqCIB40M/theme/dark/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1756696705337';
-const LOGO_WHITE = 'https://cdn.brandfetch.io/idtqCIB40M/theme/light/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1756696575880';
-/* ONLINE-ONLY:END */
 const LOGO_FALLBACK = `<span class="lg-fallback"><svg viewBox="0 0 236 60" role="img" aria-label="Abbott">
   <text x="0" y="47" fill="currentColor" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif"
         font-weight="700" font-size="56" letter-spacing="-3">Abbott</text></svg></span>`;
 /* Na versão offline (OFFLINE = true) usa apenas o wordmark vetorial embutido,
    sem nenhuma requisição externa. */
-const OFFLINE = false;
+const OFFLINE = true;
 function injectLogos(){
   document.querySelectorAll('.logo-slot').forEach(el => {
     el.innerHTML = (OFFLINE || typeof LOGO_BLUE === 'undefined') ? LOGO_FALLBACK :
@@ -921,11 +860,6 @@ const CONFIG_PADRAO = {
   showSeconds: true,
   showDate: true,
   showChain: true,
-  /* ONLINE-ONLY:START (removido na versão offline) */
-  andonNotify: true,      // exibir notificações de chamados de andon nas TVs
-  andonUrl: '',           // vazio -> usa ANDON_URL_DEFAULT
-  andonKey: '',           // vazio -> usa ANDON_KEY_DEFAULT
-  /* ONLINE-ONLY:END */
 
   /* Reuniões de N1 — períodos em que a TV acompanha a reunião com barra de
      progresso. Totalmente personalizável (horários, título e mensagem). */
@@ -938,14 +872,6 @@ const CONFIG_PADRAO = {
   ]
 };
 
-/* ONLINE-ONLY:START (removido na versão offline) */
-/* Conexão de leitura ao Supabase para as notificações de andon (valores
-   publicáveis; a proteção real é o RLS). Podem ser trocados nas Configurações. */
-const ANDON_URL_DEFAULT = 'https://swcflnemmjnrvbqbrguw.supabase.co';
-const ANDON_KEY_DEFAULT = 'sb_publishable_cT0lJ0L1ZtXTy8XPsgFFRA_TfMb6YwA';
-const ANDON_TIPO = { falta_material:'Falta de material', qualidade:'Qualidade',
-  inspecao:'Inspeção', assistente:'Assistente' };
-/* ONLINE-ONLY:END */
 
 let DATA = defaultData();
 
@@ -1860,14 +1786,6 @@ function renderConfig(){
   document.getElementById('cfg-n1-msg').value       = DATA.config.n1Mensagem || '';
   renderN1Editor();
 
-  /* ONLINE-ONLY:START (removido na versão offline) */
-  const andonEl = document.getElementById('cfg-andon');
-  if(andonEl){
-    andonEl.checked = !!DATA.config.andonNotify;
-    document.getElementById('cfg-andon-url').value = DATA.config.andonUrl || '';
-    document.getElementById('cfg-andon-key').value = DATA.config.andonKey || '';
-  }
-  /* ONLINE-ONLY:END */
 }
 
 /* ---------- editor dos períodos de N1 ---------- */
@@ -2112,12 +2030,6 @@ function setCfg(key, value){
   DATA.config[key] = value;
   saveData();
   applyDisplay();
-  /* ONLINE-ONLY:START (removido na versão offline) */
-  if(key === 'andonNotify' || key === 'andonUrl' || key === 'andonKey'){
-    if(typeof stopAndonNotify === 'function') stopAndonNotify();
-    if(typeof initAndonNotify === 'function') initAndonNotify();
-  }
-  /* ONLINE-ONLY:END */
 }
 
 /* ============================================================
@@ -2130,65 +2042,6 @@ function applyDisplay(){
   document.getElementById('scr-clk-tv').classList.toggle('bg-azul', c.clockBg === 'azul');
 }
 
-/* ONLINE-ONLY:START (removido na versão offline) */
-/* ============================================================
-   FILA DE ANDON NAS TVs
-   O painel assina (somente leitura) os chamados de andon no Supabase. Quando
-   há chamados abertos, a tela principal "encolhe" e a fila aparece na coluna
-   lateral — só cor + número da mesa, em caixa alta e alto contraste, com os
-   mais antigos no topo. Emite o sinal sonoro ao chegar um novo chamado.
-   Requer a política de leitura anônima (migração 0003).
-   ============================================================ */
-let andonClient = null, andonCh = null, panelCalls = [];
-
-function renderTvQueue(){
-  const wrap = document.getElementById('tv-queue');
-  if(!wrap) return;
-  const tvActive = !!document.querySelector('.screen.tv.active');
-  document.body.classList.toggle('has-calls', tvActive && panelCalls.length > 0);
-  wrap.innerHTML = panelCalls.map(c => `
-    <div class="tvq t-${c.type}">
-      <div class="q-type">${esc((ANDON_TIPO[c.type] || 'Chamado').toUpperCase())}</div>
-      <div class="q-mesa">${c.mesa != null ? String(c.mesa).padStart(2,'0') : '—'}</div>
-      ${c.etapa ? '<div class="q-etapa">' + esc(String(c.etapa).toUpperCase()) + '</div>' : ''}
-    </div>`).join('');
-}
-
-async function fetchPanelCalls(){
-  if(!andonClient) return;
-  try{
-    const { data } = await andonClient.from('andon_events')
-      .select('*').eq('status','aberto').order('created_at', { ascending: true }); // mais antigos primeiro
-    panelCalls = data || [];
-    renderTvQueue();
-  }catch(e){}
-}
-
-async function initAndonNotify(){
-  const c = DATA.config;
-  if(!c.andonNotify) return;
-  const url = (c.andonUrl || ANDON_URL_DEFAULT).trim();
-  const key = (c.andonKey || ANDON_KEY_DEFAULT).trim();
-  if(!url || !key) return;
-  try{
-    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-    andonClient = createClient(url, key, { auth: { persistSession: false } });
-    andonCh = andonClient.channel('tv-andon')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'andon_events' }, payload => {
-        if(payload.eventType === 'INSERT' && payload.new && payload.new.status === 'aberto') alertTone();
-        fetchPanelCalls();
-      })
-      .subscribe();
-    fetchPanelCalls();
-  }catch(e){ /* offline / CDN indisponível: o painel segue funcionando normalmente */ }
-}
-function stopAndonNotify(){
-  try{ if(andonCh && andonClient) andonClient.removeChannel(andonCh); }catch(e){}
-  andonCh = null; andonClient = null;
-  panelCalls = [];
-  renderTvQueue();
-}
-/* ONLINE-ONLY:END */
 
 /* ============================================================
    INICIALIZAÇÃO
