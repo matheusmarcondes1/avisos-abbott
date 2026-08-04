@@ -48,7 +48,9 @@ input, select, textarea{ font-family: inherit; }
    branca nas telas de TV). Pode ser substituída pelo SVG oficial da marca. */
 .logo-slot{ display:inline-block; color: var(--accent); line-height:0; }
 .logo-slot img.lg{ height:100%; width:auto; display:none; }
-.logo-slot .lg-fallback{ display:block; }        /* wordmark de reserva (offline) */
+/* o wordmark de reserva precisa herdar a altura do slot: sem isso, o SVG
+   com height:100% resolve para zero e a logo some (caso da versão offline) */
+.logo-slot .lg-fallback{ display:block; height:100%; }
 .logo-slot .lg-fallback svg{ height:100%; width:auto; display:block; }
 .logo-slot.img-ok .lg-fallback{ display:none; }
 .logo-slot.img-ok .lg-blue{ display:block; }      /* fundo claro: logo azul escuro */
@@ -346,6 +348,12 @@ table.editor td.xcol{ width: 44px; text-align:center; }
 .info-card .sig{ margin-top: 12px; font-weight: 700; color: var(--accent); }
 .info-card .meta{ margin-top: 4px; font-size: 13px; color: var(--ink-soft); }
 
+/* estado da conexão com o banco (tela de configurações) */
+.msg-db{ margin-top: 14px; border-radius: 10px; padding: 12px 16px; font-size: 14px;
+  line-height: 1.5; font-weight: 700; }
+.msg-db.ok{ background: var(--accent-soft); color: var(--accent); }
+.msg-db.off{ background: var(--ember-soft); color: var(--ember-ink); }
+
 /* ---------- fila de andon na lateral da TV ----------
    Ao receber chamados, a tela principal "encolhe" (right = --qw) e a fila
    aparece numa coluna própria — sem cobrir o relógio. Os mais antigos ficam
@@ -395,6 +403,11 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
         <div class="fc-title">Reuniões Escalonadas</div>
         <div class="fc-desc">Projeta o cronograma escalonado das reuniões, com janelas e deslocamentos acompanhando o relógio.</div>
         <div class="fc-go">Abrir →</div>
+      </button>
+      <button class="func-card" onclick="startN1()">
+        <div class="fc-title">Reuniões de N1</div>
+        <div class="fc-desc">Acompanha a reunião de N1 com barra de progresso. Entra sozinha nos períodos configurados (manhã e tarde).</div>
+        <div class="fc-go">Projetar →</div>
       </button>
       <button class="func-card" onclick="goValSelect()">
         <div class="fc-title">Busca por Válvulas</div>
@@ -468,6 +481,29 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
       <span class="pf-time" id="n2-remaining">--:--</span>
     </div>
     <div class="pf-track"><div class="pf-fill" id="n2-fill"></div></div>
+  </div>
+</section>
+
+<!-- ================= REUNIÕES DE N1 — TV ================= -->
+<section id="scr-n1-tv" class="screen tv">
+  <button class="tv-exit" onclick="exitN1()">Encerrar (Esc)</button>
+  <div class="tv-top">
+    <span class="tv-eyebrow" id="n1-eyebrow">Reuniões de N1</span>
+    <div class="tv-topright">
+      <div class="logo-slot tv-brand"></div>
+      <span class="tv-clock" id="n1-clock">--:--</span>
+    </div>
+  </div>
+  <div class="tv-center">
+    <div class="big" id="n1-titulo">Reuniões de N1 em andamento</div>
+    <div class="mid" id="n1-mensagem">Agora é a hora de rever o dia anterior.</div>
+  </div>
+  <div class="tv-footer">
+    <div class="pf-row">
+      <span class="pf-label" id="n1-pf-label">Tempo restante</span>
+      <span class="pf-time" id="n1-remaining">--:--</span>
+    </div>
+    <div class="pf-track"><div class="pf-fill" id="n1-fill"></div></div>
   </div>
 </section>
 
@@ -658,14 +694,17 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
     <div class="logo-slot control-logo"></div>
     <p class="eyebrow">Configurações</p>
     <h2>Ajustes do painel</h2>
-    <p class="sub">Todas as informações são inseridas manualmente e ficam salvas apenas neste navegador.
-      Nenhum arquivo é enviado ou armazenado fora do dispositivo.</p>
+    <p class="sub">Os <strong>horários das reuniões ficam no banco</strong>: são cadastrados aqui uma
+      única vez e valem para todas as TVs, que recebem as alterações na hora. As preferências de
+      <em>exibição</em> (fonte, fundo do relógio) são deste aparelho.</p>
+    <div class="msg-db" id="db-status"></div>
 
     <!-- Séries de reuniões -->
     <div class="cfg-sec">
       <h3>Séries de reuniões</h3>
       <p class="sub">Crie mais de uma série para cobrir turnos diferentes — por exemplo, manhã e tarde,
-        com horários e supervisores próprios. Edite as janelas da série selecionada abaixo.</p>
+        com horários e supervisores próprios. Edite as janelas da série selecionada abaixo.
+        As alterações são salvas no banco automaticamente.</p>
 
       <div class="series-tabs" id="series-tabs"></div>
       <div class="series-actions">
@@ -678,6 +717,31 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
       <div class="rot-editor" id="rot-editor"></div>
       <div style="margin-top:12px">
         <button class="btn ghost small" onclick="addWindow()">+ Adicionar janela</button>
+      </div>
+    </div>
+
+    <!-- Reuniões de N1 -->
+    <div class="cfg-sec">
+      <h3>Reuniões de N1</h3>
+      <p class="sub">Nos períodos abaixo, a TV acompanha a reunião de N1 com barra de progresso.
+        O texto é personalizável. Estes ajustes ficam no banco e valem para todas as TVs.</p>
+      <label class="cfg-row check">
+        <input type="checkbox" id="cfg-n1" onchange="setN1Cfg('n1_enabled', this.checked)">
+        <span class="cfg-label">Entrar automaticamente nos períodos de <strong>Reuniões de N1</strong></span>
+      </label>
+      <div class="cfg-row">
+        <span class="cfg-label">Título</span>
+        <input type="text" id="cfg-n1-titulo" style="min-width:280px"
+          onchange="setN1Cfg('n1_titulo', this.value)">
+      </div>
+      <div class="cfg-row">
+        <span class="cfg-label">Mensagem</span>
+        <input type="text" id="cfg-n1-msg" style="min-width:280px"
+          onchange="setN1Cfg('n1_mensagem', this.value)">
+      </div>
+      <div class="rot-editor" id="n1-editor" style="margin-top:12px"></div>
+      <div style="margin-top:12px">
+        <button class="btn ghost small" onclick="addN1Periodo()">+ Adicionar período</button>
       </div>
     </div>
 
@@ -737,9 +801,9 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
     <!-- Integração Andon -->
     <div class="cfg-sec">
       <h3>Notificações de Andon</h3>
-      <p class="sub">Quando um chamado de andon é aberto, o painel exibe brevemente a notificação
-        sobre a tela atual e emite o sinal sonoro. Requer a política de leitura anônima dos
-        chamados ativos (ver <code>supabase/migrations/0002_andon_tv_notify.sql</code>).</p>
+      <p class="sub">Quando há chamados de andon abertos, a TV exibe a fila na coluna lateral
+        e emite o sinal sonoro ao chegar um novo. Requer a política de leitura anônima
+        (ver <code>supabase/migrations/0003_andon_sem_login.sql</code>).</p>
       <label class="cfg-row check">
         <input type="checkbox" id="cfg-andon" onchange="setCfg('andonNotify', this.checked)">
         <span class="cfg-label">Exibir notificações de chamados de andon nas TVs</span>
@@ -747,13 +811,31 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
       <div class="cfg-row">
         <span class="cfg-label">URL do Supabase (opcional; vazio usa o padrão)</span>
         <input type="text" id="cfg-andon-url" placeholder="https://…supabase.co"
-          onchange="setCfg('andonUrl', this.value.trim())" style="min-width:240px">
+          onchange="setCfg('sbUrl', this.value.trim())" style="min-width:240px">
       </div>
       <div class="cfg-row">
         <span class="cfg-label">Chave publishable (opcional; vazio usa o padrão)</span>
         <input type="text" id="cfg-andon-key" placeholder="sb_publishable_…"
-          onchange="setCfg('andonKey', this.value.trim())" style="min-width:240px">
+          onchange="setCfg('sbKey', this.value.trim())" style="min-width:240px">
       </div>
+    </div>
+
+    <!-- Dados (backup / planilha) -->
+    <div class="cfg-sec">
+      <h3>Dados</h3>
+      <p class="sub">O cronograma vive no banco. Use a planilha para conferir os horários ou para
+        cadastrar muitas janelas de uma vez — a importação <strong>substitui</strong> as janelas da
+        série selecionada, no banco, para todas as TVs.</p>
+      <div class="cfg-row">
+        <span class="cfg-label">Cronograma da série selecionada (abre no Excel)</span>
+        <span style="display:flex; gap:8px; flex-wrap:wrap">
+          <button class="btn ghost small" onclick="exportCronogramaCSV()">Exportar (.csv)</button>
+          <label class="btn ghost small" for="imp-csv" style="display:inline-block">Importar (.csv)</label>
+          <input type="file" id="imp-csv" accept=".csv,text/csv" hidden onchange="importCronogramaCSV(this)">
+        </span>
+      </div>
+      <p class="sub" style="margin-top:6px">Colunas do CSV: <code>Início; Fim; Área; Supervisor; Cadeia</code>
+        (horários como <code>09:00</code>; Cadeia em branco ou SEG…SÁB).</p>
     </div>
 
     <!-- Informações / Disclaimer -->
@@ -762,37 +844,41 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
       <div class="info-card">
         <p>Este é um <strong>projeto pessoal e de código aberto</strong> — uma <strong>plataforma
           genérica de avisos/andon para produção</strong>, criada por iniciativa própria. Funciona
-          apenas como apoio à organização e à gestão da rotina: <strong>não registra nenhuma
-          informação</strong> (os ajustes ficam somente neste navegador) e <strong>não se integra a
-          sistemas corporativos</strong>.</p>
+          apenas como apoio à organização e à gestão da rotina e <strong>não se integra a sistemas
+          corporativos</strong>. Guarda somente os <strong>horários das reuniões</strong> cadastrados
+          aqui e os sinais operacionais de chamado (tipo, mesa, etapa, horário) —
+          <strong>nenhuma informação pessoal</strong>.</p>
         <p class="sig">Desenvolvido por Matheus Marcondes.</p>
         <p class="meta" id="info-meta">Plataforma de avisos para produção · código aberto</p>
       </div>
       <div style="margin-top:16px">
-        <button class="btn danger small" onclick="resetAll()">Restaurar configurações padrão</button>
+        <button class="btn danger small" onclick="resetAll()">Restaurar preferências deste aparelho</button>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ================= NOTIFICAÇÃO DE ANDON (overlay) ================= -->
+<!-- ================= FILA DE ANDON (overlay) ================= -->
 <!-- fila de chamados de andon (coluna lateral da TV) -->
 <div id="tv-queue" role="status" aria-live="polite"></div>
 
 <script>
 /* ============================================================
-   LOGO ABBOTT — imagens oficiais (brandfetch), com wordmark vetorial de
-   reserva caso as imagens não carreguem (offline). A logo azul escuro é
-   usada em fundos claros; a branca, no relógio (fundo escuro).
+   LOGO ABBOTT — wordmark vetorial embutido, sempre disponível. Na versão
+   online, as imagens oficiais da marca são carregadas por cima (azul escuro
+   em fundos claros; branca no relógio) e o wordmark serve de reserva.
    ============================================================ */
 const LOGO_BLUE  = 'https://cdn.brandfetch.io/idtqCIB40M/theme/dark/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1756696705337';
 const LOGO_WHITE = 'https://cdn.brandfetch.io/idtqCIB40M/theme/light/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1756696575880';
 const LOGO_FALLBACK = `<span class="lg-fallback"><svg viewBox="0 0 236 60" role="img" aria-label="Abbott">
   <text x="0" y="47" fill="currentColor" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif"
         font-weight="700" font-size="56" letter-spacing="-3">Abbott</text></svg></span>`;
+/* Na versão offline (OFFLINE = true) usa apenas o wordmark vetorial embutido,
+   sem nenhuma requisição externa. */
+const OFFLINE = false;
 function injectLogos(){
   document.querySelectorAll('.logo-slot').forEach(el => {
-    el.innerHTML =
+    el.innerHTML = (OFFLINE || typeof LOGO_BLUE === 'undefined') ? LOGO_FALLBACK :
       '<img class="lg lg-blue" src="' + LOGO_BLUE + '" alt="Abbott"' +
         ' onload="this.closest(\'.logo-slot\').classList.add(\'img-ok\')">' +
       '<img class="lg lg-white" src="' + LOGO_WHITE + '" alt="Abbott"' +
@@ -803,23 +889,24 @@ function injectLogos(){
 
 /* ============================================================
    DADOS
-   ============================================================ */
-const STORE_KEY = 'painel-avisos-v2';
 
-/* Roteiro atual (turno da manhã) usado como semente inicial. */
-const ROTEIRO_MANHA = [
-  { inicio: 540, fim: 555, area: 'Material Biológico',  supervisor: 'Márcia',    cadeia: 2 },
-  { inicio: 540, fim: 555, area: 'SVE',                 supervisor: 'Deivid',    cadeia: 4 },
-  { inicio: 560, fim: 575, area: 'Anel Revestido',      supervisor: 'Henrique',  cadeia: 2 },
-  { inicio: 560, fim: 575, area: 'SVE',                 supervisor: 'Julia',     cadeia: 4 },
-  { inicio: 560, fim: 575, area: 'SVS',                 supervisor: 'Silvia',    cadeia: 5 },
-  { inicio: 580, fim: 595, area: 'Sizing & Trimming',   supervisor: 'Guilherme', cadeia: 2 },
-  { inicio: 580, fim: 595, area: 'SVE',                 supervisor: 'Inês',      cadeia: 4 },
-  { inicio: 580, fim: 595, area: 'Revisão Final',       supervisor: 'Regina',    cadeia: 5 }
-];
+   Os horários das reuniões (séries/janelas das Escalonadas e períodos de N1)
+   ficam NO BANCO (Supabase) — não no HTML nem no armazenamento do navegador.
+   São cadastrados uma vez e valem para todas as TVs, que recebem as
+   alterações na hora (Realtime).
+
+   No navegador ficam apenas as preferências DESTE aparelho (tamanho da
+   fonte, fundo do relógio, etc.), que podem variar de TV para TV, e uma
+   cópia de segurança do último cronograma lido — usada só se o banco estiver
+   inacessível, para a TV não ficar sem programação.
+   ============================================================ */
+const LOCAL_KEY = 'painel-avisos-local';   // preferências deste aparelho
+const CACHE_KEY = 'painel-avisos-cache';   // espelho do banco (contingência)
+
 const DIA_TAG = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
 
-const CONFIG_PADRAO = {
+/* Preferências locais (por TV) */
+const LOCAL_PADRAO = {
   autoStart: true,        // iniciar em modo automático (relógio + reuniões no horário)
   autoReturnClock: true,  // voltar ao relógio ao encerrar uma projeção
   fontScale: 'g',         // 'n' | 'g' | 'xg'
@@ -827,67 +914,141 @@ const CONFIG_PADRAO = {
   showSeconds: true,
   showDate: true,
   showChain: true,
-  andonNotify: true,      // exibir notificações de chamados de andon nas TVs
-  andonUrl: '',           // vazio -> usa ANDON_URL_DEFAULT
-  andonKey: ''            // vazio -> usa ANDON_KEY_DEFAULT
+  andonNotify: true,      // exibir a fila de chamados de andon nas TVs
+  sbUrl: '',              // vazio -> usa SB_URL_DEFAULT
+  sbKey: ''               // vazio -> usa SB_KEY_DEFAULT
 };
 
-/* Conexão de leitura ao Supabase para as notificações de andon (valores
-   publicáveis; a proteção real é o RLS). Podem ser trocados nas Configurações. */
-const ANDON_URL_DEFAULT = 'https://swcflnemmjnrvbqbrguw.supabase.co';
-const ANDON_KEY_DEFAULT = 'sb_publishable_cT0lJ0L1ZtXTy8XPsgFFRA_TfMb6YwA';
+/* Conexão ao Supabase (valores publicáveis; a proteção real é o RLS).
+   Podem ser trocados nas Configurações. */
+const SB_URL_DEFAULT = 'https://swcflnemmjnrvbqbrguw.supabase.co';
+const SB_KEY_DEFAULT = 'sb_publishable_cT0lJ0L1ZtXTy8XPsgFFRA_TfMb6YwA';
 const ANDON_TIPO = { falta_material:'Falta de material', qualidade:'Qualidade',
   inspecao:'Inspeção', assistente:'Assistente' };
 
-let DATA = defaultData();
+const N1_PADRAO = { enabled: true, titulo: 'Reuniões de N1 em andamento',
+  mensagem: 'Agora é a hora de rever o dia anterior.', periodos: [] };
 
-function uid(){ return 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+let DATA = {
+  series: [],            // do banco: [{ id, nome, roteiro: [...] }]
+  activeSeriesId: null,  // do banco: uuid da série, ou 'auto'
+  n1: { ...N1_PADRAO },  // do banco
+  config: { ...LOCAL_PADRAO },
+  dbOk: false            // true quando o cronograma veio do banco
+};
 
-function defaultData(){
-  const manhaId = uid();
-  return {
-    version: 2,
-    series: [
-      { id: manhaId, nome: 'Turno da Manhã', roteiro: ROTEIRO_MANHA.map(r => ({...r})) },
-      { id: uid(),   nome: 'Turno da Tarde', roteiro: ROTEIRO_MANHA.map(r => ({...r})) }
-    ],
-    activeSeriesId: manhaId,     // 'auto' escolhe pela hora atual
-    config: { ...CONFIG_PADRAO },
-    atualizadoEm: null
-  };
-}
-
-function loadData(){
+/* ---------- preferências locais ---------- */
+function loadLocal(){
   try{
-    const raw = localStorage.getItem(STORE_KEY);
-    if(raw){
-      const parsed = JSON.parse(raw);
-      if(parsed && Array.isArray(parsed.series) && parsed.series.length){
-        DATA = parsed;
-      }
-    }
-  }catch(e){ /* dados corrompidos: mantém padrão */ }
-  ensureShape();
+    const raw = localStorage.getItem(LOCAL_KEY);
+    if(raw) DATA.config = { ...LOCAL_PADRAO, ...JSON.parse(raw) };
+  }catch(e){ /* dados corrompidos: mantém o padrão */ }
 }
-function ensureShape(){
-  if(!Array.isArray(DATA.series) || !DATA.series.length) DATA = defaultData();
-  DATA.config = { ...CONFIG_PADRAO, ...(DATA.config || {}) };
-  DATA.series.forEach(s => {
-    if(!s.id) s.id = uid();
-    if(!Array.isArray(s.roteiro)) s.roteiro = [];
-  });
-  if(DATA.activeSeriesId !== 'auto' && !DATA.series.some(s => s.id === DATA.activeSeriesId)){
-    DATA.activeSeriesId = DATA.series[0].id;
+function saveLocal(){
+  try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(DATA.config)); }catch(e){}
+}
+
+/* ---------- cliente Supabase compartilhado ---------- */
+let SB = null, sbLoading = null;
+async function getSB(){
+  if(SB) return SB;
+  if(sbLoading) return sbLoading;
+  const url = (DATA.config.sbUrl || SB_URL_DEFAULT).trim();
+  const key = (DATA.config.sbKey || SB_KEY_DEFAULT).trim();
+  if(!url || !key) return null;
+  sbLoading = (async ()=>{
+    try{
+      const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+      SB = createClient(url, key, { auth: { persistSession: false } });
+      return SB;
+    }catch(e){ return null; }
+    finally{ sbLoading = null; }
+  })();
+  return sbLoading;
+}
+
+/* ---------- leitura do cronograma ---------- */
+async function loadSchedule(){
+  const sb = await getSB();
+  if(!sb){ loadCache(); return false; }
+  try{
+    const [rs, rw, rn, rc] = await Promise.all([
+      sb.from('meeting_series').select('*').order('sort_order').order('nome'),
+      sb.from('meeting_windows').select('*').order('inicio'),
+      sb.from('n1_periods').select('*').order('inicio'),
+      sb.from('panel_settings').select('*').eq('id', 1).maybeSingle()
+    ]);
+    if(rs.error || rw.error) throw rs.error || rw.error;
+
+    DATA.series = (rs.data || []).map(s => ({
+      id: s.id, nome: s.nome,
+      roteiro: (rw.data || [])
+        .filter(w => w.series_id === s.id)
+        .map(w => ({ id: w.id, inicio: w.inicio, fim: w.fim, area: w.area,
+                     supervisor: w.supervisor, cadeia: w.cadeia }))
+        .sort((a,b) => a.inicio - b.inicio || String(a.area).localeCompare(b.area))
+    }));
+
+    const cfg = rc && rc.data ? rc.data : null;
+    DATA.activeSeriesId = cfg
+      ? (cfg.auto_series ? 'auto' : (cfg.active_series_id || (DATA.series[0] && DATA.series[0].id) || null))
+      : ((DATA.series[0] && DATA.series[0].id) || null);
+    DATA.n1 = {
+      enabled:  cfg ? !!cfg.n1_enabled : N1_PADRAO.enabled,
+      titulo:   (cfg && cfg.n1_titulo)   || N1_PADRAO.titulo,
+      mensagem: (cfg && cfg.n1_mensagem) || N1_PADRAO.mensagem,
+      periodos: (rn.data || []).map(p => ({ id: p.id, inicio: p.inicio, fim: p.fim }))
+    };
+    DATA.dbOk = true;
+    saveCache();
+    return true;
+  }catch(e){
+    loadCache();
+    return false;
   }
 }
-function saveData(){
-  DATA.atualizadoEm = new Date().toISOString();
-  try{ localStorage.setItem(STORE_KEY, JSON.stringify(DATA)); }catch(e){}
+/* espelho local: só entra em cena se o banco estiver inacessível */
+function saveCache(){
+  try{
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+      series: DATA.series, activeSeriesId: DATA.activeSeriesId, n1: DATA.n1,
+      em: new Date().toISOString()
+    }));
+  }catch(e){}
 }
+function loadCache(){
+  try{
+    const raw = localStorage.getItem(CACHE_KEY);
+    if(!raw) return;
+    const c = JSON.parse(raw);
+    if(c && Array.isArray(c.series)){
+      DATA.series = c.series;
+      DATA.activeSeriesId = c.activeSeriesId;
+      DATA.n1 = { ...N1_PADRAO, ...(c.n1 || {}) };
+    }
+  }catch(e){}
+  DATA.dbOk = false;
+}
+
+/* ---------- escrita no banco ---------- */
+async function dbWrite(fn){
+  const sb = await getSB();
+  if(!sb){ alert('Sem conexão com o banco. As alterações não foram salvas.'); return false; }
+  try{
+    const { error } = await fn(sb);
+    if(error) throw error;
+    await loadSchedule();
+    return true;
+  }catch(e){
+    alert('Não foi possível salvar no banco: ' + (e && e.message ? e.message : e));
+    return false;
+  }
+}
+
 function resetAll(){
-  if(!confirm('Restaurar todas as configurações e séries para o padrão? As alterações locais serão perdidas.')) return;
-  DATA = defaultData();
-  saveData();
+  if(!confirm('Restaurar as preferências de exibição DESTE aparelho para o padrão?\n\nO cronograma das reuniões fica no banco e não é alterado.')) return;
+  DATA.config = { ...LOCAL_PADRAO };
+  saveLocal();
   applyDisplay();
   renderConfig();
 }
@@ -898,6 +1059,7 @@ function resetAll(){
 function seriesById(id){ return DATA.series.find(s => s.id === id); }
 
 function activeSeriesResolved(){
+  if(!DATA.series.length) return { id: null, nome: '—', roteiro: [] };
   if(DATA.activeSeriesId === 'auto'){
     const now = new Date().getHours()*60 + new Date().getMinutes();
     // escolhe a série cuja faixa (primeiro início → último fim) contém o horário atual
@@ -1033,14 +1195,18 @@ function stopStandby(){
 }
 function directorTick(){
   if(!autoActive) return;
+  const m = nowMinReal();
   const wins = buildWindows(activeSeriesResolved().roteiro);
-  const blk = currentBlock(nowMinReal(), buildBlocks(wins));
-  const want = blk ? 'n2' : 'clk';
-  const blockKey = blk ? blk.activeStart + '-' + blk.end : '';
+  const blk = currentBlock(m, buildBlocks(wins));
+  const per = blk ? null : currentN1(m);   // as Escalonadas têm prioridade
+  const want = blk ? 'n2' : (per ? 'n1' : 'clk');
+  const blockKey = blk ? blk.activeStart + '-' + blk.end
+                       : (per ? per.inicio + '-' + per.fim : '');
   if(want === dirMode && blockKey === dirBlockKey) return;   // já na tela certa
   dirMode = want; dirBlockKey = blockKey;
   if(want === 'n2'){
     clearInterval(clkTimer); clkTimer = null;
+    clearInterval(n1Timer); n1Timer = null;
     n2Sim = null; n2LastKey = null;
     showScreen('scr-n2-tv');
     clearInterval(n2Timer);
@@ -1048,10 +1214,88 @@ function directorTick(){
     const tick = ()=> renderN2(wl);
     tick();
     n2Timer = setInterval(tick, 500);
+  } else if(want === 'n1'){
+    clearInterval(clkTimer); clkTimer = null;
+    clearInterval(n2Timer); n2Timer = null;
+    manualPer = null;              // no automático quem controla é o director
+    runN1(per);
   } else {
     clearInterval(n2Timer); n2Timer = null;
+    clearInterval(n1Timer); n1Timer = null;
     runClock();
   }
+}
+
+/* ============================================================
+   REUNIÕES DE N1
+   Períodos configuráveis (por padrão 08:00–09:00 e 14:00–15:00). Durante o
+   período, a TV mostra o aviso com barra de progresso do tempo restante.
+   ============================================================ */
+let n1Timer = null;
+
+function n1Periodos(){
+  return (DATA.n1.periodos || [])
+    .filter(p => p && p.fim > p.inicio)
+    .sort((a,b) => a.inicio - b.inicio);
+}
+function currentN1(m){
+  if(!DATA.n1.enabled) return null;
+  return n1Periodos().find(p => m >= p.inicio && m < p.fim) || null;
+}
+
+/* Renderiza a tela de N1 para um período. Chamado pelo director. */
+function runN1(per){
+  showScreen('scr-n1-tv');
+  document.getElementById('n1-titulo').textContent = DATA.n1.titulo || 'Reuniões de N1 em andamento';
+  document.getElementById('n1-mensagem').textContent = DATA.n1.mensagem || '';
+  const label = document.getElementById('n1-pf-label');
+  const fill = document.getElementById('n1-fill');
+  const rem = document.getElementById('n1-remaining');
+  const clock = document.getElementById('n1-clock');
+  const dentro = ()=>{ const m = nowMinReal(); return m >= per.inicio && m < per.fim; };
+  clearInterval(n1Timer);
+  const tick = ()=>{
+    const m = nowMinReal();
+    updClock(clock);
+    if(dentro()){
+      label.textContent = 'Reunião de N1 · ' + fmtHM(per.inicio) + ' – ' + fmtHM(per.fim) + ' · tempo restante';
+      fill.style.width = Math.min(100, Math.max(0, ((m - per.inicio) / (per.fim - per.inicio)) * 100)) + '%';
+      rem.textContent = fmtMS((per.fim - m) * 60);
+    } else {
+      // projeção manual fora do período: mostra o horário, sem contagem
+      label.textContent = 'Reunião de N1 · ' + fmtHM(per.inicio) + ' – ' + fmtHM(per.fim);
+      fill.style.width = '0%';
+      rem.textContent = '--:--';
+    }
+    // no modo automático quem troca de tela é o director
+    if(!autoActive && manualPer === null && m >= per.fim) exitN1();
+  };
+  tick();
+  n1Timer = setInterval(tick, 500);
+}
+
+/* Projeção manual (pelo menu): usa o período atual ou, fora dele, o próximo.
+   Fora do período a tela fica no ar até o Esc, sem sair sozinha. */
+let manualPer = null;
+function startN1(){
+  stopStandby();
+  const m = nowMinReal();
+  const atual = currentN1(m);
+  const per = atual || n1Periodos().find(p => p.inicio > m) || n1Periodos()[0];
+  if(!per){
+    alert('Nenhum período de Reuniões de N1 configurado. Cadastre em Configurações.');
+    return;
+  }
+  manualPer = atual ? null : per;   // fora do período: não encerra sozinha
+  enterFullscreen();
+  runN1(per);
+}
+function exitN1(){
+  clearInterval(n1Timer);
+  n1Timer = null;
+  manualPer = null;
+  if(autoActive) showMenu();
+  else returnToStandby();
 }
 
 /* cursor e botão de saída nas telas de TV */
@@ -1076,6 +1320,7 @@ document.addEventListener('keydown', (e)=>{
     }
     const som = {
       'scr-n2-tv':  ()=> chime(),
+      'scr-n1-tv':  ()=> chime(),
       'scr-ger-tv': ()=> chime(),
       'scr-sil-tv': ()=> warnTone(),
       'scr-val-tv': ()=> alertTone()
@@ -1090,6 +1335,7 @@ document.addEventListener('keydown', (e)=>{
   }
   if(e.key !== 'Escape') return;
   if(document.getElementById('scr-n2-tv').classList.contains('active')) exitN2();
+  if(document.getElementById('scr-n1-tv').classList.contains('active')) exitN1();
   if(document.getElementById('scr-ger-tv').classList.contains('active')) exitGer();
   if(document.getElementById('scr-sil-tv').classList.contains('active')) exitSil();
   if(document.getElementById('scr-clk-tv').classList.contains('active')) showMenu();
@@ -1647,12 +1893,20 @@ function goConfig(){
 }
 
 function editingSeries(){
-  return seriesById(cfgEditId) || DATA.series[0];
+  return seriesById(cfgEditId) || DATA.series[0] || { id: null, nome: '—', roteiro: [] };
 }
 
 function renderConfig(){
-  ensureShape();
-  if(!seriesById(cfgEditId)) cfgEditId = DATA.series[0].id;
+  if(!seriesById(cfgEditId)) cfgEditId = DATA.series[0] ? DATA.series[0].id : null;
+
+  // estado da conexão com o banco
+  const st = document.getElementById('db-status');
+  if(st){
+    st.className = 'msg-db ' + (DATA.dbOk ? 'ok' : 'off');
+    st.textContent = DATA.dbOk
+      ? 'Conectado ao banco — as alterações valem para todas as TVs.'
+      : 'Sem conexão com o banco: exibindo a última programação recebida. As alterações não serão salvas.';
+  }
 
   // abas de séries
   document.getElementById('series-tabs').innerHTML = DATA.series.map(s => `
@@ -1675,9 +1929,131 @@ function renderConfig(){
   document.getElementById('cfg-seconds').checked    = !!DATA.config.showSeconds;
   document.getElementById('cfg-date').checked       = !!DATA.config.showDate;
   document.getElementById('cfg-chain').checked      = !!DATA.config.showChain;
-  document.getElementById('cfg-andon').checked      = !!DATA.config.andonNotify;
-  document.getElementById('cfg-andon-url').value    = DATA.config.andonUrl || '';
-  document.getElementById('cfg-andon-key').value    = DATA.config.andonKey || '';
+
+  // reuniões de N1
+  document.getElementById('cfg-n1').checked         = !!DATA.n1.enabled;
+  document.getElementById('cfg-n1-titulo').value    = DATA.n1.titulo || '';
+  document.getElementById('cfg-n1-msg').value       = DATA.n1.mensagem || '';
+  renderN1Editor();
+
+  document.getElementById('cfg-andon').checked   = !!DATA.config.andonNotify;
+  document.getElementById('cfg-andon-url').value = DATA.config.sbUrl || '';
+  document.getElementById('cfg-andon-key').value = DATA.config.sbKey || '';
+}
+
+/* ---------- editor dos períodos de N1 ---------- */
+function renderN1Editor(){
+  const el = document.getElementById('n1-editor');
+  const ps = DATA.n1.periodos || [];
+  if(!ps.length){
+    el.innerHTML = '<div class="editor-empty">Nenhum período cadastrado. Use “Adicionar período”.</div>';
+    return;
+  }
+  el.innerHTML = `
+    <table class="editor">
+      <thead><tr><th>Início</th><th>Fim</th><th></th></tr></thead>
+      <tbody>${ps.map((p, i) => `
+        <tr>
+          <td class="tcol"><input type="time" value="${fmtClock(p.inicio)}" onchange="editN1(${i},'inicio',this.value)"></td>
+          <td class="tcol"><input type="time" value="${fmtClock(p.fim)}" onchange="editN1(${i},'fim',this.value)"></td>
+          <td class="xcol"><button class="editor-rm" onclick="removeN1Periodo(${i})" aria-label="Remover período">×</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+async function editN1(i, campo, valor){
+  const t = parseTempo(valor);
+  const p = DATA.n1.periodos[i];
+  if(t == null || !p) return;
+  const patch = { inicio: p.inicio, fim: p.fim };
+  patch[campo] = t;
+  if(patch.fim <= patch.inicio){ alert('O fim deve ser depois do início.'); renderN1Editor(); return; }
+  await dbWrite(sb => sb.from('n1_periods').update(patch).eq('id', p.id));
+  renderConfig();
+}
+async function addN1Periodo(){
+  await dbWrite(sb => sb.from('n1_periods').insert({ inicio: 480, fim: 540 }));
+  renderConfig();
+}
+async function removeN1Periodo(i){
+  const p = DATA.n1.periodos[i];
+  if(!p) return;
+  await dbWrite(sb => sb.from('n1_periods').delete().eq('id', p.id));
+  renderConfig();
+}
+
+/* ============================================================
+   DADOS — cronograma em planilha
+   A exportação gera o arquivo no navegador; a importação grava as janelas
+   no banco (substituindo as da série selecionada).
+   ============================================================ */
+function baixarArquivo(nome, conteudo, tipo){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([conteudo], { type: tipo }));
+  a.download = nome;
+  a.click();
+  setTimeout(()=> URL.revokeObjectURL(a.href), 2000);
+}
+function hojeTag(){ return new Date().toISOString().slice(0,10); }
+
+function csvEscape(v){
+  v = String(v ?? '');
+  return /[";\n]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v;
+}
+function exportCronogramaCSV(){
+  const s = editingSeries();
+  const linhas = [['Início','Fim','Área','Supervisor','Cadeia']];
+  s.roteiro.forEach(r => linhas.push([
+    fmtClock(r.inicio), fmtClock(r.fim), r.area, r.supervisor,
+    r.cadeia != null ? DIA_TAG[r.cadeia] : ''
+  ]));
+  const csv = '﻿' + linhas.map(l => l.map(csvEscape).join(';')).join('\r\n');
+  baixarArquivo('cronograma-' + s.nome.replace(/[^\w-]+/g,'_') + '-' + hojeTag() + '.csv',
+    csv, 'text/csv;charset=utf-8');
+}
+function importCronogramaCSV(input){
+  const file = input.files && input.files[0];
+  if(!file) return;
+  const serie = editingSeries();
+  const reader = new FileReader();
+  reader.onload = async ()=>{
+    let roteiro;
+    try{
+      const texto = String(reader.result).replace(/^﻿/, '');
+      const linhas = texto.split(/\r?\n/).filter(l => l.trim());
+      if(!linhas.length) throw new Error('vazio');
+      // ignora o cabeçalho quando presente
+      if(/in[íi]cio/i.test(linhas[0])) linhas.shift();
+      const sep = linhas[0].includes(';') ? ';' : ',';
+      roteiro = [];
+      for(const linha of linhas){
+        const c = linha.split(sep).map(x => x.trim().replace(/^"|"$/g,'').replace(/""/g,'"'));
+        const inicio = parseTempo(c[0]), fim = parseTempo(c[1]);
+        const area = c[2] || '';
+        if(inicio == null || fim == null || fim <= inicio || !area) continue;
+        const dia = c[4] ? DIA_TAG.indexOf(String(c[4]).toUpperCase()) : -1;
+        roteiro.push({ series_id: serie.id, inicio, fim, area,
+                       supervisor: c[3] || '', cadeia: dia >= 0 ? dia : null });
+      }
+      if(!roteiro.length) throw new Error('sem linhas válidas');
+    }catch(e){
+      alert('Não foi possível ler o CSV. Confira as colunas: Início; Fim; Área; Supervisor; Cadeia.');
+      return;
+    }
+    if(!confirm('Substituir as ' + serie.roteiro.length + ' janela(s) da série “' + serie.nome +
+                '” por ' + roteiro.length + ' do arquivo?\n\nA alteração vale para todas as TVs.')) return;
+    const sb = await getSB();
+    if(!sb){ alert('Sem conexão com o banco. Nada foi alterado.'); return; }
+    const del = await sb.from('meeting_windows').delete().eq('series_id', serie.id);
+    if(del.error){ alert('Falha ao limpar as janelas: ' + del.error.message); return; }
+    const ins = await sb.from('meeting_windows').insert(roteiro);
+    if(ins.error){ alert('Falha ao gravar as janelas: ' + ins.error.message); return; }
+    await loadSchedule();
+    renderConfig();
+    alert(roteiro.length + ' janela(s) importada(s) para “' + serie.nome + '”.');
+  };
+  reader.readAsText(file);
+  input.value = '';
 }
 
 function renderRoteiroEditor(){
@@ -1714,90 +2090,122 @@ function renderRoteiroEditor(){
 
 function selectEditSeries(id){ cfgEditId = id; renderConfig(); }
 
-function editWin(i, field, value){
-  const s = editingSeries();
-  const r = s.roteiro[i];
+async function editWin(i, field, value){
+  const r = editingSeries().roteiro[i];
   if(!r) return;
+  const patch = {};
   if(field === 'inicio' || field === 'fim'){
     const t = parseTempo(value);
-    if(t != null) r[field] = t;
+    if(t == null) return;
+    const inicio = field === 'inicio' ? t : r.inicio;
+    const fim    = field === 'fim'    ? t : r.fim;
+    if(fim <= inicio){ alert('O fim deve ser depois do início.'); renderRoteiroEditor(); return; }
+    patch[field] = t;
   } else if(field === 'cadeia'){
-    r.cadeia = value === '' ? null : +value;
+    patch.cadeia = value === '' ? null : +value;
   } else {
-    r[field] = value;
+    patch[field] = value;
   }
-  saveData();
+  await dbWrite(sb => sb.from('meeting_windows').update(patch).eq('id', r.id));
+  renderRoteiroEditor();
 }
 
-function addWindow(){
+async function addWindow(){
   const s = editingSeries();
+  if(!s.id) return;
   const last = s.roteiro[s.roteiro.length - 1];
   const inicio = last ? last.fim + 5 : 540;
-  s.roteiro.push({ inicio, fim: inicio + 15, area: '', supervisor: '', cadeia: null });
-  saveData();
+  await dbWrite(sb => sb.from('meeting_windows').insert({
+    series_id: s.id, inicio, fim: inicio + 15, area: '', supervisor: '', cadeia: null
+  }));
   renderRoteiroEditor();
 }
 
-function removeWindow(i){
-  editingSeries().roteiro.splice(i, 1);
-  saveData();
+async function removeWindow(i){
+  const r = editingSeries().roteiro[i];
+  if(!r) return;
+  await dbWrite(sb => sb.from('meeting_windows').delete().eq('id', r.id));
   renderRoteiroEditor();
 }
 
-function addSeries(){
+async function addSeries(){
   const nome = (prompt('Nome da nova série (ex.: Turno da Tarde):', 'Nova série') || '').trim();
   if(!nome) return;
-  const nova = { id: uid(), nome, roteiro: [] };
-  DATA.series.push(nova);
-  cfgEditId = nova.id;
-  saveData();
+  const sb = await getSB();
+  if(!sb){ alert('Sem conexão com o banco.'); return; }
+  const { data, error } = await sb.from('meeting_series')
+    .insert({ nome, sort_order: (DATA.series.length + 1) * 10 }).select('id').single();
+  if(error){ alert('Não foi possível criar a série: ' + error.message); return; }
+  await loadSchedule();
+  cfgEditId = data.id;
   renderConfig();
 }
 
-function duplicateSeries(){
+async function duplicateSeries(){
   const s = editingSeries();
-  const nova = { id: uid(), nome: s.nome + ' (cópia)', roteiro: s.roteiro.map(r => ({...r})) };
-  DATA.series.push(nova);
-  cfgEditId = nova.id;
-  saveData();
+  if(!s.id) return;
+  const sb = await getSB();
+  if(!sb){ alert('Sem conexão com o banco.'); return; }
+  const { data, error } = await sb.from('meeting_series')
+    .insert({ nome: s.nome + ' (cópia)', sort_order: (DATA.series.length + 1) * 10 })
+    .select('id').single();
+  if(error){ alert('Não foi possível duplicar: ' + error.message); return; }
+  if(s.roteiro.length){
+    const linhas = s.roteiro.map(r => ({ series_id: data.id, inicio: r.inicio, fim: r.fim,
+      area: r.area, supervisor: r.supervisor, cadeia: r.cadeia }));
+    await sb.from('meeting_windows').insert(linhas);
+  }
+  await loadSchedule();
+  cfgEditId = data.id;
   renderConfig();
 }
 
-function renameSeries(){
+async function renameSeries(){
   const s = editingSeries();
   const nome = (prompt('Novo nome da série:', s.nome) || '').trim();
-  if(!nome) return;
-  s.nome = nome;
-  saveData();
+  if(!nome || !s.id) return;
+  await dbWrite(sb => sb.from('meeting_series').update({ nome }).eq('id', s.id));
   renderConfig();
 }
 
-function deleteSeries(){
+async function deleteSeries(){
   if(DATA.series.length <= 1){
     alert('É necessário manter pelo menos uma série.');
     return;
   }
   const s = editingSeries();
-  if(!confirm('Excluir a série “' + s.nome + '”? Esta ação não pode ser desfeita.')) return;
-  DATA.series = DATA.series.filter(x => x.id !== s.id);
-  if(DATA.activeSeriesId === s.id) DATA.activeSeriesId = DATA.series[0].id;
-  cfgEditId = DATA.series[0].id;
-  saveData();
+  if(!s.id) return;
+  if(!confirm('Excluir a série “' + s.nome + '”? As janelas dela serão removidas do banco para todas as TVs.')) return;
+  await dbWrite(sb => sb.from('meeting_series').delete().eq('id', s.id));
+  cfgEditId = DATA.series[0] ? DATA.series[0].id : null;
   renderConfig();
 }
 
-function setActiveSeries(id){
-  DATA.activeSeriesId = id;
-  saveData();
+async function setActiveSeries(id){
+  await dbWrite(sb => sb.from('panel_settings').upsert({
+    id: 1,
+    auto_series: id === 'auto',
+    active_series_id: id === 'auto' ? null : id
+  }));
 }
 
+/* Ajustes do N1 que ficam no banco (valem para todas as TVs) */
+async function setN1Cfg(campo, valor){
+  const patch = { id: 1 };
+  patch[campo] = valor;
+  await dbWrite(sb => sb.from('panel_settings').upsert(patch));
+}
+
+/* Preferências deste aparelho (não vão para o banco) */
 function setCfg(key, value){
   DATA.config[key] = value;
-  saveData();
+  saveLocal();
   applyDisplay();
-  if(key === 'andonNotify' || key === 'andonUrl' || key === 'andonKey'){
-    stopAndonNotify();
-    initAndonNotify();
+  if(key === 'andonNotify' || key === 'sbUrl' || key === 'sbKey'){
+    if(key !== 'andonNotify'){ SB = null; }      // reconecta com a nova credencial
+    if(typeof stopAndonNotify === 'function') stopAndonNotify();
+    if(typeof initAndonNotify === 'function') initAndonNotify();
+    loadSchedule().then(()=>{ renderConfig(); });
   }
 }
 
@@ -1819,7 +2227,7 @@ function applyDisplay(){
    mais antigos no topo. Emite o sinal sonoro ao chegar um novo chamado.
    Requer a política de leitura anônima (migração 0003).
    ============================================================ */
-let andonClient = null, andonCh = null, panelCalls = [];
+let andonCh = null, panelCalls = [];
 
 function renderTvQueue(){
   const wrap = document.getElementById('tv-queue');
@@ -1835,9 +2243,10 @@ function renderTvQueue(){
 }
 
 async function fetchPanelCalls(){
-  if(!andonClient) return;
+  const sb = await getSB();
+  if(!sb) return;
   try{
-    const { data } = await andonClient.from('andon_events')
+    const { data } = await sb.from('andon_events')
       .select('*').eq('status','aberto').order('created_at', { ascending: true }); // mais antigos primeiro
     panelCalls = data || [];
     renderTvQueue();
@@ -1845,37 +2254,61 @@ async function fetchPanelCalls(){
 }
 
 async function initAndonNotify(){
-  const c = DATA.config;
-  if(!c.andonNotify) return;
-  const url = (c.andonUrl || ANDON_URL_DEFAULT).trim();
-  const key = (c.andonKey || ANDON_KEY_DEFAULT).trim();
-  if(!url || !key) return;
+  if(!DATA.config.andonNotify) return;
+  const sb = await getSB();
+  if(!sb) return;
   try{
-    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-    andonClient = createClient(url, key, { auth: { persistSession: false } });
-    andonCh = andonClient.channel('tv-andon')
+    andonCh = sb.channel('tv-andon')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'andon_events' }, payload => {
         if(payload.eventType === 'INSERT' && payload.new && payload.new.status === 'aberto') alertTone();
         fetchPanelCalls();
       })
       .subscribe();
     fetchPanelCalls();
-  }catch(e){ /* offline / CDN indisponível: o painel segue funcionando normalmente */ }
+  }catch(e){ /* sem rede: o painel segue funcionando com o cronograma em cache */ }
 }
 function stopAndonNotify(){
-  try{ if(andonCh && andonClient) andonClient.removeChannel(andonCh); }catch(e){}
-  andonCh = null; andonClient = null;
+  try{ if(andonCh && SB) SB.removeChannel(andonCh); }catch(e){}
+  andonCh = null;
   panelCalls = [];
   renderTvQueue();
 }
 
 /* ============================================================
+   REALTIME DO CRONOGRAMA
+   Alterações feitas em qualquer TV (ou direto no banco) chegam às demais.
+   ============================================================ */
+let schedCh = null;
+async function initScheduleRealtime(){
+  const sb = await getSB();
+  if(!sb || schedCh) return;
+  const recarregar = debounce(async ()=>{
+    await loadSchedule();
+    if(document.getElementById('scr-config').classList.contains('active')) renderConfig();
+    if(autoActive){ dirMode = null; dirBlockKey = null; directorTick(); }  // reavalia a tela
+  }, 400);
+  try{
+    schedCh = sb.channel('tv-cronograma');
+    ['meeting_series','meeting_windows','n1_periods','panel_settings'].forEach(t => {
+      schedCh.on('postgres_changes', { event: '*', schema: 'public', table: t }, recarregar);
+    });
+    schedCh.subscribe();
+  }catch(e){}
+}
+function debounce(fn, ms){
+  let t = null;
+  return (...a)=>{ clearTimeout(t); t = setTimeout(()=> fn(...a), ms); };
+}
+
+/* ============================================================
    INICIALIZAÇÃO
    ============================================================ */
-function initApp(){
+async function initApp(){
   injectLogos();
-  loadData();
+  loadLocal();
   applyDisplay();
+  // o cronograma vem do banco; sem rede, usa a última programação recebida
+  await loadSchedule();
   // Modo automático: relógio no piso, com as Reuniões Escalonadas entrando
   // 5 min antes de cada janela e saindo quando a janela termina.
   if(DATA.config.autoStart){
@@ -1883,7 +2316,16 @@ function initApp(){
   } else {
     showMenu();
   }
+  initScheduleRealtime();
   initAndonNotify();
+  // reconciliação periódica, caso o Realtime caia sem aviso
+  setInterval(async ()=>{
+    const antes = JSON.stringify(DATA.series) + DATA.activeSeriesId + JSON.stringify(DATA.n1);
+    await loadSchedule();
+    if(JSON.stringify(DATA.series) + DATA.activeSeriesId + JSON.stringify(DATA.n1) !== antes && autoActive){
+      dirMode = null; dirBlockKey = null; directorTick();
+    }
+  }, 5 * 60 * 1000);
 }
 initApp();
 </script>

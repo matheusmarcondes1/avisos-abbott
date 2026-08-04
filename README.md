@@ -22,18 +22,45 @@ inteiramente no navegador, sem instalação e sem integração com sistemas corp
 
 ## Módulo 1: Painel de Avisos (`index.html`)
 
-Arquivo estático único, **sem dependências externas**. Funções: Reuniões Escalonadas
-(tela inicial), Busca por Válvulas/itens, Aviso Geral, Silêncio, Microfone e Relógio.
+Arquivo estático único. Funções: Reuniões Escalonadas (tela inicial), **Reuniões de N1**,
+Busca por Válvulas/itens, Aviso Geral, Silêncio, Microfone e Relógio.
 
-Tudo é inserido **manualmente** pela tela de **Configurações** e salvo no navegador:
+No **modo automático**, o relógio fica no piso o tempo todo e as telas entram sozinhas:
+as **Reuniões Escalonadas** a partir de 5 min antes de cada janela (saindo quando ela acaba) e
+as **Reuniões de N1** durante os períodos configurados. Se os dois coincidirem, as Escalonadas
+têm prioridade.
 
-- **Séries de reuniões**: janelas editáveis (início, fim, área, supervisor, Cadeia de Ajuda)
-  e **múltiplas séries** (ex.: *Turno da Manhã* e *Turno da Tarde*, com horários e supervisores
-  próprios), com seleção fixa ou **automática pelo horário**.
-- **Comportamento**: abrir automaticamente nas Reuniões Escalonadas; retornar ao relógio ao
-  encerrar uma projeção.
-- **Exibição**: tamanho das fontes (ampliado para TVs de ~50"), fundo do relógio, segundos,
-  data e Cadeia de Ajuda.
+### Onde ficam os dados
+
+Os **horários das reuniões ficam no banco** (Supabase), não no HTML nem no armazenamento do
+navegador: são cadastrados **uma vez** pela tela de Configurações e valem para **todas as TVs**,
+que recebem as alterações **na hora** (Realtime). Se o banco ficar inacessível, a TV continua
+exibindo a última programação recebida e avisa nas Configurações.
+
+No navegador ficam apenas as **preferências daquele aparelho** (tamanho da fonte, fundo do
+relógio, segundos/data), que podem variar de TV para TV.
+
+### Configurações
+
+- **Séries de reuniões** *(no banco)*: janelas editáveis (início, fim, área, supervisor, Cadeia
+  de Ajuda) e **múltiplas séries** (ex.: *Turno da Manhã* e *Turno da Tarde*, com horários e
+  supervisores próprios), com seleção fixa ou **automática pelo horário**.
+- **Reuniões de N1** *(no banco)*: períodos editáveis (padrão **08:00–09:00** e **14:00–15:00**)
+  com **título e mensagem personalizáveis** — por padrão *"Reuniões de N1 em andamento"* e
+  *"Agora é a hora de rever o dia anterior."*, exibidos com barra de progresso do tempo restante.
+- **Comportamento** *(local)*: iniciar em modo automático; retornar ao relógio ao encerrar uma
+  projeção.
+- **Exibição** *(local)*: tamanho das fontes (ampliado para TVs de ~50"), fundo do relógio,
+  segundos, data e Cadeia de Ajuda.
+- **Dados**: exportar o cronograma da série em **`.csv` que abre no Excel** e importar de volta —
+  a importação **substitui** as janelas daquela série **no banco**, para todas as TVs. Útil para
+  cadastrar muitas janelas de uma vez.
+
+### Versão offline
+
+Existe uma versão **100% offline** (arquivo único, sem rede) na branch
+[`claude/versao-offline`](../../tree/claude/versao-offline) — **em hold**. Ela é incompatível com
+o cronograma no banco, então mantém os horários no próprio aparelho (com importação por planilha).
 
 ## Módulo 2: Andon (`andon/`)
 
@@ -77,7 +104,8 @@ andon/
   config.js                URL + chave publishable do Supabase (editável)
   config.example.js        Modelo de configuração
 supabase/
-  migrations/0003_andon_sem_login.sql   Esquema atual (sem login) + Realtime
+  migrations/0003_andon_sem_login.sql    Andon sem login + Realtime
+  migrations/0004_reunioes_no_banco.sql  Horários das reuniões no banco
   README.md                Passo a passo de configuração
 LICENSE                    MIT
 ```
