@@ -17,6 +17,20 @@ aplicado o 0001/0002, tudo bem — o 0003 dá `drop` no que for necessário e re
 > Os arquivos `0001_*` e `0002_*` ficam no histórico apenas como referência; **não** precisam ser
 > aplicados. A Edge Function `admin-manage-user` foi removida (não há mais usuários).
 
+## 1b. Horários das reuniões no banco
+
+**SQL Editor → New query →** cole [`migrations/0004_reunioes_no_banco.sql`](migrations/0004_reunioes_no_banco.sql)
+**→ Run**.
+
+Cria as tabelas do cronograma do Painel de Avisos — `meeting_series`, `meeting_windows`,
+`n1_periods` e `panel_settings` — com RLS anônima e Realtime, e já faz a carga inicial (turnos da
+manhã e da tarde + períodos de N1). A partir daí os horários são cadastrados **uma vez** pela tela
+de Configurações do painel e valem para **todas as TVs**, que recebem as alterações na hora.
+
+Os horários deixam de ficar no navegador: cada TV guarda apenas as preferências de exibição
+(fonte, fundo do relógio) e uma cópia do último cronograma recebido, usada só se o banco estiver
+inacessível.
+
 ## 2. Conectar o app
 
 A URL e a chave publishable já estão em [`andon/config.js`](../andon/config.js). Para outro projeto,
@@ -34,10 +48,14 @@ Abra o `andon/` e siga o fluxo:
 
 ## Modelo de dados
 
-| Tabela          | Papel                                                                   |
-|-----------------|-------------------------------------------------------------------------|
-| `andon_events`  | chamados: tipo, mesa, etapa, status, horários                           |
-| `etapa_config`  | mesas disponíveis por etapa (vazio = todas as 25)                       |
+| Tabela            | Papel                                                                 |
+|-------------------|-----------------------------------------------------------------------|
+| `andon_events`    | chamados: tipo, mesa, etapa, status, horários                         |
+| `etapa_config`    | mesas disponíveis por etapa (vazio = todas as 25)                     |
+| `meeting_series`  | séries/turnos das Reuniões Escalonadas                                |
+| `meeting_windows` | janelas: início, fim, área, supervisor, Cadeia de Ajuda               |
+| `n1_periods`      | períodos das Reuniões de N1                                           |
+| `panel_settings`  | série ativa e textos/ativação do N1 (linha única)                     |
 
 Tipos de chamado e destino:
 
