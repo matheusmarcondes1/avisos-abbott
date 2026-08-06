@@ -5,8 +5,8 @@ própria** e distribuída como **software livre** (licença MIT). Reúne dois m�
 inteiramente no navegador, sem instalação e sem integração com sistemas corporativos:
 
 1. **Painel de Avisos** (`index.html`): telas para projeção em TVs do piso: reuniões
-   escalonadas, busca por itens, avisos gerais, silêncio, microfone (push-to-talk) e relógio.
-   Não usa servidor: as configurações ficam apenas no `localStorage` do navegador.
+   escalonadas (N1 e N2), busca por itens, avisos gerais, silêncio, microfone (push-to-talk) e
+   relógio. Os horários das reuniões ficam no banco e valem para todas as TVs.
 2. **Andon** (`andon/`): chamados de produção em tempo real (ex.: *falta de material*),
    **sem login** — a operadora é identificada por mesa/etapa e cada perfil (Material Handler,
    Coordenação Técnica, Inspeção, Assistente) acompanha e atende em um painel ao vivo. Usa
@@ -14,9 +14,9 @@ inteiramente no navegador, sem instalação e sem integração com sistemas corp
 
 > **Disclaimer.** Projeto pessoal, de código aberto, criado por iniciativa própria. É uma
 > plataforma **genérica** de andon para produção, não é um produto oficial de nenhuma
-> empresa e não se integra a sistemas corporativos. O Painel de Avisos não registra
-> informação alguma (dados só no navegador). O módulo Andon registra apenas **sinais
-> operacionais de chamado** (tipo, mesa, etapa, horário) para coordenar o atendimento.
+> empresa e não se integra a sistemas corporativos. Guarda apenas os **horários das reuniões**
+> cadastrados no próprio sistema e os **sinais operacionais de chamado** (tipo, mesa, etapa,
+> horário) usados para coordenar o atendimento — **nenhuma informação pessoal**.
 
 ---
 
@@ -55,15 +55,15 @@ relógio, segundos/data), que podem variar de TV para TV.
   *"Agora é a hora de rever o dia anterior."*, exibidos com barra de progresso do tempo restante.
 - **Comportamento** *(local)*: abrir direto no modo automático (padrão: menu principal); retornar
   ao relógio ao encerrar uma projeção.
-
-> **Como editar os horários.** As alterações ficam em rascunho enquanto você digita — a linha não
-> muda de lugar e nada é gravado no meio do caminho. Ao terminar, clique em **Gravar alterações**
-> (ou **Descartar**). Os campos de horário usam intervalos de **5 minutos**.
 - **Exibição** *(local)*: tamanho das fontes (ampliado para TVs de ~50"), fundo do relógio,
   segundos, data e Cadeia de Ajuda.
 - **Dados**: exportar o cronograma da série em **`.csv` que abre no Excel** e importar de volta —
   a importação **substitui** as janelas daquela série **no banco**, para todas as TVs. Útil para
   cadastrar muitas janelas de uma vez.
+
+> **Como editar os horários.** As alterações ficam em rascunho enquanto você digita — a linha não
+> muda de lugar e nada é gravado no meio do caminho. Ao terminar, clique em **Gravar alterações**
+> (ou **Descartar**). Os campos de horário usam intervalos de **5 minutos**.
 
 ### Versão offline
 
@@ -100,9 +100,10 @@ etapa, horário), sem nomes. Ver [`supabase/README.md`](supabase/README.md) para
 2. Painel de Avisos: `https://avisos-abbott.marcondes.dev`
    Andon: `https://avisos-abbott.marcondes.dev/andon`
 
-O Painel funciona offline. O Andon precisa das credenciais do Supabase em
-[`andon/config.js`](andon/config.js) (a chave *publishable* é pública por design; a proteção
-real é o RLS).
+Os dois módulos usam o Supabase: o Painel para os horários das reuniões (e a fila de andon nas
+TVs) e o Andon para os chamados. A chave *publishable* é pública por design — a proteção real é
+o RLS. O Andon lê as credenciais de [`andon/config.js`](andon/config.js); o Painel usa as mesmas,
+ajustáveis em Configurações.
 
 ## Estrutura
 
