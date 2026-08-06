@@ -348,6 +348,50 @@ table.editor td.xcol{ width: 44px; text-align:center; }
 .info-card .sig{ margin-top: 12px; font-weight: 700; color: var(--accent); }
 .info-card .meta{ margin-top: 4px; font-size: 13px; color: var(--ink-soft); }
 
+/* ---------- planejamento (linha do tempo vertical) ---------- */
+.plan-head{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:18px 0 10px; }
+.plan-head .grow{ flex:1; }
+.plan-legend{ display:flex; gap:14px; flex-wrap:wrap; font-size:13px; color:var(--ink-soft); }
+.plan-legend i{ width:12px; height:12px; border-radius:3px; display:inline-block; margin-right:5px;
+  vertical-align:-1px; }
+.plan-view{ position:relative; height:min(62vh, 560px); overflow:hidden; border:1px solid var(--line);
+  border-radius:12px; background:
+    linear-gradient(var(--paper-dim) 0 0) 0 0/64px 100% no-repeat, var(--paper); }
+.plan-track{ position:absolute; left:0; right:0; top:0; }
+.plan-hour{ position:absolute; left:0; right:0; border-top:1px solid var(--line); }
+.plan-hour span{ position:absolute; left:8px; top:2px; font-size:12px; font-weight:700;
+  color:var(--ink-soft); font-variant-numeric:tabular-nums; }
+.plan-col{ position:absolute; left:64px; right:0; top:0; bottom:0; }
+/* coluna estreita e centralizada: o foco fica no meio da tela */
+.plan-seg{ position:absolute; left:12px; right:12px; max-width:420px; margin:0 auto;
+  border-radius:8px; padding:4px 10px; overflow:hidden; font-size:13px; line-height:1.25;
+  border-left:5px solid transparent;
+  display:flex; flex-direction:column; justify-content:center; }
+.plan-seg .ps-t{ font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.plan-seg .ps-d{ font-size:12px; opacity:.85; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.plan-seg.relogio{ background:repeating-linear-gradient(45deg,#f2f5f7 0 8px,#eaeff2 8px 16px);
+  border-left-color:#b9c6cc; color:var(--ink-soft); }
+.plan-seg.n1{ background:var(--accent-soft); border-left-color:var(--accent); color:var(--accent); }
+.plan-seg.antecipacao{ background:#eef1fe; border-left-color:var(--accent-bright);
+  color:var(--accent); border-left-style:dashed; }
+.plan-seg.reuniao{ background:var(--accent); border-left-color:#000047; color:#fff; }
+.plan-seg.deslocamento{ background:#fff2d4; border-left-color:var(--warn); color:var(--warn-ink); }
+.plan-seg.curto{ padding:1px 10px; }
+.plan-seg.curto .ps-d{ display:none; }
+.plan-now{ position:absolute; left:0; right:0; height:0; border-top:2px solid var(--ember);
+  z-index:5; pointer-events:none; }
+.plan-now span{ position:absolute; left:0; top:-10px; background:var(--ember); color:#fff;
+  font-size:12px; font-weight:700; padding:2px 6px; border-radius:4px;
+  font-variant-numeric:tabular-nums; }
+.plan-empty{ padding:30px; text-align:center; color:var(--ink-soft); font-size:15px; }
+
+/* barra de gravação dos editores */
+.savebar{ display:flex; align-items:center; gap:10px; margin-top:12px; flex-wrap:wrap;
+  padding:10px 12px; border-radius:10px; border:1px solid transparent; transition:background .15s; }
+.savebar.on{ background:#fff7e0; border-color:var(--warn); }
+.savebar .save-note{ flex:1; font-size:13px; font-weight:700; color:var(--ink-soft); }
+.savebar.on .save-note{ color:var(--warn-ink); }
+
 /* estado da conexão com o banco (tela de configurações) */
 .msg-db{ margin-top: 14px; border-radius: 10px; padding: 12px 16px; font-size: 14px;
   line-height: 1.5; font-weight: 700; }
@@ -396,18 +440,20 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
     <div class="logo-slot control-logo"></div>
     <p class="eyebrow plain">Abbott · BR-SH-M</p>
     <h1>Painel de Avisos</h1>
-    <p class="sub">Selecione a função para projetar em tela cheia nas televisões do piso.</p>
+    <p class="sub">Selecione a função a projetar nas televisões do piso.
+      <strong>Planejamento</strong> e <strong>Configurações</strong> são ferramentas de apoio,
+      para uso aqui no computador.</p>
 
     <div class="menu-grid">
-      <button class="func-card" onclick="goN2Select()">
+      <button class="func-card" onclick="goReunioes()">
         <div class="fc-title">Reuniões Escalonadas</div>
-        <div class="fc-desc">Projeta o cronograma escalonado das reuniões, com janelas e deslocamentos acompanhando o relógio.</div>
+        <div class="fc-desc">Acompanha as reuniões do dia nas TVs: <strong>N1</strong> (revisão do dia anterior) e <strong>N2</strong> (cronograma escalonado por área).</div>
         <div class="fc-go">Abrir →</div>
       </button>
-      <button class="func-card" onclick="startN1()">
-        <div class="fc-title">Reuniões de N1</div>
-        <div class="fc-desc">Acompanha a reunião de N1 com barra de progresso. Entra sozinha nos períodos configurados (manhã e tarde).</div>
-        <div class="fc-go">Projetar →</div>
+      <button class="func-card" onclick="goPlano()">
+        <div class="fc-title">Planejamento</div>
+        <div class="fc-desc">Ferramenta de conferência: linha do tempo do dia mostrando em que horário cada tela entra nas TVs, com uma marca acompanhando o relógio.</div>
+        <div class="fc-go">Conferir →</div>
       </button>
       <button class="func-card" onclick="goValSelect()">
         <div class="fc-title">Busca por Válvulas</div>
@@ -443,14 +489,79 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
   </div>
 </section>
 
-<!-- ================= REUNIÕES ESCALONADAS — SELEÇÃO ================= -->
-<section id="scr-n2-select" class="screen control">
+<!-- ================= REUNIÕES ESCALONADAS — N1 / N2 ================= -->
+<section id="scr-reunioes" class="screen control">
   <div class="wrap">
     <button class="back" onclick="showScreen('scr-menu')">← Menu principal</button>
     <div class="logo-slot control-logo"></div>
     <p class="eyebrow">Reuniões Escalonadas</p>
+    <h2>Qual reunião acompanhar?</h2>
+    <p class="sub">No <strong>modo automático</strong> (card Relógio) as duas entram sozinhas nos
+      horários configurados. Use as opções abaixo para projetar agora.</p>
+
+    <div class="menu-grid">
+      <button class="func-card" onclick="startN1()">
+        <div class="fc-title">Reuniões de N1</div>
+        <div class="fc-desc" id="n1-card-desc">Revisão do dia anterior, com barra de progresso do tempo restante.</div>
+        <div class="fc-go">Projetar →</div>
+      </button>
+      <button class="func-card" onclick="goN2Select()">
+        <div class="fc-title">Reuniões de N2</div>
+        <div class="fc-desc" id="n2-card-desc">Cronograma escalonado por área, com janelas e deslocamentos acompanhando o relógio.</div>
+        <div class="fc-go">Abrir →</div>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PLANEJAMENTO — LINHA DO TEMPO ================= -->
+<section id="scr-plan" class="screen control">
+  <div class="wrap">
+    <button class="back" onclick="sairPlano()">← Menu principal</button>
+    <div class="logo-slot control-logo"></div>
+    <p class="eyebrow">Planejamento</p>
+    <h2>O que vai aparecer nas TVs</h2>
+    <p class="sub">Linha do tempo do dia, proporcional ao horário. A marca vermelha acompanha o
+      relógio: o que estiver na altura dela é o que está no ar agora.</p>
+
+    <div class="plan-head">
+      <div class="series-tabs" id="plan-series"></div>
+      <span class="grow"></span>
+      <select class="dur" id="plan-zoom" onchange="renderPlano()">
+        <option value="10">Detalhe</option>
+        <option value="5" selected>Normal</option>
+        <option value="2">Amplo</option>
+        <option value="fit">Dia inteiro</option>
+      </select>
+    </div>
+
+    <div class="plan-legend">
+      <span><i style="background:#eef2f4;border:1px solid #b9c6cc"></i>Relógio</span>
+      <span><i style="background:var(--accent-soft);border:1px solid var(--accent)"></i>Reunião de N1</span>
+      <span><i style="background:#eef1fe;border:1px dashed var(--accent-bright)"></i>Antecipação (5 min)</span>
+      <span><i style="background:var(--accent)"></i>Reunião de N2</span>
+      <span><i style="background:#fff2d4;border:1px solid var(--warn)"></i>Deslocamento</span>
+    </div>
+
+    <div class="plan-view" id="plan-view">
+      <div class="plan-track" id="plan-track"></div>
+      <div class="plan-now" id="plan-now"><span id="plan-now-label">--:--</span></div>
+    </div>
+    <p class="sub" id="plan-resumo" style="margin-top:12px"></p>
+  </div>
+</section>
+
+<!-- ================= REUNIÕES DE N2 — SELEÇÃO ================= -->
+<section id="scr-n2-select" class="screen control">
+  <div class="wrap">
+    <button class="back" onclick="goReunioes()">← Reuniões Escalonadas</button>
+    <div class="logo-slot control-logo"></div>
+    <p class="eyebrow">Reuniões de N2</p>
     <h2 id="n2-sel-title">Cronograma do dia</h2>
     <p class="sub">A projeção acompanha o relógio em tempo real: janelas de reunião, deslocamentos e encerramento.</p>
+
+    <div class="series-tabs" id="n2-series" style="margin-top:18px"></div>
+    <div class="msg-db off" id="n2-warn" style="display:none"></div>
 
     <div class="rot" id="n2-rot"></div>
 
@@ -690,7 +801,7 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
 <!-- ================= CONFIGURAÇÕES ================= -->
 <section id="scr-config" class="screen control">
   <div class="wrap">
-    <button class="back" onclick="showScreen('scr-menu')">← Menu principal</button>
+    <button class="back" onclick="sairConfig()">← Menu principal</button>
     <div class="logo-slot control-logo"></div>
     <p class="eyebrow">Configurações</p>
     <h2>Ajustes do painel</h2>
@@ -715,8 +826,11 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
       </div>
 
       <div class="rot-editor" id="rot-editor"></div>
-      <div style="margin-top:12px">
+      <div class="savebar" id="rot-savebar">
         <button class="btn ghost small" onclick="addWindow()">+ Adicionar janela</button>
+        <span class="save-note">Tudo gravado</span>
+        <button class="btn ghost small" onclick="descartarRoteiro()">Descartar</button>
+        <button class="btn small btn-save" onclick="salvarRoteiro()" disabled>Gravar alterações</button>
       </div>
     </div>
 
@@ -740,8 +854,11 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
           onchange="setN1Cfg('n1_mensagem', this.value)">
       </div>
       <div class="rot-editor" id="n1-editor" style="margin-top:12px"></div>
-      <div style="margin-top:12px">
+      <div class="savebar" id="n1-savebar">
         <button class="btn ghost small" onclick="addN1Periodo()">+ Adicionar período</button>
+        <span class="save-note">Tudo gravado</span>
+        <button class="btn ghost small" onclick="descartarN1()">Descartar</button>
+        <button class="btn small btn-save" onclick="salvarN1()" disabled>Gravar alterações</button>
       </div>
     </div>
 
@@ -750,7 +867,7 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
       <h3>Comportamento</h3>
       <label class="cfg-row check">
         <input type="checkbox" id="cfg-autostart" onchange="setCfg('autoStart', this.checked)">
-        <span class="cfg-label">Iniciar em <strong>modo automático</strong>: relógio no piso, com as <strong>Reuniões Escalonadas</strong> entrando 5 min antes de cada janela</span>
+        <span class="cfg-label">Ao abrir, ir direto para o <strong>modo automático</strong> (relógio no piso, com as reuniões entrando no horário) em vez do menu principal</span>
       </label>
       <label class="cfg-row check">
         <input type="checkbox" id="cfg-autoreturn" onchange="setCfg('autoReturnClock', this.checked)">
@@ -907,7 +1024,7 @@ const DIA_TAG = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
 
 /* Preferências locais (por TV) */
 const LOCAL_PADRAO = {
-  autoStart: true,        // iniciar em modo automático (relógio + reuniões no horário)
+  autoStart: false,       // padrão: abrir no menu principal (true = modo automático)
   autoReturnClock: true,  // voltar ao relógio ao encerrar uma projeção
   fontScale: 'g',         // 'n' | 'g' | 'xg'
   clockBg: 'preto',       // 'preto' | 'azul'
@@ -992,7 +1109,7 @@ async function loadSchedule(){
     const cfg = rc && rc.data ? rc.data : null;
     DATA.activeSeriesId = cfg
       ? (cfg.auto_series ? 'auto' : (cfg.active_series_id || (DATA.series[0] && DATA.series[0].id) || null))
-      : ((DATA.series[0] && DATA.series[0].id) || null);
+      : 'auto';   // sem ajustes gravados: escolhe a série pelo horário
     DATA.n1 = {
       enabled:  cfg ? !!cfg.n1_enabled : N1_PADRAO.enabled,
       titulo:   (cfg && cfg.n1_titulo)   || N1_PADRAO.titulo,
@@ -1095,6 +1212,13 @@ function fmtClock(min){
   const h = Math.floor(min/60)%24, m = Math.floor(min%60);
   return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
 }
+/* duração aproximada em linguagem natural: "40 min", "2 h 15 min" */
+function fmtDur(min){
+  min = Math.round(Math.abs(min));
+  const h = Math.floor(min/60), m = min%60;
+  if(!h) return m + ' min';
+  return h + ' h' + (m ? ' ' + m + ' min' : '');
+}
 function fmtMS(totalSec){
   totalSec = Math.max(0, Math.ceil(totalSec));
   const m = Math.floor(totalSec/60), s = totalSec%60;
@@ -1130,20 +1254,10 @@ function showMenu(){
   stopStandby();
   clearInterval(clkTimer); clkTimer = null;
   clearInterval(n2Timer);  n2Timer = null;
-  leaveFullscreen();
+  clearInterval(n1Timer);  n1Timer = null;
   showScreen('scr-menu');
 }
-function enterFullscreen(){
-  const el = document.documentElement;
-  if(!document.fullscreenElement && el.requestFullscreen){
-    el.requestFullscreen().catch(()=>{});
-  }
-}
-function leaveFullscreen(){
-  if(document.fullscreenElement && document.exitFullscreen){
-    document.exitFullscreen().catch(()=>{});
-  }
-}
+/* O painel não força mais tela cheia: quem quiser usa o F11 do navegador. */
 /* Ao encerrar uma projeção, retorna ao modo de espera (relógio + reuniões no
    horário) — ou ao menu, conforme a configuração. */
 function returnToStandby(){
@@ -1183,7 +1297,6 @@ function currentBlock(m, blocks){
 function enterStandby(){
   clearInterval(n2Timer); n2Timer = null; n2Sim = null;
   autoActive = true; dirMode = null; dirBlockKey = null;
-  enterFullscreen();
   directorTick();
   clearInterval(directorTimer);
   directorTimer = setInterval(directorTick, 1000);
@@ -1193,13 +1306,26 @@ function stopStandby(){
   clearInterval(directorTimer); directorTimer = null;
   dirMode = null; dirBlockKey = null;
 }
+/* Decide qual tela deve estar no ar em um dado minuto.
+   Prioridade: reunião de N2 em andamento (inclui o deslocamento entre janelas)
+   > reunião de N1 > antecipação do N2 > relógio. Ou seja, a antecipação de 5
+   min não interrompe uma reunião de N1 que ainda está acontecendo. */
+function telaDoMinuto(m, wins){
+  const blk = currentBlock(m, buildBlocks(wins));
+  const per = currentN1(m);
+  if(blk){
+    const naAntecipacao = m < blk.windows[0].inicio;
+    if(!(naAntecipacao && per)) return { want: 'n2', blk, per: null };
+  }
+  if(per) return { want: 'n1', blk: null, per };
+  return { want: 'clk', blk: null, per: null };
+}
+
 function directorTick(){
   if(!autoActive) return;
   const m = nowMinReal();
   const wins = buildWindows(activeSeriesResolved().roteiro);
-  const blk = currentBlock(m, buildBlocks(wins));
-  const per = blk ? null : currentN1(m);   // as Escalonadas têm prioridade
-  const want = blk ? 'n2' : (per ? 'n1' : 'clk');
+  const { want, blk, per } = telaDoMinuto(m, wins);
   const blockKey = blk ? blk.activeStart + '-' + blk.end
                        : (per ? per.inicio + '-' + per.fim : '');
   if(want === dirMode && blockKey === dirBlockKey) return;   // já na tela certa
@@ -1287,7 +1413,6 @@ function startN1(){
     return;
   }
   manualPer = atual ? null : per;   // fora do período: não encerra sozinha
-  enterFullscreen();
   runN1(per);
 }
 function exitN1(){
@@ -1444,10 +1569,223 @@ function buildWindows(roteiro){
   return [...map.values()].sort((a,b) => a.inicio - b.inicio);
 }
 
-function goN2Select(){
+/* Hub das Reuniões Escalonadas: escolhe entre N1 e N2. */
+function goReunioes(){
+  const ps = n1Periodos();
+  document.getElementById('n1-card-desc').textContent = ps.length
+    ? 'Revisão do dia anterior, com barra de progresso. Períodos: ' +
+      ps.map(p => fmtHM(p.inicio) + '–' + fmtHM(p.fim)).join(' · ')
+    : 'Revisão do dia anterior. Nenhum período configurado — cadastre em Configurações.';
   const serie = activeSeriesResolved();
   const wins = buildWindows(serie.roteiro);
+  document.getElementById('n2-card-desc').textContent = wins.length
+    ? 'Cronograma escalonado por área. Série: ' + serie.nome + ' · ' +
+      fmtHM(wins[0].inicio) + '–' + fmtHM(wins[wins.length-1].fim)
+    : 'Cronograma escalonado por área. Nenhuma janela configurada.';
+  showScreen('scr-reunioes');
+}
+
+/* ============================================================
+   PLANEJAMENTO
+   Monta a programação do dia aplicando as MESMAS regras do modo automático
+   (telaDoMinuto), varrendo minuto a minuto e juntando trechos iguais. Assim a
+   linha do tempo mostra exatamente o que as TVs vão exibir.
+   ============================================================ */
+let planSerieId = null, planTimer = null;
+
+function planSerie(){
+  return (planSerieId && seriesById(planSerieId)) || activeSeriesResolved();
+}
+
+function estadoDoMinuto(m, wins){
+  const r = telaDoMinuto(m, wins);
+  if(r.want === 'clk') return { tipo: 'relogio', chave: 'relogio' };
+  if(r.want === 'n1')  return { tipo: 'n1', per: r.per, chave: 'n1-' + r.per.inicio };
+  const blk = r.blk;
+  if(m < blk.windows[0].inicio)
+    return { tipo: 'antecipacao', blk, chave: 'ant-' + blk.activeStart };
+  const w = blk.windows.find(x => m >= x.inicio && m < x.fim);
+  if(w) return { tipo: 'reuniao', w, chave: 'reu-' + w.inicio + '-' + w.fim };
+  return { tipo: 'deslocamento', blk, chave: 'desl-' + blk.activeStart + '-' + m };
+}
+
+function buildPlano(){
+  const wins = buildWindows(planSerie().roteiro);
+  const segs = [];
+  for(let m = 0; m < 1440; m++){
+    const e = estadoDoMinuto(m, wins);
+    const ultimo = segs[segs.length - 1];
+    // trechos de deslocamento seguidos pertencem ao mesmo intervalo
+    const mesmaChave = ultimo && (ultimo.chave === e.chave ||
+      (ultimo.tipo === 'deslocamento' && e.tipo === 'deslocamento' && ultimo.fim === m));
+    if(mesmaChave){ ultimo.fim = m + 1; continue; }
+    segs.push({ inicio: m, fim: m + 1, tipo: e.tipo, chave: e.chave, w: e.w, per: e.per, blk: e.blk });
+  }
+  return segs;
+}
+
+function planTexto(s){
+  if(s.tipo === 'relogio')     return { t: 'Relógio', d: 'Modo de espera' };
+  if(s.tipo === 'n1')          return { t: DATA.n1.titulo || 'Reuniões de N1', d: DATA.n1.mensagem || '' };
+  if(s.tipo === 'antecipacao') return { t: 'Antecipação · N2 às ' + fmtHM(s.blk.windows[0].inicio),
+                                        d: 'Contagem para o início' };
+  if(s.tipo === 'deslocamento')return { t: 'Deslocamento', d: 'Troca de área entre as reuniões' };
+  const areas = s.w.areas.map(a => a.area + (a.supervisor ? ' (' + a.supervisor + ')' : ''));
+  return { t: 'N2 · ' + areas.length + (areas.length === 1 ? ' área' : ' áreas'), d: areas.join(' · ') };
+}
+
+function goPlano(){
+  planSerieId = null;
+  showScreen('scr-plan');
+  renderPlano();
+  clearInterval(planTimer);
+  planTimer = setInterval(posicionarPlano, 1000);
+}
+function sairPlano(){
+  clearInterval(planTimer); planTimer = null;
+  showScreen('scr-menu');
+}
+function selecionarSeriePlano(id){ planSerieId = id; renderPlano(); }
+
+function renderPlano(){
+  const auto = activeSeriesResolved();
+  document.getElementById('plan-series').innerHTML =
+    `<button class="series-tab ${!planSerieId ? 'on' : ''}" onclick="selecionarSeriePlano(null)">
+       Automática${auto && auto.nome !== '—' ? ' (' + esc(auto.nome) + ')' : ''}
+     </button>` +
+    DATA.series.map(s => `
+      <button class="series-tab ${planSerieId === s.id ? 'on' : ''}" onclick="selecionarSeriePlano('${s.id}')">
+        ${esc(s.nome)}
+      </button>`).join('');
+
+  const segs = buildPlano();
+  const eventos = segs.filter(s => s.tipo !== 'relogio');
+  const track = document.getElementById('plan-track');
+
+  if(!eventos.length){
+    track.innerHTML = '<div class="plan-empty">Nenhuma reunião configurada: as TVs ficam no relógio o dia todo.</div>';
+    document.getElementById('plan-resumo').textContent = '';
+    return;
+  }
+
+  // mostra só a faixa em torno dos eventos (fora dela é sempre relógio)
+  const de  = Math.max(0, eventos[0].inicio - 60);
+  const ate = Math.min(1440, eventos[eventos.length-1].fim + 60);
+  planRange = { de, ate };
+  const ppm = planPPM(de, ate);
+  const visiveis = segs.filter(s => s.fim > de && s.inicio < ate);
+
+  const horas = [];
+  for(let h = Math.ceil(de/60); h <= Math.floor(ate/60); h++){
+    horas.push(`<div class="plan-hour" style="top:${(h*60 - de)*ppm}px"><span>${String(h%24).padStart(2,'0')}:00</span></div>`);
+  }
+  const blocos = visiveis.map(s => {
+    const ini = Math.max(s.inicio, de), fim = Math.min(s.fim, ate);
+    const alt = (fim - ini) * ppm;
+    const x = planTexto(s);
+    return `<div class="plan-seg ${s.tipo} ${alt < 26 ? 'curto' : ''}"
+                 style="top:${(ini - de)*ppm}px; height:${Math.max(alt - 2, 4)}px">
+              <div class="ps-t">${fmtClock(s.inicio)} ${esc(x.t)}</div>
+              ${x.d ? '<div class="ps-d">' + esc(x.d) + '</div>' : ''}
+            </div>`;
+  }).join('');
+  track.style.height = ((ate - de) * ppm) + 'px';
+  track.innerHTML = horas.join('') + '<div class="plan-col">' + blocos + '</div>';
+
+  const ini = eventos[0].inicio, fim = eventos[eventos.length-1].fim;
+  document.getElementById('plan-resumo').textContent =
+    'Programação de ' + fmtHM(ini) + ' a ' + fmtHM(fim) + ' · ' +
+    eventos.filter(s => s.tipo === 'reuniao').length + ' bloco(s) de N2, ' +
+    eventos.filter(s => s.tipo === 'n1').length + ' de N1. Fora desses horários, o relógio.';
+  posicionarPlano();
+}
+
+/* faixa de horários exibida (minutos) — definida em renderPlano */
+let planRange = { de: 0, ate: 1440 };
+
+/* pixels por minuto conforme o zoom escolhido */
+function planPPM(de, ate){
+  const z = document.getElementById('plan-zoom').value;
+  if(z !== 'fit') return +z;
+  const view = document.getElementById('plan-view').clientHeight || 500;
+  return Math.max(0.3, view / Math.max(30, ate - de));
+}
+
+/* Mantém o "agora" no centro (ou proporcional, no modo dia inteiro). */
+function posicionarPlano(){
+  const view = document.getElementById('plan-view');
+  const track = document.getElementById('plan-track');
+  const linha = document.getElementById('plan-now');
+  if(!view || !track || !track.style.height) return;
+  const { de, ate } = planRange;
+  const m = nowMinReal();
+  const ppm = parseFloat(track.style.height) / Math.max(1, ate - de);
+  const h = view.clientHeight;
+  const z = document.getElementById('plan-zoom').value;
+  const y = (m - de) * ppm;                     // posição do agora dentro da faixa
+  let topLinha;
+  if(z === 'fit'){
+    track.style.transform = 'translateY(0px)';
+    topLinha = y;
+  } else {
+    // centraliza o agora, sem deixar a faixa "descolar" das bordas
+    const desloc = Math.min(0, Math.max(h - parseFloat(track.style.height), h/2 - y));
+    track.style.transform = 'translateY(' + desloc + 'px)';
+    topLinha = y + desloc;
+  }
+  linha.style.top = topLinha + 'px';
+  linha.style.display = (topLinha < -2 || topLinha > h + 2) ? 'none' : '';
+  document.getElementById('plan-now-label').textContent = fmtClock(m);
+}
+
+/* Série escolhida na tela de N2 (só para esta projeção; não altera o banco).
+   null = usa a série resolvida automaticamente. */
+let n2SelId = null;
+
+function serieN2(){
+  return (n2SelId && seriesById(n2SelId)) || activeSeriesResolved();
+}
+function selecionarSerieN2(id){
+  n2SelId = id;
+  goN2Select();
+}
+
+function goN2Select(){
+  const serie = serieN2();
+  const wins = buildWindows(serie.roteiro);
   document.getElementById('n2-sel-title').textContent = 'Cronograma · ' + serie.nome;
+
+  // abas de série (a automática fica marcada quando nenhuma foi fixada aqui)
+  const auto = activeSeriesResolved();
+  document.getElementById('n2-series').innerHTML =
+    `<button class="series-tab ${!n2SelId ? 'on' : ''}" onclick="selecionarSerieN2(null)">
+       Automática${auto && auto.nome !== '—' ? ' (' + esc(auto.nome) + ')' : ''}
+     </button>` +
+    DATA.series.map(s => `
+      <button class="series-tab ${n2SelId === s.id ? 'on' : ''}" onclick="selecionarSerieN2('${s.id}')">
+        ${esc(s.nome)}
+      </button>`).join('');
+
+  // aviso quando o cronograma está longe do horário atual
+  const warn = document.getElementById('n2-warn');
+  const m = nowMinReal();
+  const LONGE = 60;   // minutos
+  if(wins.length){
+    const ini = wins[0].inicio, fim = wins[wins.length-1].fim;
+    let aviso = '';
+    if(m < ini - LONGE){
+      aviso = 'Esta série começa às ' + fmtHM(ini) + ', daqui a ' +
+              fmtDur(ini - m) + '. A projeção vai ficar na tela de contagem até lá.';
+    } else if(m >= fim + LONGE){
+      aviso = 'Esta série já terminou (' + fmtHM(ini) + ' – ' + fmtHM(fim) + ', há ' +
+              fmtDur(m - fim) + '). A projeção vai abrir direto no aviso de encerramento.';
+    }
+    warn.textContent = aviso;
+    warn.style.display = aviso ? '' : 'none';
+  } else {
+    warn.style.display = 'none';
+  }
+
   const rot = document.getElementById('n2-rot');
   if(!wins.length){
     rot.innerHTML = '<div class="rot-window"><div class="rot-areas">Nenhuma janela configurada para esta série. Cadastre as reuniões em <strong>Configurações</strong>.</div></div>';
@@ -1496,7 +1834,7 @@ function n2State(m, wins){
 
 function startN2(simular){
   stopStandby();                       // projeção manual: assume o controle
-  const serie = activeSeriesResolved();
+  const serie = serieN2();
   const wins = buildWindows(serie.roteiro);
   if(!wins.length){
     // sem janelas: não há o que projetar — recai no modo de espera
@@ -1508,7 +1846,6 @@ function startN2(simular){
     : null;
   n2LastKey = null;
   showScreen('scr-n2-tv');
-  enterFullscreen();
 
   clearInterval(n2Timer);
   const tick = ()=> renderN2(wins);
@@ -1638,7 +1975,6 @@ function startGer(){
   const footer = document.getElementById('ger-footer');
   const clock = document.getElementById('ger-clock');
   showScreen('scr-ger-tv');
-  enterFullscreen();
   clearInterval(gerTimer);
 
   if(min > 0){
@@ -1678,7 +2014,6 @@ let silChime = null;
 
 function startSil(){
   showScreen('scr-sil-tv');
-  enterFullscreen();
   warnTone();
   clearInterval(silChime);
   silChime = setInterval(warnTone, 15000);
@@ -1758,7 +2093,6 @@ function startVal(){
   renderValGrid();
 
   showScreen('scr-val-tv');
-  enterFullscreen();
   alertTone();
   clearInterval(valChime);
   valChime = setInterval(alertTone, 15000);
@@ -1836,7 +2170,6 @@ async function startMic(){
   micOpen = false;
   micUI(false);
   showScreen('scr-mic-tv');
-  enterFullscreen();
 
   const clock = document.getElementById('mic-clock');
   clearInterval(micTimer);
@@ -1888,8 +2221,14 @@ function exitMic(){
 let cfgEditId = null;
 
 function goConfig(){
+  rotDraft = null; n1Draft = null;     // começa sincronizado com o banco
   renderConfig();
   showScreen('scr-config');
+}
+function sairConfig(){
+  if(!confirmarDescarte()) return;
+  rotDraft = null; n1Draft = null;
+  showScreen('scr-menu');
 }
 
 function editingSeries(){
@@ -1941,44 +2280,97 @@ function renderConfig(){
   document.getElementById('cfg-andon-key').value = DATA.config.sbKey || '';
 }
 
-/* ---------- editor dos períodos de N1 ---------- */
+/* ---------- editor dos períodos de N1 (rascunho + Gravar) ---------- */
+let n1Draft = null;          // cópia em edição; null = sincronizado com o banco
+
+function n1DraftInit(force){
+  if(n1Draft && !force) return;
+  n1Draft = (DATA.n1.periodos || []).map(p => ({ ...p }));
+}
+function n1Dirty(){
+  if(!n1Draft) return false;
+  const orig = DATA.n1.periodos || [];
+  if(n1Draft.length !== orig.length) return true;
+  return n1Draft.some((p, i) => !orig[i] || p.id !== orig[i].id ||
+    p.inicio !== orig[i].inicio || p.fim !== orig[i].fim);
+}
 function renderN1Editor(){
+  n1DraftInit();
   const el = document.getElementById('n1-editor');
-  const ps = DATA.n1.periodos || [];
-  if(!ps.length){
-    el.innerHTML = '<div class="editor-empty">Nenhum período cadastrado. Use “Adicionar período”.</div>';
+  const ps = n1Draft;
+  el.innerHTML = !ps.length
+    ? '<div class="editor-empty">Nenhum período cadastrado. Use “Adicionar período”.</div>'
+    : `<table class="editor">
+        <thead><tr><th>Início</th><th>Fim</th><th></th></tr></thead>
+        <tbody>${ps.map((p, i) => `
+          <tr>
+            <td class="tcol"><input type="time" step="300" value="${fmtClock(p.inicio)}"
+                 oninput="editN1(${i},'inicio',this.value)"></td>
+            <td class="tcol"><input type="time" step="300" value="${fmtClock(p.fim)}"
+                 oninput="editN1(${i},'fim',this.value)"></td>
+            <td class="xcol"><button class="editor-rm" onclick="removeN1Periodo(${i})" aria-label="Remover período">×</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+  updateSaveBar('n1');
+}
+/* Só atualiza o rascunho: nada de gravar, reordenar ou redesenhar enquanto
+   o campo está sendo digitado. */
+function editN1(i, campo, valor){
+  const t = parseTempo(valor);
+  if(t == null || !n1Draft[i]) return;
+  n1Draft[i][campo] = t;
+  updateSaveBar('n1');
+}
+function addN1Periodo(){
+  n1DraftInit();
+  n1Draft.push({ inicio: 480, fim: 540 });
+  renderN1Editor();
+}
+function removeN1Periodo(i){
+  n1Draft.splice(i, 1);
+  renderN1Editor();
+}
+function descartarN1(){
+  n1DraftInit(true);
+  renderN1Editor();
+}
+async function salvarN1(){
+  const ps = n1Draft || [];
+  const ruim = ps.find(p => p.fim <= p.inicio);
+  if(ruim){
+    alert('Período inválido: o fim (' + fmtClock(ruim.fim) + ') deve ser depois do início (' +
+          fmtClock(ruim.inicio) + ').');
     return;
   }
-  el.innerHTML = `
-    <table class="editor">
-      <thead><tr><th>Início</th><th>Fim</th><th></th></tr></thead>
-      <tbody>${ps.map((p, i) => `
-        <tr>
-          <td class="tcol"><input type="time" value="${fmtClock(p.inicio)}" onchange="editN1(${i},'inicio',this.value)"></td>
-          <td class="tcol"><input type="time" value="${fmtClock(p.fim)}" onchange="editN1(${i},'fim',this.value)"></td>
-          <td class="xcol"><button class="editor-rm" onclick="removeN1Periodo(${i})" aria-label="Remover período">×</button></td>
-        </tr>`).join('')}
-      </tbody>
-    </table>`;
-}
-async function editN1(i, campo, valor){
-  const t = parseTempo(valor);
-  const p = DATA.n1.periodos[i];
-  if(t == null || !p) return;
-  const patch = { inicio: p.inicio, fim: p.fim };
-  patch[campo] = t;
-  if(patch.fim <= patch.inicio){ alert('O fim deve ser depois do início.'); renderN1Editor(); return; }
-  await dbWrite(sb => sb.from('n1_periods').update(patch).eq('id', p.id));
-  renderConfig();
-}
-async function addN1Periodo(){
-  await dbWrite(sb => sb.from('n1_periods').insert({ inicio: 480, fim: 540 }));
-  renderConfig();
-}
-async function removeN1Periodo(i){
-  const p = DATA.n1.periodos[i];
-  if(!p) return;
-  await dbWrite(sb => sb.from('n1_periods').delete().eq('id', p.id));
+  const sb = await getSB();
+  if(!sb){ alert('Sem conexão com o banco. Nada foi gravado.'); return; }
+  const orig = DATA.n1.periodos || [];
+  const vivos = ps.filter(p => p.id).map(p => p.id);
+  try{
+    for(const p of orig){
+      if(!vivos.includes(p.id)){
+        const r = await sb.from('n1_periods').delete().eq('id', p.id);
+        if(r.error) throw r.error;
+      }
+    }
+    for(const p of ps){
+      if(p.id){
+        const antes = orig.find(o => o.id === p.id);
+        if(antes && antes.inicio === p.inicio && antes.fim === p.fim) continue;
+        const r = await sb.from('n1_periods').update({ inicio: p.inicio, fim: p.fim }).eq('id', p.id);
+        if(r.error) throw r.error;
+      } else {
+        const r = await sb.from('n1_periods').insert({ inicio: p.inicio, fim: p.fim });
+        if(r.error) throw r.error;
+      }
+    }
+  }catch(e){
+    alert('Não foi possível gravar: ' + (e && e.message ? e.message : e));
+    return;
+  }
+  await loadSchedule();
+  n1Draft = null;
   renderConfig();
 }
 
@@ -2049,6 +2441,7 @@ function importCronogramaCSV(input){
     const ins = await sb.from('meeting_windows').insert(roteiro);
     if(ins.error){ alert('Falha ao gravar as janelas: ' + ins.error.message); return; }
     await loadSchedule();
+    rotDraft = null;
     renderConfig();
     alert(roteiro.length + ' janela(s) importada(s) para “' + serie.nome + '”.');
   };
@@ -2057,7 +2450,7 @@ function importCronogramaCSV(input){
 }
 
 function renderRoteiroEditor(){
-  const s = editingSeries();
+  rotDraftInit();
   const el = document.getElementById('rot-editor');
   const diaOpts = (sel) => {
     let o = `<option value="" ${sel == null ? 'selected' : ''}>—</option>`;
@@ -2066,66 +2459,148 @@ function renderRoteiroEditor(){
     });
     return o;
   };
-  if(!s.roteiro.length){
-    el.innerHTML = '<div class="editor-empty">Nenhuma janela nesta série. Use “Adicionar janela” para começar.</div>';
-    return;
-  }
-  el.innerHTML = `
-    <table class="editor">
-      <thead><tr>
-        <th>Início</th><th>Fim</th><th>Área</th><th>Supervisor(a)</th><th>Cadeia de Ajuda</th><th></th>
-      </tr></thead>
-      <tbody>${s.roteiro.map((r, i) => `
-        <tr>
-          <td class="tcol"><input type="time" value="${fmtClock(r.inicio)}" onchange="editWin(${i},'inicio',this.value)"></td>
-          <td class="tcol"><input type="time" value="${fmtClock(r.fim)}" onchange="editWin(${i},'fim',this.value)"></td>
-          <td><input type="text" value="${esc(r.area)}" placeholder="Área" onchange="editWin(${i},'area',this.value)"></td>
-          <td><input type="text" value="${esc(r.supervisor)}" placeholder="Supervisor(a)" onchange="editWin(${i},'supervisor',this.value)"></td>
-          <td><select onchange="editWin(${i},'cadeia',this.value)">${diaOpts(r.cadeia)}</select></td>
-          <td class="xcol"><button class="editor-rm" onclick="removeWindow(${i})" aria-label="Remover janela">×</button></td>
-        </tr>`).join('')}
-      </tbody>
-    </table>`;
+  el.innerHTML = !rotDraft.length
+    ? '<div class="editor-empty">Nenhuma janela nesta série. Use “Adicionar janela” para começar.</div>'
+    : `<table class="editor">
+        <thead><tr>
+          <th>Início</th><th>Fim</th><th>Área</th><th>Supervisor(a)</th><th>Cadeia de Ajuda</th><th></th>
+        </tr></thead>
+        <tbody>${rotDraft.map((r, i) => `
+          <tr>
+            <td class="tcol"><input type="time" step="300" value="${fmtClock(r.inicio)}"
+                 oninput="editWin(${i},'inicio',this.value)"></td>
+            <td class="tcol"><input type="time" step="300" value="${fmtClock(r.fim)}"
+                 oninput="editWin(${i},'fim',this.value)"></td>
+            <td><input type="text" value="${esc(r.area)}" placeholder="Área"
+                 oninput="editWin(${i},'area',this.value)"></td>
+            <td><input type="text" value="${esc(r.supervisor)}" placeholder="Supervisor(a)"
+                 oninput="editWin(${i},'supervisor',this.value)"></td>
+            <td><select onchange="editWin(${i},'cadeia',this.value)">${diaOpts(r.cadeia)}</select></td>
+            <td class="xcol"><button class="editor-rm" onclick="removeWindow(${i})" aria-label="Remover janela">×</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+  updateSaveBar('rot');
 }
 
-function selectEditSeries(id){ cfgEditId = id; renderConfig(); }
+function selectEditSeries(id){
+  if(!confirmarDescarte()) return;
+  cfgEditId = id;
+  rotDraft = null;
+  renderConfig();
+}
 
-async function editWin(i, field, value){
-  const r = editingSeries().roteiro[i];
+/* ---------- rascunho das janelas ----------
+   A edição acontece só na memória: nada é gravado, reordenado ou redesenhado
+   enquanto se digita. A ordem das linhas fica estável até gravar. */
+let rotDraft = null;
+
+function rotDraftInit(force){
+  if(rotDraft && !force) return;
+  rotDraft = (editingSeries().roteiro || []).map(r => ({ ...r }));
+}
+function rotDirty(){
+  if(!rotDraft) return false;
+  const orig = editingSeries().roteiro || [];
+  if(rotDraft.length !== orig.length) return true;
+  return rotDraft.some((r, i) => {
+    const o = orig[i];
+    return !o || r.id !== o.id || r.inicio !== o.inicio || r.fim !== o.fim ||
+           r.area !== o.area || r.supervisor !== o.supervisor || r.cadeia !== o.cadeia;
+  });
+}
+function editWin(i, field, value){
+  const r = rotDraft && rotDraft[i];
   if(!r) return;
-  const patch = {};
   if(field === 'inicio' || field === 'fim'){
     const t = parseTempo(value);
-    if(t == null) return;
-    const inicio = field === 'inicio' ? t : r.inicio;
-    const fim    = field === 'fim'    ? t : r.fim;
-    if(fim <= inicio){ alert('O fim deve ser depois do início.'); renderRoteiroEditor(); return; }
-    patch[field] = t;
+    if(t == null) return;          // valor incompleto (ex.: "1" de "13"): ignora
+    r[field] = t;
   } else if(field === 'cadeia'){
-    patch.cadeia = value === '' ? null : +value;
+    r.cadeia = value === '' ? null : +value;
   } else {
-    patch[field] = value;
+    r[field] = value;
   }
-  await dbWrite(sb => sb.from('meeting_windows').update(patch).eq('id', r.id));
+  updateSaveBar('rot');
+}
+function addWindow(){
+  rotDraftInit();
+  const last = rotDraft[rotDraft.length - 1];
+  const inicio = last ? last.fim + 5 : 540;
+  rotDraft.push({ inicio, fim: inicio + 15, area: '', supervisor: '', cadeia: null });
+  renderRoteiroEditor();
+}
+function removeWindow(i){
+  rotDraft.splice(i, 1);
+  renderRoteiroEditor();
+}
+function descartarRoteiro(){
+  rotDraftInit(true);
   renderRoteiroEditor();
 }
 
-async function addWindow(){
+async function salvarRoteiro(){
   const s = editingSeries();
   if(!s.id) return;
-  const last = s.roteiro[s.roteiro.length - 1];
-  const inicio = last ? last.fim + 5 : 540;
-  await dbWrite(sb => sb.from('meeting_windows').insert({
-    series_id: s.id, inicio, fim: inicio + 15, area: '', supervisor: '', cadeia: null
-  }));
-  renderRoteiroEditor();
+  const linhas = rotDraft || [];
+  const ruim = linhas.find(r => r.fim <= r.inicio);
+  if(ruim){
+    alert('Janela inválida: o fim (' + fmtClock(ruim.fim) + ') deve ser depois do início (' +
+          fmtClock(ruim.inicio) + ').');
+    return;
+  }
+  const semArea = linhas.find(r => !String(r.area || '').trim());
+  if(semArea && !confirm('Há janela(s) sem área preenchida. Gravar mesmo assim?')) return;
+
+  const sb = await getSB();
+  if(!sb){ alert('Sem conexão com o banco. Nada foi gravado.'); return; }
+  const orig = s.roteiro || [];
+  const vivos = linhas.filter(r => r.id).map(r => r.id);
+  try{
+    for(const r of orig){
+      if(!vivos.includes(r.id)){
+        const res = await sb.from('meeting_windows').delete().eq('id', r.id);
+        if(res.error) throw res.error;
+      }
+    }
+    for(const r of linhas){
+      const campos = { inicio: r.inicio, fim: r.fim, area: r.area || '',
+                       supervisor: r.supervisor || '', cadeia: r.cadeia };
+      if(r.id){
+        const antes = orig.find(o => o.id === r.id);
+        if(antes && antes.inicio === r.inicio && antes.fim === r.fim && antes.area === r.area &&
+           antes.supervisor === r.supervisor && antes.cadeia === r.cadeia) continue;
+        const res = await sb.from('meeting_windows').update(campos).eq('id', r.id);
+        if(res.error) throw res.error;
+      } else {
+        const res = await sb.from('meeting_windows').insert({ series_id: s.id, ...campos });
+        if(res.error) throw res.error;
+      }
+    }
+  }catch(e){
+    alert('Não foi possível gravar: ' + (e && e.message ? e.message : e));
+    return;
+  }
+  await loadSchedule();
+  rotDraft = null;
+  renderConfig();
 }
 
-async function removeWindow(i){
-  const r = editingSeries().roteiro[i];
-  if(!r) return;
-  await dbWrite(sb => sb.from('meeting_windows').delete().eq('id', r.id));
-  renderRoteiroEditor();
+/* ---------- barra de gravação (indica alterações pendentes) ---------- */
+function updateSaveBar(qual){
+  const bar = document.getElementById(qual === 'rot' ? 'rot-savebar' : 'n1-savebar');
+  if(!bar) return;
+  const sujo = qual === 'rot' ? rotDirty() : n1Dirty();
+  bar.classList.toggle('on', sujo);
+  const btn = bar.querySelector('.btn-save');
+  if(btn) btn.disabled = !sujo;
+  const aviso = bar.querySelector('.save-note');
+  if(aviso) aviso.textContent = sujo ? 'Alterações não gravadas' : 'Tudo gravado';
+}
+function haPendencias(){ return rotDirty() || n1Dirty(); }
+function confirmarDescarte(){
+  if(!haPendencias()) return true;
+  return confirm('Há alterações não gravadas. Descartar?');
 }
 
 async function addSeries(){
@@ -2283,6 +2758,8 @@ async function initScheduleRealtime(){
   const sb = await getSB();
   if(!sb || schedCh) return;
   const recarregar = debounce(async ()=>{
+    // não recarrega por cima de uma edição em andamento (perderia o que foi digitado)
+    if(haPendencias()) return;
     await loadSchedule();
     if(document.getElementById('scr-config').classList.contains('active')) renderConfig();
     if(autoActive){ dirMode = null; dirBlockKey = null; directorTick(); }  // reavalia a tela
@@ -2309,8 +2786,8 @@ async function initApp(){
   applyDisplay();
   // o cronograma vem do banco; sem rede, usa a última programação recebida
   await loadSchedule();
-  // Modo automático: relógio no piso, com as Reuniões Escalonadas entrando
-  // 5 min antes de cada janela e saindo quando a janela termina.
+  // O sistema abre no menu principal. O modo automático (relógio + reuniões
+  // no horário) é acionado pelo card "Relógio" ou pela preferência abaixo.
   if(DATA.config.autoStart){
     enterStandby();
   } else {

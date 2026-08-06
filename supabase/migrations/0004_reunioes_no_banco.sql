@@ -133,7 +133,8 @@ begin
 
   insert into public.n1_periods (inicio, fim) values (480, 540), (840, 900);
 
+  -- por padrão a série é escolhida pelo horário atual (automática)
   insert into public.panel_settings (id, active_series_id, auto_series)
-    values (1, manha, false)
+    values (1, null, true)
     on conflict (id) do nothing;
 end $$;
