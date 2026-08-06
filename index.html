@@ -406,15 +406,10 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
     <p class="sub">Selecione a função para projetar em tela cheia nas televisões do piso.</p>
 
     <div class="menu-grid">
-      <button class="func-card" onclick="goN2Select()">
+      <button class="func-card" onclick="goReunioes()">
         <div class="fc-title">Reuniões Escalonadas</div>
-        <div class="fc-desc">Projeta o cronograma escalonado das reuniões, com janelas e deslocamentos acompanhando o relógio.</div>
+        <div class="fc-desc">Acompanha as reuniões do dia nas TVs: <strong>N1</strong> (revisão do dia anterior) e <strong>N2</strong> (cronograma escalonado por área).</div>
         <div class="fc-go">Abrir →</div>
-      </button>
-      <button class="func-card" onclick="startN1()">
-        <div class="fc-title">Reuniões de N1</div>
-        <div class="fc-desc">Acompanha a reunião de N1 com barra de progresso. Entra sozinha nos períodos configurados (manhã e tarde).</div>
-        <div class="fc-go">Projetar →</div>
       </button>
       <button class="func-card" onclick="goValSelect()">
         <div class="fc-title">Busca por Válvulas</div>
@@ -450,12 +445,37 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
   </div>
 </section>
 
-<!-- ================= REUNIÕES ESCALONADAS — SELEÇÃO ================= -->
-<section id="scr-n2-select" class="screen control">
+<!-- ================= REUNIÕES ESCALONADAS — N1 / N2 ================= -->
+<section id="scr-reunioes" class="screen control">
   <div class="wrap">
     <button class="back" onclick="showScreen('scr-menu')">← Menu principal</button>
     <div class="logo-slot control-logo"></div>
     <p class="eyebrow">Reuniões Escalonadas</p>
+    <h2>Qual reunião acompanhar?</h2>
+    <p class="sub">No <strong>modo automático</strong> (card Relógio) as duas entram sozinhas nos
+      horários configurados. Use as opções abaixo para projetar agora.</p>
+
+    <div class="menu-grid">
+      <button class="func-card" onclick="startN1()">
+        <div class="fc-title">Reuniões de N1</div>
+        <div class="fc-desc" id="n1-card-desc">Revisão do dia anterior, com barra de progresso do tempo restante.</div>
+        <div class="fc-go">Projetar →</div>
+      </button>
+      <button class="func-card" onclick="goN2Select()">
+        <div class="fc-title">Reuniões de N2</div>
+        <div class="fc-desc" id="n2-card-desc">Cronograma escalonado por área, com janelas e deslocamentos acompanhando o relógio.</div>
+        <div class="fc-go">Abrir →</div>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= REUNIÕES DE N2 — SELEÇÃO ================= -->
+<section id="scr-n2-select" class="screen control">
+  <div class="wrap">
+    <button class="back" onclick="goReunioes()">← Reuniões Escalonadas</button>
+    <div class="logo-slot control-logo"></div>
+    <p class="eyebrow">Reuniões de N2</p>
     <h2 id="n2-sel-title">Cronograma do dia</h2>
     <p class="sub">A projeção acompanha o relógio em tempo real: janelas de reunião, deslocamentos e encerramento.</p>
 
@@ -1005,7 +1025,7 @@ async function loadSchedule(){
     const cfg = rc && rc.data ? rc.data : null;
     DATA.activeSeriesId = cfg
       ? (cfg.auto_series ? 'auto' : (cfg.active_series_id || (DATA.series[0] && DATA.series[0].id) || null))
-      : ((DATA.series[0] && DATA.series[0].id) || null);
+      : 'auto';   // sem ajustes gravados: escolhe a série pelo horário
     DATA.n1 = {
       enabled:  cfg ? !!cfg.n1_enabled : N1_PADRAO.enabled,
       titulo:   (cfg && cfg.n1_titulo)   || N1_PADRAO.titulo,
@@ -1443,6 +1463,22 @@ function buildWindows(roteiro){
     map.get(key).areas.push(r);
   }
   return [...map.values()].sort((a,b) => a.inicio - b.inicio);
+}
+
+/* Hub das Reuniões Escalonadas: escolhe entre N1 e N2. */
+function goReunioes(){
+  const ps = n1Periodos();
+  document.getElementById('n1-card-desc').textContent = ps.length
+    ? 'Revisão do dia anterior, com barra de progresso. Períodos: ' +
+      ps.map(p => fmtHM(p.inicio) + '–' + fmtHM(p.fim)).join(' · ')
+    : 'Revisão do dia anterior. Nenhum período configurado — cadastre em Configurações.';
+  const serie = activeSeriesResolved();
+  const wins = buildWindows(serie.roteiro);
+  document.getElementById('n2-card-desc').textContent = wins.length
+    ? 'Cronograma escalonado por área. Série: ' + serie.nome + ' · ' +
+      fmtHM(wins[0].inicio) + '–' + fmtHM(wins[wins.length-1].fim)
+    : 'Cronograma escalonado por área. Nenhuma janela configurada.';
+  showScreen('scr-reunioes');
 }
 
 function goN2Select(){

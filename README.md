@@ -23,8 +23,11 @@ inteiramente no navegador, sem instalação e sem integração com sistemas corp
 ## Módulo 1: Painel de Avisos (`index.html`)
 
 Arquivo estático único. Abre no **menu principal**, de onde se escolhe a função: Reuniões
-Escalonadas, **Reuniões de N1**, Busca por Válvulas/itens, Aviso Geral, Silêncio, Microfone e
-Relógio. O painel não força tela cheia — use o **F11** do navegador quando quiser.
+Escalonadas, Busca por Válvulas/itens, Aviso Geral, Silêncio, Microfone e Relógio. O painel não
+força tela cheia — use o **F11** do navegador quando quiser.
+
+**Reuniões Escalonadas** reúne as duas reuniões do dia: **N1** (revisão do dia anterior) e
+**N2** (cronograma escalonado por área). Ao abrir, escolhe-se qual acompanhar.
 
 O card **Relógio** liga o **modo automático**: o relógio fica no piso e as telas entram sozinhas —
 as **Reuniões Escalonadas** a partir de 5 min antes de cada janela (saindo quando ela acaba) e as
@@ -45,7 +48,8 @@ relógio, segundos/data), que podem variar de TV para TV.
 
 - **Séries de reuniões** *(no banco)*: janelas editáveis (início, fim, área, supervisor, Cadeia
   de Ajuda) e **múltiplas séries** (ex.: *Turno da Manhã* e *Turno da Tarde*, com horários e
-  supervisores próprios), com seleção fixa ou **automática pelo horário**.
+  supervisores próprios). Por padrão a série é escolhida **automaticamente pelo horário**; dá
+  para fixar uma série específica.
 - **Reuniões de N1** *(no banco)*: períodos editáveis (padrão **08:00–09:00** e **14:00–15:00**)
   com **título e mensagem personalizáveis** — por padrão *"Reuniões de N1 em andamento"* e
   *"Agora é a hora de rever o dia anterior."*, exibidos com barra de progresso do tempo restante.
@@ -111,6 +115,7 @@ andon/
 supabase/
   migrations/0003_andon_sem_login.sql    Andon sem login + Realtime
   migrations/0004_reunioes_no_banco.sql  Horários das reuniões no banco
+  migrations/0005_serie_automatica_padrao.sql  Série de N2 automática por padrão
   README.md                Passo a passo de configuração
 LICENSE                    MIT
 ```
