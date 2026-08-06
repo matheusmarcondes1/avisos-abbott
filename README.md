@@ -22,13 +22,14 @@ inteiramente no navegador, sem instalação e sem integração com sistemas corp
 
 ## Módulo 1: Painel de Avisos (`index.html`)
 
-Arquivo estático único. Funções: Reuniões Escalonadas (tela inicial), **Reuniões de N1**,
-Busca por Válvulas/itens, Aviso Geral, Silêncio, Microfone e Relógio.
+Arquivo estático único. Abre no **menu principal**, de onde se escolhe a função: Reuniões
+Escalonadas, **Reuniões de N1**, Busca por Válvulas/itens, Aviso Geral, Silêncio, Microfone e
+Relógio. O painel não força tela cheia — use o **F11** do navegador quando quiser.
 
-No **modo automático**, o relógio fica no piso o tempo todo e as telas entram sozinhas:
-as **Reuniões Escalonadas** a partir de 5 min antes de cada janela (saindo quando ela acaba) e
-as **Reuniões de N1** durante os períodos configurados. Se os dois coincidirem, as Escalonadas
-têm prioridade.
+O card **Relógio** liga o **modo automático**: o relógio fica no piso e as telas entram sozinhas —
+as **Reuniões Escalonadas** a partir de 5 min antes de cada janela (saindo quando ela acaba) e as
+**Reuniões de N1** durante os períodos configurados. Se os dois coincidirem, as Escalonadas têm
+prioridade. Dá para abrir direto nesse modo pela preferência em *Comportamento*.
 
 ### Onde ficam os dados
 
@@ -48,8 +49,12 @@ relógio, segundos/data), que podem variar de TV para TV.
 - **Reuniões de N1** *(no banco)*: períodos editáveis (padrão **08:00–09:00** e **14:00–15:00**)
   com **título e mensagem personalizáveis** — por padrão *"Reuniões de N1 em andamento"* e
   *"Agora é a hora de rever o dia anterior."*, exibidos com barra de progresso do tempo restante.
-- **Comportamento** *(local)*: iniciar em modo automático; retornar ao relógio ao encerrar uma
-  projeção.
+- **Comportamento** *(local)*: abrir direto no modo automático (padrão: menu principal); retornar
+  ao relógio ao encerrar uma projeção.
+
+> **Como editar os horários.** As alterações ficam em rascunho enquanto você digita — a linha não
+> muda de lugar e nada é gravado no meio do caminho. Ao terminar, clique em **Gravar alterações**
+> (ou **Descartar**). Os campos de horário usam intervalos de **5 minutos**.
 - **Exibição** *(local)*: tamanho das fontes (ampliado para TVs de ~50"), fundo do relógio,
   segundos, data e Cadeia de Ajuda.
 - **Dados**: exportar o cronograma da série em **`.csv` que abre no Excel** e importar de volta —
