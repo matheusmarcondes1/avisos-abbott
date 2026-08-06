@@ -27,7 +27,15 @@ Escalonadas, Busca por Válvulas/itens, Aviso Geral, Silêncio, Microfone e Rel�
 força tela cheia — use o **F11** do navegador quando quiser.
 
 **Reuniões Escalonadas** reúne as duas reuniões do dia: **N1** (revisão do dia anterior) e
-**N2** (cronograma escalonado por área). Ao abrir, escolhe-se qual acompanhar.
+**N2** (cronograma escalonado por área). Ao abrir, escolhe-se qual acompanhar. Na tela de N2 dá
+para escolher a **série** a projetar (manhã, tarde…) — com aviso quando o cronograma daquela série
+está longe do horário atual.
+
+**Planejamento** mostra a linha do tempo do dia: uma coluna proporcional ao horário com uma marca
+que acompanha o relógio, indicando **em que momento cada tela entra nas TVs** — relógio, N1,
+antecipação, reunião de N2 e deslocamento. Serve para conferir a programação antes que ela vá ao ar.
+Ordem de prioridade: reunião de N2 (e seus deslocamentos) > reunião de N1 > antecipação de 5 min >
+relógio; ou seja, a antecipação não interrompe uma reunião de N1 em andamento.
 
 O card **Relógio** liga o **modo automático**: o relógio fica no piso e as telas entram sozinhas —
 as **Reuniões Escalonadas** a partir de 5 min antes de cada janela (saindo quando ela acaba) e as
