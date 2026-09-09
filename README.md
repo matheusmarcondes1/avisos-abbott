@@ -1,8 +1,8 @@
 # Screenplay 1.0 — versão local
 
 **Screenplay** é uma plataforma **genérica e de código aberto** de avisos e reuniões para o piso
-de produção: as telas que vão para as TVs da linha. Esta branch é a **versão 1.0**, a versão
-**local**.
+de produção: as telas que vão para as TVs da linha. Esta é a **versão 1.0**, a versão **local**,
+e é o que vive na `main`.
 
 Um único arquivo. Sem internet, sem servidor, sem banco de dados e sem contas de usuário. Baixe
 `index.html`, abra no navegador da TV e está funcionando.
@@ -18,7 +18,7 @@ Um único arquivo. Sem internet, sem servidor, sem banco de dados e sem contas d
 
 ## Instalar
 
-1. Abra [`index.html`](index.html) nesta branch e clique em **Download raw file**.
+1. Abra [`index.html`](index.html) e clique em **Download raw file**.
 2. Copie o arquivo para a máquina da TV (pen drive, pasta de rede, e-mail — o que for permitido).
 3. Dê um duplo clique. Ele abre no navegador padrão e já está pronto para uso.
 
@@ -86,9 +86,9 @@ ou SEG…SÁB). A importação **substitui** as janelas da série selecionada.
 
 ## Versões
 
-- **1.0 — local** *(esta branch)*: arquivo único, offline. Roda a operação de hoje.
-- **2.0 — em rede**: mesmo sistema com banco de dados, alterações ao vivo em todas as TVs e o
-  módulo de andon integrado. Em desenvolvimento, em branch própria.
+- **1.0 — local** *(`main`)*: arquivo único, offline. Roda a operação de hoje.
+- **2.0 — em rede** (branch [`screenplay-2.0`](../../tree/screenplay-2.0)): banco de dados,
+  alterações ao vivo em todas as TVs e o andon integrado, no mesmo arquivo.
 
 ## Estrutura
 
