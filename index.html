@@ -26,6 +26,12 @@
   --ember-ink:    #520000;   /* Dark Ember — texto sobre o laranja */
   --ember-soft:   #fcded4;   /* Light Ember — fundo do aviso de silêncio */
 
+  --card:         #FFFFFF;   /* superfícies elevadas */
+  --line-strong:  #b7c8c9;   /* bordas de campo e setas */
+  --r-sm: 10px;  --r-md: 14px;
+  --sh-1: 0 1px 2px rgba(52,64,66,.06), 0 1px 3px rgba(52,64,66,.05);
+  --sh-2: 0 2px 4px rgba(52,64,66,.05), 0 8px 24px rgba(52,64,66,.08);
+
   /* Escala tipográfica das telas de TV (ajustável nas Configurações).
      Como serão projetadas em televisões de ~50", o padrão já é ampliado. */
   --fs: 1.15;
@@ -76,20 +82,40 @@ h2{ font-size: clamp(24px, 3.2vw, 34px); font-weight: 700; letter-spacing: -0.01
 h3{ font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
 .sub{ color: var(--ink-soft); margin-top: 8px; font-size: 16px; line-height: 1.5; }
 
-.menu-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 32px; }
-@media (max-width:640px){ .menu-grid{ grid-template-columns: 1fr; } }
+/* ---------- menu principal ----------
+   Cada função é um cartão de ícone + nome, agrupado por finalidade: o que vai
+   para a TV e o que fica no computador. A explicação longa saiu do menu — ela
+   aparece na própria tela, no momento em que é útil. */
+.menu-sec{ margin-top: 30px; }
+.menu-sec-h{
+  font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-soft); margin-bottom: 12px;
+}
+.menu-grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width:900px){ .menu-grid{ grid-template-columns: repeat(2, 1fr); } }
+@media (max-width:560px){ .menu-grid{ grid-template-columns: 1fr; } }
 
 .func-card{
-  text-align:left; background: var(--paper); border: 1px solid var(--line);
-  border-radius: 10px; padding: 24px; transition: border-color .15s, transform .15s;
+  display:flex; align-items:center; gap: 15px; text-align:left; width:100%;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md);
+  padding: 15px 16px; min-height: 78px; box-shadow: var(--sh-1);
+  transition: border-color .16s, transform .16s, box-shadow .16s;
 }
-.func-card:hover{ border-color: var(--accent-bright); transform: translateY(-1px); }
-.func-card .fc-title{ font-size: 21px; font-weight: 700; }
-.func-card .fc-desc{ color: var(--ink-soft); font-size: 15px; margin-top: 6px; line-height:1.5; }
-.func-card .fc-go{ color: var(--accent-bright); font-size: 13px; font-weight: 700; margin-top: 14px;
-  letter-spacing:.06em; text-transform: uppercase; }
-.func-card.wide{ grid-column: 1 / -1; }
-.func-card.cfg{ background: var(--accent-soft); border-color: var(--accent-soft); }
+.func-card:hover{ border-color: var(--line-strong); transform: translateY(-1px);
+  box-shadow: var(--sh-2); }
+.func-card:focus-visible{ outline: 2px solid var(--accent-bright); outline-offset: 2px; }
+.fc-icon{
+  flex:none; width: 44px; height: 44px; border-radius: 12px; display:flex;
+  align-items:center; justify-content:center;
+  background: var(--accent-soft); color: var(--accent);
+}
+.fc-icon svg{ width: 24px; height: 24px; display:block; }
+.fc-text{ min-width: 0; }
+.fc-title{ display:block; font-size: 17px; font-weight: 600; letter-spacing: -.01em; line-height: 1.25; }
+.fc-hint{ display:block; color: var(--ink-soft); font-size: 13.5px; margin-top: 2px; line-height: 1.3; }
+.fc-chev{ margin-left: auto; flex:none; color: var(--line-strong); display:flex; }
+.fc-chev svg{ width: 18px; height: 18px; display:block; }
+.func-card:hover .fc-chev{ color: var(--ink-soft); }
 
 .btn{
   border: none; border-radius: 8px; padding: 11px 20px; font-size: 15px; font-weight: 700;
@@ -307,8 +333,11 @@ select.dur{
 .area-ca svg{ width: 1.35em; height: 1.35em; flex:none; }
 
 /* ---------- configurações ---------- */
-.cfg-sec{ margin-top: 34px; border-top: 1px solid var(--line); padding-top: 24px; }
-.cfg-sec:first-of-type{ border-top:none; }
+/* Configurações: cada seção num cartão, para o formulário longo não virar
+   uma coluna única de texto corrido. */
+.cfg-sec{ margin-top: 16px; background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-md); padding: 20px 24px; box-shadow: var(--sh-1); }
+.cfg-sec > h3{ color: var(--accent); }
 .cfg-sec > .sub{ margin-bottom: 16px; }
 .cfg-row{ display:flex; align-items:center; gap: 12px; padding: 10px 0;
   font-size: 15px; line-height: 1.4; flex-wrap: wrap; }
@@ -412,51 +441,81 @@ table.editor td.xcol{ width: 44px; text-align:center; }
     <div class="logo-slot control-logo"></div>
     <p class="eyebrow plain">Abbott · BR-SH-M</p>
     <h1>Painel de Avisos</h1>
-    <p class="sub">Selecione a função a projetar nas televisões do piso.
-      <strong>Planejamento</strong> e <strong>Configurações</strong> são ferramentas de apoio,
-      para uso aqui no computador.</p>
 
-    <div class="menu-grid">
-      <button class="func-card" onclick="goReunioes()">
-        <div class="fc-title">Reuniões Escalonadas</div>
-        <div class="fc-desc">Acompanha as reuniões do dia nas TVs: <strong>N1</strong> (revisão do dia anterior) e <strong>N2</strong> (cronograma escalonado por área).</div>
-        <div class="fc-go">Abrir →</div>
-      </button>
-      <button class="func-card" onclick="goPlano()">
-        <div class="fc-title">Planejamento</div>
-        <div class="fc-desc">Ferramenta de conferência: linha do tempo do dia mostrando em que horário cada tela entra nas TVs, com uma marca acompanhando o relógio.</div>
-        <div class="fc-go">Conferir →</div>
-      </button>
-      <button class="func-card" onclick="goValSelect()">
-        <div class="fc-title">Busca por Válvulas</div>
-        <div class="fc-desc">Solicita a busca de válvulas por número de série, com entrega a um assistente ou supervisor.</div>
-        <div class="fc-go">Abrir →</div>
-      </button>
-      <button class="func-card" onclick="goGerSelect()">
-        <div class="fc-title">Aviso Geral</div>
-        <div class="fc-desc">Projeta um texto livre em tela cheia, com duração configurável ou sem limite.</div>
-        <div class="fc-go">Abrir →</div>
-      </button>
-      <button class="func-card" onclick="startSil()">
-        <div class="fc-title">Silêncio</div>
-        <div class="fc-desc">Pede a redução do ruído no piso, com sinal sonoro e encerramento automático em 3 minutos.</div>
-        <div class="fc-go">Projetar →</div>
-      </button>
-      <button class="func-card" onclick="goMicSetup()">
-        <div class="fc-title">Microfone</div>
-        <div class="fc-desc">Sistema de aviso por voz (push to talk) usando o microfone do dispositivo.</div>
-        <div class="fc-go">Abrir →</div>
-      </button>
-      <button class="func-card" onclick="enterStandby()">
-        <div class="fc-title">Relógio</div>
-        <div class="fc-desc">Modo de espera: relógio em tela cheia. As Reuniões Escalonadas entram sozinhas 5 min antes de cada janela.</div>
-        <div class="fc-go">Projetar →</div>
-      </button>
-      <button class="func-card cfg wide" onclick="goConfig()">
-        <div class="fc-title">Configurações</div>
-        <div class="fc-desc">Editar as janelas e séries de reuniões, o comportamento de inicialização, a exibição e as informações do sistema.</div>
-        <div class="fc-go">Abrir →</div>
-      </button>
+    <div class="menu-sec">
+      <div class="menu-sec-h">Projetar na TV</div>
+      <div class="menu-grid">
+        <button class="func-card" onclick="goReunioes()">
+          <span class="fc-icon" data-icon="reunioes"></span>
+          <span class="fc-text">
+            <span class="fc-title">Reuniões Escalonadas</span>
+            <span class="fc-hint">N1 e N2</span>
+          </span>
+          <span class="fc-chev" data-icon="chevron"></span>
+        </button>
+        <button class="func-card" onclick="enterStandby()">
+          <span class="fc-icon" data-icon="relogio"></span>
+          <span class="fc-text">
+            <span class="fc-title">Relógio</span>
+            <span class="fc-hint">Modo automático</span>
+          </span>
+          <span class="fc-chev" data-icon="chevron"></span>
+        </button>
+        <button class="func-card" onclick="goValSelect()">
+          <span class="fc-icon" data-icon="valvulas"></span>
+          <span class="fc-text">
+            <span class="fc-title">Busca por Válvulas</span>
+            <span class="fc-hint">Por número de série</span>
+          </span>
+          <span class="fc-chev" data-icon="chevron"></span>
+        </button>
+        <button class="func-card" onclick="goGerSelect()">
+          <span class="fc-icon" data-icon="aviso"></span>
+          <span class="fc-text">
+            <span class="fc-title">Aviso Geral</span>
+            <span class="fc-hint">Texto em tela cheia</span>
+          </span>
+          <span class="fc-chev" data-icon="chevron"></span>
+        </button>
+        <button class="func-card" onclick="startSil()">
+          <span class="fc-icon" data-icon="silencio"></span>
+          <span class="fc-text">
+            <span class="fc-title">Silêncio</span>
+            <span class="fc-hint">Encerra em 3 minutos</span>
+          </span>
+          <span class="fc-chev" data-icon="chevron"></span>
+        </button>
+        <button class="func-card" onclick="goMicSetup()">
+          <span class="fc-icon" data-icon="microfone"></span>
+          <span class="fc-text">
+            <span class="fc-title">Microfone</span>
+            <span class="fc-hint">Aviso por voz</span>
+          </span>
+          <span class="fc-chev" data-icon="chevron"></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="menu-sec">
+      <div class="menu-sec-h">No computador</div>
+      <div class="menu-grid">
+        <button class="func-card" onclick="goPlano()">
+          <span class="fc-icon" data-icon="planejamento"></span>
+          <span class="fc-text">
+            <span class="fc-title">Planejamento</span>
+            <span class="fc-hint">Linha do tempo do dia</span>
+          </span>
+          <span class="fc-chev" data-icon="chevron"></span>
+        </button>
+        <button class="func-card" onclick="goConfig()">
+          <span class="fc-icon" data-icon="config"></span>
+          <span class="fc-text">
+            <span class="fc-title">Configurações</span>
+            <span class="fc-hint">Horários e exibição</span>
+          </span>
+          <span class="fc-chev" data-icon="chevron"></span>
+        </button>
+      </div>
     </div>
   </div>
 </section>
@@ -955,6 +1014,45 @@ const LOGO_FALLBACK = `<span class="lg-fallback"><svg viewBox="0 0 236 60" role=
         font-weight="700" font-size="56" letter-spacing="-3">Abbott</text></svg></span>`;
 function injectLogos(){
   document.querySelectorAll('.logo-slot').forEach(el => { el.innerHTML = LOGO_FALLBACK; });
+}
+
+/* ============================================================
+   ÍCONES — traço de 1.75 em grade de 24, pontas arredondadas, herdando a cor
+   do contexto. Um símbolo por função: no menu, o ícone identifica antes da
+   leitura, e o nome confirma.
+   ============================================================ */
+const ICONS = {
+  reunioes:     '<circle cx="9" cy="8" r="3.2"/><path d="M3.4 20.2a5.6 5.6 0 0 1 11.2 0"/>' +
+                '<path d="M16.6 5.9a3.2 3.2 0 0 1 0 6.2"/><path d="M17.4 14.6a5.6 5.6 0 0 1 3.2 5.6"/>',
+  relogio:      '<circle cx="12" cy="12" r="9"/><path d="M12 6.4V12l3.8 2.6"/>',
+  valvulas:     '<circle cx="10.6" cy="10.6" r="6.6"/><path d="m15.3 15.3 5.4 5.4"/>',
+  aviso:        '<path d="M20.5 14.6a3.2 3.2 0 0 1-3.2 3.2H8.6L4 21.2V6.2A3.2 3.2 0 0 1 7.2 3h10.1a3.2 3.2 0 0 1 3.2 3.2z"/>' +
+                '<path d="M8.4 8.6h8M8.4 12.6h5"/>',
+  silencio:     '<path d="M11.2 4.6 6.6 8.8H3.2v6.4h3.4l4.6 4.2z"/><path d="m15.8 9.4 5 5.2M20.8 9.4l-5 5.2"/>',
+  microfone:    '<rect x="9" y="2.4" width="6" height="11.2" rx="3"/><path d="M4.8 11.2a7.2 7.2 0 0 0 14.4 0"/>' +
+                '<path d="M12 18.4v3.2"/>',
+  planejamento: '<path d="M6 3.2v17.6"/><circle cx="6" cy="7.6" r="1.9"/><circle cx="6" cy="16.4" r="1.9"/>' +
+                '<path d="M11 7.6h9.2M11 16.4h6.2"/>',
+  config:       '<path d="M3.4 7.4h9M17.2 7.4h3.4M3.4 16.6h4M11.8 16.6h8.8"/>' +
+                '<circle cx="14.8" cy="7.4" r="2.4"/><circle cx="9.4" cy="16.6" r="2.4"/>',
+  andon:        '<path d="M18.2 9.6a6.2 6.2 0 1 0-12.4 0c0 4.8-2 6-2 6h16.4s-2-1.2-2-6"/>' +
+                '<path d="M10.2 19.8a2.2 2.2 0 0 0 3.6 0"/>',
+  tv:           '<rect x="2.6" y="4" width="18.8" height="13" rx="2.4"/><path d="M8.4 20.6h7.2"/>',
+  tablet:       '<rect x="6" y="2.6" width="12" height="18.8" rx="2.6"/><path d="M10.8 18.4h2.4"/>',
+  fila:         '<rect x="3.4" y="3.4" width="7" height="7" rx="1.8"/><rect x="13.6" y="3.4" width="7" height="7" rx="1.8"/>' +
+                '<rect x="3.4" y="13.6" width="7" height="7" rx="1.8"/><rect x="13.6" y="13.6" width="7" height="7" rx="1.8"/>',
+  chevron:      '<path d="m9.5 5.5 6.5 6.5-6.5 6.5"/>'
+};
+function iconSvg(nome){
+  const d = ICONS[nome];
+  if(!d) return '';
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" ' +
+         'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
+}
+function injectIcons(raiz){
+  (raiz || document).querySelectorAll('[data-icon]').forEach(el => {
+    el.innerHTML = iconSvg(el.dataset.icon);
+  });
 }
 
 /* ============================================================
@@ -2543,6 +2641,7 @@ function applyDisplay(){
    ============================================================ */
 function initApp(){
   injectLogos();
+  injectIcons();
   loadData();
   applyDisplay();
   // O sistema abre no menu principal. O modo automático (relógio + reuniões
