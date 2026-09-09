@@ -33,12 +33,14 @@ inacessível.
 
 ## 2. Conectar o app
 
-A URL e a chave publishable já estão em [`andon/config.js`](../andon/config.js). Para outro projeto,
-troque os valores lá (ou use a tela de configuração do próprio app na primeira abertura).
+Painel e Andon vivem no mesmo `index.html` e usam o mesmo cliente. A URL e a chave publishable
+padrão estão no próprio arquivo; para apontar a outro projeto, troque-as em
+**Configurações → Notificações de Andon**, na TV, ou na tela de conexão que o Andon mostra quando
+não consegue conectar.
 
 ## 3. Pronto
 
-Abra o `andon/` e siga o fluxo:
+Abra `index.html#andon` e siga o fluxo:
 - **Operadora** → escolhe a etapa e a mesa → tela de chamados (Falta de Material, Qualidade,
   Inspeção, Assistente).
 - **Material Handler / Coordenação Técnica / Inspeção / Assistente** → veem a fila de chamados do

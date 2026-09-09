@@ -3,29 +3,60 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel de Avisos — Abbott BR-SH-M</title>
-<link rel="icon" type="image/jpeg" href="https://cdn.brandfetch.io/idtqCIB40M/w/200/h/200/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&amp;t=1756696667154">
+<title>Screenplay — S.T.A.R. Labs</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232E747B'/%3E%3Cpath d='M16 6l2.6 6.1L25 14l-6.4 1.9L16 22l-2.6-6.1L7 14l6.4-1.9z' fill='%23FDFDFE'/%3E%3C/svg%3E">
 <style>
 /* ============================================================
-   PALETA — Abbott Color Palette
-   Pares de contraste conforme o guia da marca.
+   PALETA
+   Cinco cores de marca. As demais são derivações delas — mesmo
+   matiz, luminância ajustada — porque texto sobre cor precisa de
+   contraste e a leitura acontece a alguns metros da TV.
+
+     #5F95E2  Cornflower Blue   interação, progresso
+     #DC9F6C  Light Bronze      deslocamento, atenção
+     #2E747B  Stormy Teal       superfícies de destaque
+     #FAFAF9  Bright Snow       fundo da página
+     #FDFDFE  White             superfícies elevadas
    ============================================================ */
 :root{
-  --ink:          #344042;   /* Dark Steel — texto principal */
-  --ink-soft:     #4f4843;   /* Dark Stone — texto secundário */
-  --paper:        #FFFFFF;   /* fundo */
-  --paper-dim:    #e4eeef;   /* Light Steel — fundo de blocos */
-  --line:         #d0dddd;   /* Medium Steel — hairlines e trilhos */
-  --accent:       #000075;   /* Signature Blue — superfícies de destaque */
-  --accent-bright:#2e4aed;   /* Primary Blue — progresso e interação */
-  --accent-soft:  #d6dbfc;   /* Light Blue — caixas de apoio */
-  --accent-ink:   #FFFFFF;   /* texto sobre Signature/Primary Blue */
-  --warn:         #ffbf21;   /* Primary Yellow — deslocamento */
-  --warn-ink:     #5c4500;   /* Dark Yellow — texto sobre o amarelo */
-  --ok:           #124f00;   /* Dark Mint — estados concluídos */
-  --ember:        #ff5729;   /* Primary Ember — aviso de silêncio */
-  --ember-ink:    #520000;   /* Dark Ember — texto sobre o laranja */
-  --ember-soft:   #fcded4;   /* Light Ember — fundo do aviso de silêncio */
+  --cornflower:   #5F95E2;
+  --bronze:       #DC9F6C;
+  --teal:         #2E747B;
+  --snow:         #FAFAF9;
+  --white:        #FDFDFE;
+
+  --ink:          #16292C;   /* teal profundo — texto principal */
+  --ink-soft:     #5A6E71;   /* teal dessaturado — texto secundário */
+  --paper:        #FAFAF9;   /* Bright Snow — fundo */
+  --card:         #FDFDFE;   /* White — cartões e barras */
+  --paper-dim:    #EFF3F3;   /* fundo de blocos */
+  --line:         #E1E7E7;   /* hairlines */
+  --line-strong:  #C7D3D4;   /* trilhos e bordas de campo */
+  --accent:       #2E747B;   /* Stormy Teal — superfícies de destaque */
+  --accent-bright:#5F95E2;   /* Cornflower Blue — progresso e interação */
+  --accent-link:  #2C5FA8;   /* Cornflower escurecido, legível em texto */
+  --accent-soft:  #E4EFF0;   /* apoio sobre fundo claro */
+  --accent-ink:   #FDFDFE;   /* texto sobre Teal/Cornflower */
+  --warn:         #DC9F6C;   /* Light Bronze — deslocamento */
+  --warn-soft:    #F8ECE1;
+  --warn-ink:     #4E2C0C;   /* texto sobre o bronze */
+  --ok:           #1F6B57;   /* estados concluídos */
+  --ember:        #A9521F;   /* bronze aprofundado — aviso de silêncio */
+  --ember-ink:    #46220A;
+  --ember-soft:   #F8E9DE;
+
+  /* Cores por tipo de chamado. Precisam ser distinguíveis à distância, então
+     usam os três matizes da marca mais um grafite: bronze, azul, teal, quase
+     preto — quatro valores bem separados, não quatro variações de um só.
+     -ink é o rótulo sobre fundo claro; -on é o texto sobre a cor cheia. */
+  --mat:#DC9F6C; --mat-soft:#F8ECE1; --mat-ink:#6B3F17; --mat-on:#3D2109;  /* Falta de material */
+  --qua:#5F95E2; --qua-soft:#E9F1FB; --qua-ink:#235092; --qua-on:#0E2140;  /* Qualidade */
+  --ins:#2E747B; --ins-soft:#E4EFF0; --ins-ink:#235B61; --ins-on:#FDFDFE;  /* Inspeção */
+  --ass:#26383C; --ass-soft:#E7ECED; --ass-ink:#26383C; --ass-on:#FDFDFE;  /* Assistente */
+
+  --r-sm: 10px;  --r-md: 14px;  --r-lg: 20px;
+  --sh-1: 0 1px 2px rgba(22,41,44,.05), 0 1px 3px rgba(22,41,44,.04);
+  --sh-2: 0 2px 4px rgba(22,41,44,.05), 0 8px 24px rgba(22,41,44,.07);
 
   /* Escala tipográfica das telas de TV (ajustável nas Configurações).
      Como serão projetadas em televisões de ~50", o padrão já é ampliado. */
@@ -35,28 +66,28 @@
 *{ margin:0; padding:0; box-sizing:border-box; }
 html,body{ height:100%; }
 body{
-  font-family: Helvetica, "Helvetica Neue", Arial, sans-serif;
+  font-family: ui-sans-serif, -apple-system, "Segoe UI", Inter, Roboto,
+    Helvetica, "Helvetica Neue", Arial, sans-serif;
   background: var(--paper);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 button{ font-family: inherit; cursor:pointer; }
 input, select, textarea{ font-family: inherit; }
 
-/* ---------- logo Abbott (wordmark vetorial, sem dependência externa) ----------
-   Usa currentColor, então herda a cor do contexto (azul em telas claras,
-   branca nas telas de TV). Pode ser substituída pelo SVG oficial da marca. */
+/* ---------- marca (wordmark vetorial, sem dependência externa) ----------
+   Desenhada em currentColor, então herda a cor do contexto: teal nas telas
+   claras, branca sobre o relógio. Trocar a marca é trocar um SVG só. */
 .logo-slot{ display:inline-block; color: var(--accent); line-height:0; }
-.logo-slot img.lg{ height:100%; width:auto; display:none; }
-/* o wordmark de reserva precisa herdar a altura do slot: sem isso, o SVG
-   com height:100% resolve para zero e a logo some (caso da versão offline) */
+/* o SVG usa height:100%, então o container precisa ter altura própria —
+   sem isso a marca resolve para zero e some */
 .logo-slot .lg-fallback{ display:block; height:100%; }
 .logo-slot .lg-fallback svg{ height:100%; width:auto; display:block; }
-.logo-slot.img-ok .lg-fallback{ display:none; }
-.logo-slot.img-ok .lg-blue{ display:block; }      /* fundo claro: logo azul escuro */
-/* display:block garante que a logo fique na própria linha, sem o botão
+/* display:block garante que a marca fique na própria linha, sem o botão
    "voltar" (inline-block) empurrá-la para o lado. */
-.control-logo{ display: block; height: 34px; width: fit-content; margin-bottom: 22px; }
+.control-logo{ display: block; height: 30px; width: fit-content; margin-bottom: 22px;
+  opacity: .9; }
 
 /* ---------- gerenciamento de telas ---------- */
 .screen{ display:none; }
@@ -68,53 +99,75 @@ input, select, textarea{ font-family: inherit; }
 .wrap{ max-width: 940px; margin: 0 auto; }
 
 .eyebrow{
-  font-size: 13px; letter-spacing: .18em; text-transform: uppercase;
-  color: var(--ink-soft); margin-bottom: 10px;
+  font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--accent); font-weight: 700; margin-bottom: 12px;
 }
-.eyebrow.plain{ letter-spacing: normal; }
-h1{ font-size: clamp(28px, 4.2vw, 44px); font-weight: 700; letter-spacing: -0.01em; }
-h2{ font-size: clamp(24px, 3.2vw, 34px); font-weight: 700; letter-spacing: -0.01em; }
-h3{ font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
-.sub{ color: var(--ink-soft); margin-top: 8px; font-size: 16px; line-height: 1.5; }
+.eyebrow.plain{ letter-spacing: .12em; color: var(--ink-soft); }
+h1{ font-size: clamp(34px, 5vw, 54px); font-weight: 800; letter-spacing: -0.025em; }
+h2{ font-size: clamp(26px, 3.4vw, 38px); font-weight: 800; letter-spacing: -0.02em; }
+h3{ font-size: 19px; font-weight: 700; letter-spacing: -0.01em; }
+.sub{ color: var(--ink-soft); margin-top: 10px; font-size: 16px; line-height: 1.6;
+  max-width: 66ch; }
+.hint-url{ font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .92em;
+  background: var(--paper-dim); border-radius: 5px; padding: 1px 6px; }
 
-.menu-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 32px; }
+.menu-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 36px; }
 @media (max-width:640px){ .menu-grid{ grid-template-columns: 1fr; } }
 
+/* Cartões do menu: superfície branca sobre o fundo Bright Snow, sombra
+   discreta e um fio de Cornflower que aparece ao passar o cursor. */
 .func-card{
-  text-align:left; background: var(--paper); border: 1px solid var(--line);
-  border-radius: 10px; padding: 24px; transition: border-color .15s, transform .15s;
+  position: relative; text-align:left; background: var(--card);
+  border: 1px solid var(--line); border-radius: var(--r-md); padding: 24px 26px;
+  box-shadow: var(--sh-1); overflow: hidden;
+  transition: border-color .16s, transform .16s, box-shadow .16s;
 }
-.func-card:hover{ border-color: var(--accent-bright); transform: translateY(-1px); }
-.func-card .fc-title{ font-size: 21px; font-weight: 700; }
-.func-card .fc-desc{ color: var(--ink-soft); font-size: 15px; margin-top: 6px; line-height:1.5; }
-.func-card .fc-go{ color: var(--accent-bright); font-size: 13px; font-weight: 700; margin-top: 14px;
-  letter-spacing:.06em; text-transform: uppercase; }
+.func-card::before{
+  content:''; position:absolute; inset: 0 auto 0 0; width: 3px;
+  background: var(--accent-bright); transform: scaleY(0); transform-origin: 50% 0;
+  transition: transform .18s ease;
+}
+.func-card:hover{ border-color: var(--line-strong); transform: translateY(-2px);
+  box-shadow: var(--sh-2); }
+.func-card:hover::before{ transform: scaleY(1); }
+.func-card:focus-visible{ outline: 2px solid var(--accent-bright); outline-offset: 2px; }
+.func-card .fc-title{ font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
+.func-card .fc-desc{ color: var(--ink-soft); font-size: 15px; margin-top: 6px; line-height:1.55; }
+.func-card .fc-go{ color: var(--accent-link); font-size: 12px; font-weight: 800; margin-top: 16px;
+  letter-spacing:.1em; text-transform: uppercase; }
 .func-card.wide{ grid-column: 1 / -1; }
-.func-card.cfg{ background: var(--accent-soft); border-color: var(--accent-soft); }
+.func-card.cfg{ background: var(--accent-soft); border-color: transparent; box-shadow: none; }
 
 .btn{
-  border: none; border-radius: 8px; padding: 11px 20px; font-size: 15px; font-weight: 700;
-  background: var(--accent); color: var(--accent-ink);
+  border: none; border-radius: var(--r-sm); padding: 11px 20px; font-size: 15px; font-weight: 700;
+  background: var(--accent); color: var(--accent-ink); box-shadow: var(--sh-1);
+  transition: filter .14s, box-shadow .14s, border-color .14s, color .14s;
 }
-.btn:hover{ filter: brightness(1.08); }
-.btn:disabled{ opacity:.4; cursor:not-allowed; filter:none; }
-.btn.ghost{ background: transparent; color: var(--ink); border: 1px solid var(--line); }
-.btn.ghost:hover{ border-color: var(--ink-soft); }
+.btn:hover{ filter: brightness(1.1); box-shadow: var(--sh-2); }
+.btn:focus-visible{ outline: 2px solid var(--accent-bright); outline-offset: 2px; }
+.btn:disabled{ opacity:.4; cursor:not-allowed; filter:none; box-shadow:none; }
+.btn.ghost{ background: var(--card); color: var(--ink); border: 1px solid var(--line-strong);
+  box-shadow: none; }
+.btn.ghost:hover{ border-color: var(--accent); color: var(--accent); filter:none; box-shadow: var(--sh-1); }
 .btn.small{ padding: 8px 14px; font-size: 14px; }
-.btn.danger{ background: transparent; color: var(--ember-ink); border:1px solid var(--line); }
-.btn.danger:hover{ border-color: var(--ember); color: var(--ember); }
+.btn.danger{ background: var(--card); color: var(--ember-ink); border:1px solid var(--line-strong);
+  box-shadow:none; }
+.btn.danger:hover{ border-color: var(--ember); color: var(--ember); filter:none; }
 
 .back{
-  background:none; border:none; color: var(--ink-soft); font-size: 15px; font-weight:700;
-  margin-bottom: 20px; padding: 4px 0;
+  background: var(--card); border: 1px solid var(--line); color: var(--ink-soft);
+  font-size: 14px; font-weight:700; margin-bottom: 20px; padding: 7px 14px;
+  border-radius: 999px; transition: border-color .14s, color .14s;
 }
-.back:hover{ color: var(--ink); }
+.back:hover{ color: var(--accent); border-color: var(--line-strong); }
 
 .search{
-  width:100%; margin-top: 22px; padding: 12px 16px; font-size: 16px;
-  border: 1px solid var(--line); border-radius: 8px; outline: none;
+  width:100%; margin-top: 22px; padding: 13px 16px; font-size: 16px; background: var(--card);
+  border: 1px solid var(--line-strong); border-radius: var(--r-sm); outline: none;
+  transition: border-color .14s, box-shadow .14s;
 }
-.search:focus{ border-color: var(--accent-bright); }
+.search:focus{ border-color: var(--accent-bright);
+  box-shadow: 0 0 0 3px rgba(95,149,226,.18); }
 
 .action-bar{
   display:flex; align-items:center; justify-content:space-between; gap: 16px;
@@ -123,12 +176,13 @@ h3{ font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
 .action-note{ color: var(--ink-soft); font-size: 14px; }
 
 .empty{
-  margin-top: 24px; border: 1px dashed var(--line); border-radius: 10px;
+  margin-top: 24px; border: 1px dashed var(--line-strong); border-radius: var(--r-md);
   padding: 40px 24px; text-align:center; color: var(--ink-soft); font-size: 15px; line-height:1.6;
 }
 
 /* tabela do roteiro (tela de seleção das reuniões) */
-.rot{ margin-top: 24px; border: 1px solid var(--line); border-radius: 10px; overflow:hidden; }
+.rot{ margin-top: 24px; border: 1px solid var(--line); border-radius: var(--r-md);
+  overflow:hidden; background: var(--card); box-shadow: var(--sh-1); }
 .rot-window{ padding: 16px 20px; border-bottom: 1px solid var(--line); }
 .rot-window:last-child{ border-bottom: none; }
 .rot-time{ font-size: 16px; font-weight: 700; }
@@ -145,12 +199,10 @@ h3{ font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
 .tv.nocursor{ cursor: none; }
 .tv-top{ display:flex; justify-content:space-between; align-items:flex-start; gap: 2vw; }
 .tv-topright{ display:flex; flex-direction:column; align-items:flex-end; gap: 1vh; }
-/* Logo nas telas de TV: azul Abbott sobre os fundos claros (padrão);
-   branca no relógio (fundo preto/azul); ember no aviso de silêncio. */
+/* Marca nas telas de TV: teal sobre os fundos claros (padrão) e branca no
+   relógio, que tem fundo escuro. */
 .tv-brand{ color: var(--accent); height: calc(clamp(22px, 2.6vw, 44px) * var(--fs)); }
-.tv.clkmode .tv-brand{ color:#fff; }                        /* fallback branco no relógio */
-.tv.clkmode .tv-brand.img-ok .lg-blue{ display:none; }      /* fundo escuro: logo branca */
-.tv.clkmode .tv-brand.img-ok .lg-white{ display:block; }
+.tv.clkmode .tv-brand{ color: var(--white); }
 .tv-eyebrow{
   display:inline-block; font-size: calc(clamp(16px, 1.9vw, 30px) * var(--fs)); font-weight: 700;
   letter-spacing: .16em; text-transform: uppercase; color: var(--accent-ink);
@@ -198,8 +250,10 @@ h3{ font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
   justify-content:center; text-align:center; gap: 1.5vh; }
 .tv-center .big{ font-size: calc(clamp(36px, 6.2vw, 104px) * var(--fs)); font-weight: 700; letter-spacing:-0.01em; }
 .tv-center .mid{ font-size: calc(clamp(20px, 2.6vw, 44px) * var(--fs)); color: var(--ink-soft); }
-.tv-center .count{ font-size: calc(clamp(44px, 8.4vw, 130px) * var(--fs)); font-weight: 700;
-  font-variant-numeric: tabular-nums; color: var(--accent-bright); }
+/* Na TV o Cornflower cheio fica claro demais sobre o fundo Bright Snow;
+   o número grande usa a versão escurecida, legível a alguns metros. */
+.tv-center .count{ font-size: calc(clamp(44px, 8.4vw, 130px) * var(--fs)); font-weight: 800;
+  font-variant-numeric: tabular-nums; color: var(--accent-link); }
 
 /* saída discreta */
 .tv-exit{
@@ -302,14 +356,17 @@ select.dur{
 /* cadeia de ajuda nas reuniões */
 .area-ca{
   display:flex; align-items:center; gap: .5em; margin-top: 1.2vh;
-  color: var(--accent-bright); font-weight: 700;
+  color: var(--accent-link); font-weight: 700;
   font-size: calc(clamp(15px, 1.9vw, 30px) * var(--fs));
 }
 .area-ca svg{ width: 1.35em; height: 1.35em; flex:none; }
 
 /* ---------- configurações ---------- */
-.cfg-sec{ margin-top: 34px; border-top: 1px solid var(--line); padding-top: 24px; }
-.cfg-sec:first-of-type{ border-top:none; }
+/* Configurações: cada seção num cartão, para o formulário longo não virar
+   uma coluna única de texto corrido. */
+.cfg-sec{ margin-top: 18px; background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-md); padding: 22px 26px; box-shadow: var(--sh-1); }
+.cfg-sec > h3{ color: var(--accent); }
 .cfg-sec > .sub{ margin-bottom: 16px; }
 .cfg-row{ display:flex; align-items:center; gap: 12px; padding: 10px 0;
   font-size: 15px; line-height: 1.4; flex-wrap: wrap; }
@@ -317,33 +374,36 @@ select.dur{
 .cfg-row.check input{ width: 20px; height: 20px; accent-color: var(--accent); flex:none; }
 .cfg-row .cfg-label{ flex:1; min-width: 200px; }
 .cfg-row select, .cfg-row input[type=text]{
-  padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px;
-  font-size: 15px; background: var(--paper); color: var(--ink); }
+  padding: 9px 12px; border: 1px solid var(--line-strong); border-radius: var(--r-sm);
+  font-size: 15px; background: var(--card); color: var(--ink); }
 
 .series-tabs{ display:flex; flex-wrap:wrap; gap: 8px; margin-bottom: 14px; }
-.series-tab{ padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line);
-  background: var(--paper); color: var(--ink-soft); font-weight: 700; font-size: 14px; }
+.series-tab{ padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line-strong);
+  background: var(--card); color: var(--ink-soft); font-weight: 700; font-size: 14px;
+  transition: border-color .14s, color .14s; }
+.series-tab:hover{ border-color: var(--accent); color: var(--accent); }
 .series-tab.on{ background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .series-actions{ display:flex; flex-wrap:wrap; gap: 8px; margin-bottom: 16px; }
 
-.rot-editor{ border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; }
+.rot-editor{ border: 1px solid var(--line); border-radius: var(--r-md); overflow-x: auto;
+  background: var(--card); }
 table.editor{ width:100%; border-collapse: collapse; min-width: 640px; }
 table.editor th{ text-align:left; font-size: 12px; letter-spacing:.08em; text-transform:uppercase;
   color: var(--ink-soft); font-weight:700; padding: 12px; border-bottom: 1px solid var(--line); }
 table.editor td{ padding: 8px 12px; border-bottom: 1px solid var(--line); }
 table.editor tr:last-child td{ border-bottom:none; }
 table.editor input, table.editor select{
-  width:100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px;
-  font-size: 15px; background: var(--paper); color: var(--ink); }
+  width:100%; padding: 8px 10px; border: 1px solid var(--line-strong); border-radius: 8px;
+  font-size: 15px; background: var(--card); color: var(--ink); }
 table.editor input[type=time]{ width: 120px; }
 table.editor td.tcol{ width: 130px; }
 table.editor td.xcol{ width: 44px; text-align:center; }
-.editor-rm{ width: 30px; height: 30px; border-radius: 999px; border: 1px solid var(--line);
-  background: var(--paper); color: var(--ink-soft); font-size: 16px; font-weight:700; line-height:1; }
+.editor-rm{ width: 30px; height: 30px; border-radius: 999px; border: 1px solid var(--line-strong);
+  background: var(--card); color: var(--ink-soft); font-size: 16px; font-weight:700; line-height:1; }
 .editor-rm:hover{ border-color: var(--ember); color: var(--ember); }
 .editor-empty{ padding: 20px; color: var(--ink-soft); font-size: 15px; }
 
-.info-card{ background: var(--paper-dim); border-radius: 10px; padding: 22px 24px; }
+.info-card{ background: var(--paper-dim); border-radius: var(--r-md); padding: 22px 24px; }
 .info-card p{ font-size: 15px; line-height: 1.7; color: var(--ink); }
 .info-card .sig{ margin-top: 12px; font-weight: 700; color: var(--accent); }
 .info-card .meta{ margin-top: 4px; font-size: 13px; color: var(--ink-soft); }
@@ -405,20 +465,20 @@ table.editor td.xcol{ width: 44px; text-align:center; }
 :root{ --qw: clamp(200px, 20vw, 340px); }
 #tv-queue{
   position: fixed; top: 0; right: 0; bottom: 0; width: var(--qw); z-index: 40;
-  background: #fff; display: none; flex-direction: column; gap: 12px;
-  padding: 14px; overflow: hidden; border-left: 2px solid #e5ecf0;
+  background: var(--card); display: none; flex-direction: column; gap: 12px;
+  padding: 14px; overflow: hidden; border-left: 1px solid var(--line);
 }
 body.has-calls #tv-queue{ display: flex; }
 body.has-calls .tv{ right: var(--qw); }   /* a tela principal chega pro lado */
 .tvq{
-  flex: 0 0 auto; border-radius: 16px; padding: 12px 10px 14px; text-align: center;
-  color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  text-transform: uppercase;
+  flex: 0 0 auto; border-radius: var(--r-lg); padding: 12px 10px 14px; text-align: center;
+  color: var(--accent-ink); display: flex; flex-direction: column; align-items: center;
+  justify-content: center; text-transform: uppercase;
 }
-.tvq.t-falta_material{ background:#ffbf21; color:#3d2f00; }
-.tvq.t-qualidade{ background:#7c4bd0; }
-.tvq.t-inspecao{ background:#ff5729; }
-.tvq.t-assistente{ background:#1f8f57; }
+.tvq.t-falta_material{ background:var(--mat); color:var(--mat-on); }
+.tvq.t-qualidade{ background:var(--qua); color:var(--qua-on); }
+.tvq.t-inspecao{ background:var(--ins); color:var(--ins-on); }
+.tvq.t-assistente{ background:var(--ass); color:var(--ass-on); }
 .tvq .q-type{ font-size: clamp(13px, 1.4vw, 22px); font-weight: 800; letter-spacing: .06em; line-height: 1.05; }
 .tvq .q-mesa{ font-size: clamp(44px, 5.4vw, 90px); font-weight: 900; line-height: 1;
   font-variant-numeric: tabular-nums; margin: 2px 0; }
@@ -430,6 +490,329 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
 @media (prefers-reduced-motion: reduce){
   *{ transition: none !important; }
 }
+
+/* ============================================================
+   ANDON — estilos do app de chamados, todos sob #andon-app para não
+   se misturarem aos do painel.
+   ============================================================ */
+/* O Andon herda a paleta do :root; só acrescenta o que é dele. */
+#andon-app{ --line-soft:#EEF2F2; }
+
+#andon-app *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+#andon-app{
+  font-family:Helvetica,"Helvetica Neue",Arial,sans-serif;
+  background:var(--paper); color:var(--ink); -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+}
+
+#andon-app button{ font-family:inherit; cursor:pointer; color:inherit; }
+
+#andon-app input, #andon-app select{ font-family:inherit; }
+
+
+/* logo */
+#andon-app .logo{ color:var(--accent); height:30px; line-height:0; display:inline-block; }
+
+#andon-app .logo .lg-fallback{ display:block; height:100%; }
+
+#andon-app .logo .lg-fallback svg{ height:100%; width:auto; display:block; }
+
+
+/* telas */
+#andon-app .screen{ display:none; min-height:100dvh; flex-direction:column; }
+
+#andon-app .screen.active{ display:flex; }
+
+
+/* cabeçalho: logo à direita; botão voltar à esquerda — sem se sobrepor */
+#andon-app .topbar{
+  display:flex; align-items:center; gap:16px;
+  padding:14px clamp(16px,3vw,32px); border-bottom:1px solid var(--line);
+  background:var(--card); flex:none;
+}
+
+#andon-app .topbar .grow{ flex:1; min-width:0; }
+
+#andon-app .topbar .logo{ flex:none; }
+
+#andon-app .back{
+  flex:none; border:1px solid var(--line); background:var(--card); color:var(--ink);
+  border-radius:12px; padding:10px 18px; font-size:16px; font-weight:700;
+}
+
+#andon-app .back:hover{ border-color:var(--accent-bright); color:var(--accent-bright); }
+
+#andon-app .title{ font-size:clamp(18px,2.4vw,24px); font-weight:700; letter-spacing:-.01em; }
+
+#andon-app .subtitle{ font-size:14px; color:var(--ink-soft); margin-top:2px; }
+
+
+#andon-app .muted{ color:var(--ink-soft); }
+
+#andon-app .hidden{ display:none !important; }
+/* nas três colunas da seleção, a coluna ainda não revelada ocupa o lugar dela
+   em vez de sumir — a grade não "pula" a cada escolha */
+#andon-app .cols .col.hidden{ display:block !important; visibility:hidden; }
+
+
+/* ============================================================
+   TELA DE SELEÇÃO — três colunas (Perfil / Etapa / Mesa)
+   ============================================================ */
+#andon-app .select-wrap{ flex:1; display:flex; align-items:flex-start; justify-content:center;
+  padding:clamp(20px,4vh,48px) clamp(16px,3vw,40px); }
+
+#andon-app .cols{ display:flex; gap:clamp(24px,4vw,64px); align-items:flex-start; width:100%;
+  max-width:1100px; }
+
+#andon-app .col{ flex:1; min-width:0; opacity:1; transition:opacity .25s ease; }
+
+#andon-app .col.reveal{ animation:an-fadein .28s ease; }
+
+@keyframes an-fadein{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:none;} }
+
+#andon-app .col-h{ font-size:15px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-soft); margin-bottom:16px; padding-left:4px; }
+
+#andon-app .col-body{ display:flex; flex-direction:column; gap:14px; }
+
+
+#andon-app .opt{
+  width:100%; text-align:center; background:var(--card); border:2px solid var(--line);
+  border-radius:16px; padding:20px 18px; font-size:19px; font-weight:700; color:var(--ink);
+  transition:border-color .12s, background .12s, transform .08s;
+}
+
+#andon-app .opt:hover{ border-color:var(--accent-bright); }
+
+#andon-app .opt:active{ transform:scale(.99); }
+
+#andon-app .opt.on{ border-color:var(--accent); background:var(--accent-soft); color:var(--accent); }
+
+
+/* grade de mesas 5 por linha */
+#andon-app .mesa-grid{ display:grid; grid-template-columns:repeat(5, 1fr); gap:12px; }
+
+#andon-app .mesa{
+  aspect-ratio:5/4; display:flex; align-items:center; justify-content:center;
+  background:var(--card); border:2px solid var(--line); border-radius:12px;
+  font-size:20px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--ink);
+}
+
+#andon-app .mesa:hover{ border-color:var(--accent-bright); }
+
+#andon-app .mesa:active{ transform:scale(.97); }
+
+
+/* ============================================================
+   OPERADORA — tela de chamado (tablet Windows na horizontal)
+   ============================================================ */
+#andon-app .op-body{ flex:1; padding:clamp(14px,2.4vh,26px) clamp(16px,3vw,32px); display:flex; }
+
+#andon-app .call-grid{
+  flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr;
+  gap:clamp(14px,2vw,22px); min-height:0;
+}
+
+@media (max-width:720px){
+ #andon-app .call-grid{ grid-template-columns:1fr; grid-template-rows:none; }
+}
+
+#andon-app .call-btn{
+  border:2px solid var(--line); border-radius:22px; padding:clamp(16px,3vh,32px);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+  text-align:center; background:var(--card); transition:transform .08s, box-shadow .12s;
+}
+
+#andon-app .call-btn:active{ transform:scale(.99); }
+
+#andon-app .call-btn .cb-name{ font-size:clamp(24px,3.4vw,40px); font-weight:700; letter-spacing:-.01em; }
+
+#andon-app .call-btn .cb-target{ font-size:clamp(13px,1.5vw,17px); font-weight:700; opacity:.8;
+  text-transform:uppercase; letter-spacing:.08em; }
+
+#andon-app .call-btn .cb-state{ font-size:clamp(14px,1.7vw,20px); font-weight:700; margin-top:2px; }
+
+#andon-app .call-btn .cb-dot{ width:16px; height:16px; border-radius:50%; }
+
+/* cores por tipo (fechado = suave; aberto = sólido) */
+#andon-app .call-btn[data-t="falta_material"]{ border-color:var(--mat); }
+
+#andon-app .call-btn[data-t="qualidade"]{ border-color:var(--qua); }
+
+#andon-app .call-btn[data-t="inspecao"]{ border-color:var(--ins); }
+
+#andon-app .call-btn[data-t="assistente"]{ border-color:var(--ass); }
+
+#andon-app .call-btn[data-t="falta_material"] .cb-target{ color:var(--mat-ink); }
+
+#andon-app .call-btn[data-t="qualidade"] .cb-target{ color:var(--qua-ink); }
+
+#andon-app .call-btn[data-t="inspecao"] .cb-target{ color:var(--ins-ink); }
+
+#andon-app .call-btn[data-t="assistente"] .cb-target{ color:var(--ass-ink); }
+
+#andon-app .call-btn.open[data-t="falta_material"]{ background:var(--mat-soft); border-color:var(--mat); }
+
+#andon-app .call-btn.open[data-t="qualidade"]{ background:var(--qua-soft); border-color:var(--qua); }
+
+#andon-app .call-btn.open[data-t="inspecao"]{ background:var(--ins-soft); border-color:var(--ins); }
+
+#andon-app .call-btn.open[data-t="assistente"]{ background:var(--ass-soft); border-color:var(--ass); }
+
+#andon-app .call-btn.open{ box-shadow:0 0 0 3px rgba(0,0,0,.03) inset; }
+
+#andon-app .mesa-badge{ font-size:clamp(18px,2.2vw,26px); font-weight:700; }
+
+#andon-app .mesa-badge b{ color:var(--accent); }
+
+
+/* ============================================================
+   PAINEL DOS PERFIS RECEPTORES — fila de quadrados
+   ============================================================ */
+#andon-app .board-body{ flex:1; padding:clamp(14px,2.4vh,24px) clamp(16px,3vw,32px); overflow:auto; }
+
+#andon-app .board-info{ display:flex; align-items:center; justify-content:space-between; gap:12px;
+  margin-bottom:16px; flex-wrap:wrap; }
+
+#andon-app .count-pill{ font-size:15px; font-weight:700; color:var(--ink-soft); }
+
+#andon-app .queue{ display:grid; grid-template-columns:repeat(auto-fill, minmax(130px,1fr)); gap:14px; }
+
+#andon-app .qsq{
+  position:relative; border-radius:18px; padding:16px 14px 14px; color:#fff;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+  min-height:120px; animation:an-pop .2s ease;
+}
+
+@keyframes an-pop{ from{ transform:scale(.94); opacity:.4;} to{ transform:none; opacity:1;} }
+
+#andon-app .qsq.t-falta_material{ background:var(--mat); color:var(--mat-on); }
+
+#andon-app .qsq.t-qualidade{ background:var(--qua); color:var(--qua-on); }
+
+#andon-app .qsq.t-inspecao{ background:var(--ins); color:var(--ins-on); }
+
+#andon-app .qsq.t-assistente{ background:var(--ass); color:var(--ass-on); }
+
+#andon-app .qsq .q-mesa{ font-size:clamp(38px,6vw,58px); font-weight:800; line-height:1;
+  font-variant-numeric:tabular-nums; }
+
+#andon-app .qsq .q-etapa{ font-size:13px; font-weight:700; opacity:.92; }
+
+#andon-app .qsq .q-age{ font-size:12px; font-weight:700; opacity:.85; font-variant-numeric:tabular-nums; }
+
+#andon-app .qsq .q-done{
+  position:absolute; top:8px; right:8px; width:34px; height:34px; border-radius:50%;
+  border:none; background:rgba(255,255,255,.9); color:#1a1a1a; font-size:18px; font-weight:800;
+  display:flex; align-items:center; justify-content:center;
+}
+
+#andon-app .board-empty{ border:2px dashed var(--line); border-radius:18px; padding:48px 20px;
+  text-align:center; color:var(--ink-soft); font-size:17px; }
+
+
+/* faixa de notificação (novo chamado) */
+#andon-app .notice{ position:fixed; left:50%; top:14px; transform:translate(-50%,-160%);
+  z-index:50; min-width:min(80vw,560px); max-width:92vw; border-radius:16px;
+  padding:16px 22px; text-align:center; color:#fff; box-shadow:0 12px 40px rgba(0,0,0,.25);
+  opacity:0; transition:transform .3s ease, opacity .3s ease; pointer-events:none; }
+
+#andon-app .notice.show{ transform:translate(-50%,0); opacity:1; }
+
+#andon-app .notice.t-falta_material{ background:var(--mat); color:var(--mat-on); }
+#andon-app .notice.t-qualidade{ background:var(--qua); color:var(--qua-on); }
+#andon-app .notice.t-inspecao{ background:var(--ins); color:var(--ins-on); }
+#andon-app .notice.t-assistente{ background:var(--ass); color:var(--ass-on); }
+
+#andon-app .notice .n-t{ font-size:14px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; opacity:.9; }
+
+#andon-app .notice .n-m{ font-size:30px; font-weight:800; }
+
+
+/* abas do Assistente */
+#andon-app .tabs{ display:flex; gap:8px; }
+
+#andon-app .tab{ border:1px solid var(--line); background:var(--card); border-radius:999px;
+  padding:9px 16px; font-size:14px; font-weight:700; color:var(--ink-soft); }
+
+#andon-app .tab.on{ background:var(--accent); color:#fff; border-color:var(--accent); }
+
+
+/* estatísticas */
+#andon-app .stats-body{ flex:1; padding:clamp(16px,3vh,28px) clamp(16px,3vw,32px); overflow:auto; }
+
+#andon-app .stat-row{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-bottom:18px; }
+
+#andon-app .stat-card{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; }
+
+#andon-app .stat-num{ font-size:34px; font-weight:800; letter-spacing:-.01em; }
+
+#andon-app .stat-lbl{ font-size:13px; color:var(--ink-soft); font-weight:700; margin-top:4px;
+  text-transform:uppercase; letter-spacing:.06em; }
+
+#andon-app .bars{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; margin-bottom:18px; }
+
+#andon-app .bars h3{ font-size:15px; margin-bottom:12px; }
+
+#andon-app .bar-row{ display:flex; align-items:center; gap:12px; margin:8px 0; font-size:14px; font-weight:700; }
+
+#andon-app .bar-row .bl{ width:150px; flex:none; color:var(--ink-soft); }
+
+#andon-app .bar-track{ flex:1; height:16px; background:var(--line-soft); border-radius:999px; overflow:hidden; }
+
+#andon-app .bar-fill{ height:100%; border-radius:999px; background:var(--accent-bright); }
+
+#andon-app .bar-row .bv{ width:56px; text-align:right; font-variant-numeric:tabular-nums; }
+
+
+/* config de mesas */
+#andon-app .config-body{ flex:1; padding:clamp(16px,3vh,28px) clamp(16px,3vw,32px); overflow:auto; }
+
+#andon-app .etapa-block{ background:var(--card); border:1px solid var(--line); border-radius:16px;
+  padding:18px; margin-bottom:16px; }
+
+#andon-app .etapa-block .eb-head{ display:flex; align-items:center; justify-content:space-between; gap:12px;
+  margin-bottom:14px; }
+
+#andon-app .etapa-block .eb-name{ font-size:18px; font-weight:700; }
+
+#andon-app .chips{ display:grid; grid-template-columns:repeat(auto-fill,minmax(56px,1fr)); gap:8px; }
+
+#andon-app .chip{ border:1px solid var(--line); background:var(--card); border-radius:10px; padding:10px 0;
+  text-align:center; font-weight:700; font-variant-numeric:tabular-nums; font-size:16px; color:var(--ink-soft); }
+
+#andon-app .chip.on{ background:var(--accent); color:#fff; border-color:var(--accent); }
+
+
+#andon-app .btn{ border:none; border-radius:12px; padding:12px 20px; font-size:15px; font-weight:700;
+  background:var(--accent); color:#fff; }
+
+#andon-app .btn:hover{ filter:brightness(1.08); }
+
+#andon-app .btn.ghost{ background:var(--card); color:var(--ink); border:1px solid var(--line); }
+
+#andon-app .btn.small{ padding:8px 14px; font-size:14px; }
+
+
+#andon-app .foot{ padding:14px clamp(16px,3vw,32px); border-top:1px solid var(--line); }
+
+#andon-app .disclaimer{ font-size:12px; color:var(--ink-soft); line-height:1.6; }
+
+#andon-app .disclaimer b{ color:var(--ink); }
+
+
+/* setup */
+#andon-app .setup-wrap{ flex:1; display:flex; flex-direction:column; justify-content:center; gap:16px;
+  max-width:440px; margin:0 auto; width:100%; padding:24px; }
+
+#andon-app .setup-wrap input{ padding:14px; border:1px solid var(--line); border-radius:12px; font-size:15px; }
+
+#andon-app .setup-wrap label{ font-size:13px; font-weight:700; color:var(--ink-soft); }
+
+@media (prefers-reduced-motion:reduce){
+ #andon-app *{ animation:none !important; transition:none !important; }
+}
 </style>
 </head>
 <body>
@@ -438,9 +821,9 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
 <section id="scr-menu" class="screen control active">
   <div class="wrap">
     <div class="logo-slot control-logo"></div>
-    <p class="eyebrow plain">Abbott · BR-SH-M</p>
-    <h1>Painel de Avisos</h1>
-    <p class="sub">Selecione a função a projetar nas televisões do piso.
+    <p class="eyebrow plain">Central City · Linha CC-01</p>
+    <h1>Screenplay</h1>
+    <p class="sub">O que vai para as televisões do piso, e o que sustenta isso. Selecione a função.
       <strong>Planejamento</strong> e <strong>Configurações</strong> são ferramentas de apoio,
       para uso aqui no computador.</p>
 
@@ -479,6 +862,12 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
         <div class="fc-title">Relógio</div>
         <div class="fc-desc">Modo de espera: relógio em tela cheia. As Reuniões Escalonadas entram sozinhas 5 min antes de cada janela.</div>
         <div class="fc-go">Projetar →</div>
+      </button>
+      <button class="func-card wide" onclick="abrirAndon()">
+        <div class="fc-title">Andon</div>
+        <div class="fc-desc">Chamados de produção em tempo real. Nos tablets do piso, abra direto em
+          <code class="hint-url">…/index.html#andon</code> — o app já entra na tela de seleção.</div>
+        <div class="fc-go">Abrir →</div>
       </button>
       <button class="func-card cfg wide" onclick="goConfig()">
         <div class="fc-title">Configurações</div>
@@ -693,7 +1082,7 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
 <section id="scr-clk-tv" class="screen tv clkmode">
   <button class="tv-exit" onclick="showMenu()">Menu (Esc)</button>
   <div class="tv-top">
-    <span class="clk-brand">Abbott · BR-SH-M</span>
+    <span class="clk-brand">S.T.A.R. Labs · Central City</span>
     <div class="logo-slot tv-brand"></div>
   </div>
   <div class="clk-center">
@@ -894,7 +1283,7 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
         <span class="cfg-label">Fundo do relógio</span>
         <select id="cfg-clockbg" onchange="setCfg('clockBg', this.value)">
           <option value="preto">Preto</option>
-          <option value="azul">Azul Abbott</option>
+          <option value="azul">Stormy Teal</option>
         </select>
       </div>
       <label class="cfg-row check">
@@ -959,14 +1348,16 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
     <div class="cfg-sec">
       <h3>Informações</h3>
       <div class="info-card">
-        <p>Este é um <strong>projeto pessoal e de código aberto</strong> — uma <strong>plataforma
-          genérica de avisos/andon para produção</strong>, criada por iniciativa própria. Funciona
-          apenas como apoio à organização e à gestão da rotina e <strong>não se integra a sistemas
-          corporativos</strong>. Guarda somente os <strong>horários das reuniões</strong> cadastrados
-          aqui e os sinais operacionais de chamado (tipo, mesa, etapa, horário) —
-          <strong>nenhuma informação pessoal</strong>.</p>
+        <p>O <strong>Screenplay</strong> é um <strong>projeto pessoal e de código aberto</strong> —
+          uma <strong>plataforma genérica de avisos e andon para produção</strong>, criada por
+          iniciativa própria. Serve como apoio à organização e à gestão da rotina e
+          <strong>não se integra a sistemas corporativos</strong>. Guarda somente os
+          <strong>horários das reuniões</strong> cadastrados aqui e os sinais operacionais de
+          chamado (tipo, mesa, etapa, horário) — <strong>nenhuma informação pessoal</strong>.</p>
+        <p><strong>S.T.A.R. Labs</strong> é uma marca fictícia, usada aqui apenas como exemplo de
+          identidade visual enquanto esta versão está em avaliação.</p>
         <p class="sig">Desenvolvido por Matheus Marcondes.</p>
-        <p class="meta" id="info-meta">Plataforma de avisos para produção · código aberto</p>
+        <p class="meta" id="info-meta">Screenplay 2.0 · versão em rede · código aberto</p>
       </div>
       <div style="margin-top:16px">
         <button class="btn danger small" onclick="resetAll()">Restaurar preferências deste aparelho</button>
@@ -977,30 +1368,134 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
 
 <!-- ================= FILA DE ANDON (overlay) ================= -->
 <!-- fila de chamados de andon (coluna lateral da TV) -->
+<!-- ================= ANDON (app de chamados) ================= -->
+<div id="andon-app" hidden>
+  
+  <!-- ============ SETUP (sem configuração) ============ -->
+  <section id="scr-setup" class="screen">
+    <div class="topbar"><div class="grow"><div class="title">Conectar ao Supabase</div></div><div class="logo"></div></div>
+    <div class="setup-wrap">
+      <div class="muted">Informe a URL do projeto e a chave publishable/anon. Ficam salvas neste dispositivo.</div>
+      <label>URL do projeto</label>
+      <input id="setup-url" placeholder="https://xxxx.supabase.co">
+      <label>Chave publishable / anon</label>
+      <input id="setup-key" placeholder="sb_publishable_… ou anon key">
+      <div id="setup-msg" class="muted"></div>
+      <button class="btn" onclick="saveSetup()">Salvar e continuar</button>
+    </div>
+  </section>
+  
+  <!-- ============ SELEÇÃO (3 colunas) ============ -->
+  <section id="scr-select" class="screen">
+    <div class="topbar">
+      <button class="back" onclick="sairAndon()">← Painel</button>
+      <div class="grow"><div class="title">Chamados de produção</div>
+        <div class="subtitle">Escolha o perfil para começar.</div></div>
+      <div class="logo"></div>
+    </div>
+    <div class="select-wrap">
+      <div class="cols">
+        <div class="col" id="col-perfil">
+          <div class="col-h">Perfil</div>
+          <div class="col-body" id="perfil-body"></div>
+        </div>
+        <div class="col hidden" id="col-etapa">
+          <div class="col-h">Etapa</div>
+          <div class="col-body" id="etapa-body"></div>
+        </div>
+        <div class="col hidden" id="col-mesa">
+          <div class="col-h">Mesa</div>
+          <div class="col-body mesa-grid" id="mesa-body"></div>
+        </div>
+      </div>
+    </div>
+    <div class="foot"><div class="disclaimer" id="disc-1"></div></div>
+  </section>
+  
+  <!-- ============ OPERADORA — chamado ============ -->
+  <section id="scr-op" class="screen">
+    <div class="topbar">
+      <button class="back" onclick="goSelect()">← Trocar mesa</button>
+      <div class="grow"><span class="mesa-badge" id="op-id"></span></div>
+      <div class="logo"></div>
+    </div>
+    <div class="op-body">
+      <div class="call-grid" id="call-grid"></div>
+    </div>
+  </section>
+  
+  <!-- ============ PERFIL RECEPTOR — fila ============ -->
+  <section id="scr-board" class="screen">
+    <div class="topbar">
+      <button class="back" onclick="goSelect()">← Voltar</button>
+      <div class="grow">
+        <div class="title" id="board-title">Painel</div>
+        <div class="tabs hidden" id="board-tabs" style="margin-top:8px"></div>
+      </div>
+      <div class="logo"></div>
+    </div>
+    <div class="board-body">
+      <div class="board-info">
+        <span class="count-pill" id="board-count">—</span>
+      </div>
+      <div class="queue" id="queue"></div>
+    </div>
+  </section>
+  
+  <!-- ============ ASSISTENTE — estatísticas ============ -->
+  <section id="scr-stats" class="screen">
+    <div class="topbar">
+      <button class="back" onclick="enterBoard('assistente')">← Chamados</button>
+      <div class="grow"><div class="title">Estatísticas</div></div>
+      <div class="logo"></div>
+    </div>
+    <div class="stats-body">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+        <button class="btn ghost small" onclick="loadStats()">Atualizar</button>
+        <button class="btn small" onclick="exportCSV()">Exportar (Excel/CSV)</button>
+      </div>
+      <div class="stat-row" id="stat-cards"></div>
+      <div class="bars" id="stat-tipo"></div>
+      <div class="bars" id="stat-etapa"></div>
+      <div class="bars" id="stat-mesa"></div>
+    </div>
+  </section>
+  
+  <!-- ============ ASSISTENTE — configurar mesas ============ -->
+  <section id="an-scr-config" class="screen">
+    <div class="topbar">
+      <button class="back" onclick="enterBoard('assistente')">← Chamados</button>
+      <div class="grow"><div class="title">Mesas por etapa</div>
+        <div class="subtitle">Selecione as mesas disponíveis em cada etapa. Sem seleção = todas (1–25).</div></div>
+      <div class="logo"></div>
+    </div>
+    <div class="config-body" id="config-body"></div>
+  </section>
+  
+  <div id="notice" class="notice"><div class="n-t" id="n-t"></div><div class="n-m" id="n-m"></div></div>
+  
+</div>
+
 <div id="tv-queue" role="status" aria-live="polite"></div>
 
 <script>
 /* ============================================================
-   LOGO ABBOTT — wordmark vetorial embutido, sempre disponível. Na versão
-   online, as imagens oficiais da marca são carregadas por cima (azul escuro
-   em fundos claros; branca no relógio) e o wordmark serve de reserva.
+   MARCA — wordmark vetorial embutido, em currentColor, sem nenhuma
+   requisição externa. S.T.A.R. Labs é a marca de demonstração desta
+   versão: para trocar, basta reescrever o SVG abaixo e a linha da unidade.
    ============================================================ */
-const LOGO_BLUE  = 'https://cdn.brandfetch.io/idtqCIB40M/theme/dark/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1756696705337';
-const LOGO_WHITE = 'https://cdn.brandfetch.io/idtqCIB40M/theme/light/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1756696575880';
-const LOGO_FALLBACK = `<span class="lg-fallback"><svg viewBox="0 0 236 60" role="img" aria-label="Abbott">
-  <text x="0" y="47" fill="currentColor" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif"
-        font-weight="700" font-size="56" letter-spacing="-3">Abbott</text></svg></span>`;
-/* Na versão offline (OFFLINE = true) usa apenas o wordmark vetorial embutido,
-   sem nenhuma requisição externa. */
-const OFFLINE = false;
+const MARCA_NOME    = 'S.T.A.R. Labs';
+const MARCA_UNIDADE = 'S.T.A.R. Labs · Central City';
+const LOGO_SVG = `<span class="lg-fallback"><svg viewBox="0 0 306 60" role="img" aria-label="${MARCA_NOME}">
+  <path d="M26 6 L31.6 24.4 L50 30 L31.6 35.6 L26 54 L20.4 35.6 L2 30 L20.4 24.4 Z"
+        fill="currentColor"/>
+  <text x="62" y="40" fill="currentColor" font-family="inherit" font-weight="800"
+        font-size="30" letter-spacing="1">S.T.A.R.<tspan font-weight="400"
+        letter-spacing="4"> LABS</tspan></text>
+</svg></span>`;
 function injectLogos(){
-  document.querySelectorAll('.logo-slot').forEach(el => {
-    el.innerHTML = (OFFLINE || typeof LOGO_BLUE === 'undefined') ? LOGO_FALLBACK :
-      '<img class="lg lg-blue" src="' + LOGO_BLUE + '" alt="Abbott"' +
-        ' onload="this.closest(\'.logo-slot\').classList.add(\'img-ok\')">' +
-      '<img class="lg lg-white" src="' + LOGO_WHITE + '" alt="Abbott"' +
-        ' onload="this.closest(\'.logo-slot\').classList.add(\'img-ok\')">' +
-      LOGO_FALLBACK;
+  document.querySelectorAll('.logo-slot, #andon-app .logo').forEach(el => {
+    el.innerHTML = LOGO_SVG;
   });
 }
 
@@ -1245,10 +1740,28 @@ function parseTempo(v){
 /* ============================================================
    NAVEGAÇÃO E TELA CHEIA
    ============================================================ */
+/* Só as telas do painel: as do Andon vivem dentro de #andon-app e têm o
+   seu próprio controlador. */
 function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('body > .screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   if(typeof renderTvQueue === 'function') renderTvQueue();  // fila só sobre telas de TV
+}
+
+/* ---------- Andon: o mesmo arquivo, outra função ----------
+   Nos tablets do piso a URL termina em #andon e o app abre direto. */
+function abrirAndon(){
+  stopStandby();
+  document.querySelectorAll('body > .screen').forEach(s => s.classList.remove('active'));
+  const app = document.getElementById('andon-app');
+  app.hidden = false;
+  if(location.hash !== '#andon') history.replaceState(null, '', '#andon');
+  andonInit();
+}
+function sairAndon(){
+  document.getElementById('andon-app').hidden = true;
+  if(location.hash === '#andon') history.replaceState(null, '', location.pathname + location.search);
+  showMenu();
 }
 function showMenu(){
   stopStandby();
@@ -2778,12 +3291,351 @@ function debounce(fn, ms){
 }
 
 /* ============================================================
+   ANDON — app de chamados de produção. Vive na mesma página, dentro de
+   #andon-app, e compartilha o cliente Supabase e a marca do painel.
+   ============================================================ */
+
+document.getElementById('disc-1').innerHTML =
+  '<b>Screenplay</b> — plataforma <b>genérica de avisos e andon para produção</b>, projeto '
+  +'pessoal e de <b>código aberto</b>, criado por iniciativa própria. Registra apenas sinais '
+  +'operacionais de chamado. Desenvolvido por <b>Matheus Marcondes</b>.';
+
+/* ---------------- cliente ----------------
+   O Andon usa o mesmo cliente Supabase do painel (getSB), com as chaves das
+   Configurações. A tela "scr-setup" só aparece quando não há conexão. */
+let sb=null;
+
+const ETAPAS=['Anel Revestido','Sizing & Trimming','SVE','SVS','Revisão Final'];
+const PERFIS=[
+  {id:'operadora', label:'Operadora'},
+  {id:'falta_material', label:'Material Handler'},
+  {id:'qualidade', label:'Coordenação Técnica'},
+  {id:'inspecao', label:'Inspeção'},
+  {id:'assistente', label:'Assistente'},
+];
+const TYPES={
+  falta_material:{label:'Falta de Material', target:'Material Handler'},
+  qualidade:{label:'Qualidade', target:'Coordenação Técnica'},
+  inspecao:{label:'Inspeção', target:'Inspeção'},
+  assistente:{label:'Assistente', target:'Assistentes'},
+};
+const CALL_ORDER=['falta_material','qualidade','inspecao','assistente'];
+
+let ETAPA_MESAS={};      // etapa -> [mesas] (vazio/ausente = todas)
+let view=null;           // 'select'|'op'|'board'|'stats'|'config'
+let OP={etapa:null, mesa:null};
+let boardType=null;
+let openCache=[];        // chamados abertos (cache p/ render)
+
+/* ---------------- util ---------------- */
+function show(id){ document.querySelectorAll('#andon-app .screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active'); }
+function anEsc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function pad2(n){ return String(n).padStart(2,'0'); }
+function ageStr(iso){ const s=Math.max(0,Math.floor((Date.now()-new Date(iso).getTime())/1000));
+  const m=Math.floor(s/60); return m>0? m+' min' : s+' s'; }
+
+/* ---------------- setup ---------------- */
+window.saveSetup = async ()=>{
+  const url = document.getElementById('setup-url').value.trim();
+  const key = document.getElementById('setup-key').value.trim();
+  if(!/^https:\/\/.+\.supabase\.co/.test(url) || !key){
+    document.getElementById('setup-msg').textContent = 'URL/chave inválidas.'; return;
+  }
+  DATA.config.sbUrl = url; DATA.config.sbKey = key; saveLocal();
+  SB = null;                                   // força novo cliente com as chaves novas
+  if(!(await initClient())){ document.getElementById('setup-msg').textContent = 'Não foi possível conectar.'; return; }
+  startRealtime(); await fetchOpen(); goSelect();
+};
+async function initClient(){
+  sb = await getSB();
+  return !!sb;
+}
+
+/* ---------------- dados ---------------- */
+async function loadEtapaMesas(){
+  ETAPA_MESAS={};
+  const { data } = await sb.from('etapa_config').select('etapa,mesas');
+  (data||[]).forEach(r=>{ ETAPA_MESAS[r.etapa]=r.mesas||[]; });
+}
+function mesasFor(etapa){
+  const m=ETAPA_MESAS[etapa];
+  if(m && m.length) return [...m].sort((a,b)=>a-b);
+  return Array.from({length:25},(_,i)=>i+1);
+}
+async function fetchOpen(){
+  const { data } = await sb.from('andon_events').select('*').eq('status','aberto').order('created_at');
+  openCache = data||[]; return openCache;
+}
+
+/* ---------------- SELEÇÃO ---------------- */
+window.goSelect=async ()=>{
+  view='select'; OP={etapa:null,mesa:null}; boardType=null;
+  document.getElementById('col-etapa').classList.add('hidden');
+  document.getElementById('col-mesa').classList.add('hidden');
+  document.getElementById('perfil-body').innerHTML = PERFIS.map(p=>
+    `<button class="opt" data-p="${p.id}">${anEsc(p.label)}</button>`).join('');
+  document.querySelectorAll('#perfil-body .opt').forEach(b=> b.onclick=()=>pickPerfil(b.dataset.p, b));
+  await loadEtapaMesas();
+  show('scr-select');
+};
+function pickPerfil(id, btn){
+  document.querySelectorAll('#perfil-body .opt').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('col-mesa').classList.add('hidden');
+  if(id==='operadora'){
+    const eb=document.getElementById('etapa-body');
+    eb.innerHTML = ETAPAS.map(e=>`<button class="opt" data-e="${anEsc(e)}">${anEsc(e)}</button>`).join('');
+    eb.querySelectorAll('.opt').forEach(b=> b.onclick=()=>pickEtapa(b.dataset.e, b));
+    revealCol('col-etapa');
+  } else {
+    document.getElementById('col-etapa').classList.add('hidden');
+    enterBoard(id);
+  }
+}
+function pickEtapa(etapa, btn){
+  document.querySelectorAll('#etapa-body .opt').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  OP.etapa=etapa;
+  const mb=document.getElementById('mesa-body');
+  mb.innerHTML = mesasFor(etapa).map(n=>`<button class="mesa" data-m="${n}">${pad2(n)}</button>`).join('');
+  mb.querySelectorAll('.mesa').forEach(b=> b.onclick=()=>{ OP.mesa=+b.dataset.m; enterOperador(); });
+  revealCol('col-mesa');
+}
+function revealCol(id){ const c=document.getElementById(id); c.classList.remove('hidden');
+  c.classList.remove('reveal'); void c.offsetWidth; c.classList.add('reveal'); }
+
+/* ---------------- OPERADORA ---------------- */
+function enterOperador(){
+  view='op';
+  document.getElementById('op-id').innerHTML = 'Mesa <b>'+pad2(OP.mesa)+'</b> · '+anEsc(OP.etapa);
+  const g=document.getElementById('call-grid');
+  g.innerHTML = CALL_ORDER.map(t=>`
+    <button class="call-btn" data-t="${t}" onclick="toggleCall('${t}')">
+      <div class="cb-target">Aciona ${anEsc(TYPES[t].target)}</div>
+      <div class="cb-name">${anEsc(TYPES[t].label)}</div>
+      <div class="cb-state" data-state="${t}">Toque para chamar</div>
+    </button>`).join('');
+  show('scr-op');
+  refreshOp();
+}
+function myOpen(type){ return openCache.find(e=> e.mesa===OP.mesa && e.type===type && e.status==='aberto'); }
+window.toggleCall=async (type)=>{
+  const ev=myOpen(type);
+  if(ev){ await sb.from('andon_events').update({status:'cancelado', resolved_at:new Date().toISOString()}).eq('id', ev.id); }
+  else { await sb.from('andon_events').insert({type, mesa:OP.mesa, etapa:OP.etapa, status:'aberto'}); beep(); }
+  await fetchOpen(); refreshOp();
+};
+function refreshOp(){
+  if(view!=='op') return;
+  CALL_ORDER.forEach(t=>{
+    const btn=document.querySelector('.call-btn[data-t="'+t+'"]');
+    const st=document.querySelector('[data-state="'+t+'"]');
+    if(!btn) return;
+    const ev=myOpen(t);
+    if(ev){ btn.classList.add('open'); st.innerHTML='● Chamado aberto há <span data-since="'+ev.created_at+'">'+ageStr(ev.created_at)+'</span> — toque para cancelar'; }
+    else{ btn.classList.remove('open'); st.textContent='Toque para chamar'; }
+  });
+}
+
+/* ---------------- PERFIS RECEPTORES (fila) ---------------- */
+window.enterBoard=(type)=>{
+  view='board'; boardType=type;
+  document.getElementById('board-title').textContent =
+    type==='falta_material'?'Material Handler': type==='qualidade'?'Coordenação Técnica':
+    type==='inspecao'?'Inspeção':'Assistentes';
+  const tabs=document.getElementById('board-tabs');
+  if(type==='assistente'){
+    tabs.classList.remove('hidden');
+    tabs.innerHTML = '<button class="tab on">Chamados</button>'
+      +'<button class="tab" onclick="enterStats()">Estatísticas</button>'
+      +'<button class="tab" onclick="enterConfig()">Mesas</button>';
+  } else tabs.classList.add('hidden');
+  show('scr-board');
+  refreshBoard();
+};
+function refreshBoard(){
+  if(view!=='board') return;
+  const list=openCache.filter(e=> e.type===boardType && e.status==='aberto');
+  document.getElementById('board-count').textContent =
+    list.length + (list.length===1?' chamado em aberto':' chamados em aberto');
+  const q=document.getElementById('queue');
+  if(!list.length){ q.innerHTML='<div class="board-empty">Nenhum chamado em aberto. 👍</div>'; return; }
+  q.innerHTML = list.map(e=>`
+    <div class="qsq t-${e.type}">
+      <button class="q-done" onclick="resolveCall('${e.id}')" aria-label="Concluir">✓</button>
+      <div class="q-mesa">${pad2(e.mesa)}</div>
+      <div class="q-etapa">${anEsc(e.etapa||'')}</div>
+      <div class="q-age" data-since="${e.created_at}">${ageStr(e.created_at)}</div>
+    </div>`).join('');
+}
+window.resolveCall=async (id)=>{
+  await sb.from('andon_events').update({status:'resolvido', resolved_at:new Date().toISOString()}).eq('id', id);
+  await fetchOpen(); refreshBoard();
+};
+
+/* ---------------- ESTATÍSTICAS (assistente) ---------------- */
+let statsCache=[];
+window.enterStats=()=>{ view='stats'; show('scr-stats'); loadStats(); };
+window.loadStats=async ()=>{
+  const { data } = await sb.from('andon_events').select('*').order('created_at',{ascending:false}).limit(5000);
+  statsCache=data||[];
+  const total=statsCache.length;
+  const abertos=statsCache.filter(e=>e.status==='aberto').length;
+  const resolvidos=statsCache.filter(e=>e.status==='resolvido');
+  const cancelados=statsCache.filter(e=>e.status==='cancelado').length;
+  const tempos=resolvidos.map(e=>(new Date(e.resolved_at)-new Date(e.created_at))/60000).filter(x=>x>=0);
+  const media=tempos.length? (tempos.reduce((a,b)=>a+b,0)/tempos.length):0;
+  document.getElementById('stat-cards').innerHTML=[
+    ['Total', total], ['Em aberto', abertos], ['Resolvidos', resolvidos.length],
+    ['Cancelados', cancelados], ['Tempo médio', media?media.toFixed(1)+' min':'—']
+  ].map(([l,v])=>`<div class="stat-card"><div class="stat-num">${v}</div><div class="stat-lbl">${l}</div></div>`).join('');
+  bars('stat-tipo','Por tipo', tally(statsCache,e=>TYPES[e.type]?.label||e.type));
+  bars('stat-etapa','Por etapa', tally(statsCache.filter(e=>e.etapa),e=>e.etapa));
+  bars('stat-mesa','Por mesa', tally(statsCache.filter(e=>e.mesa),e=>'Mesa '+pad2(e.mesa)));
+};
+function tally(arr, keyfn){ const m={}; arr.forEach(e=>{ const k=keyfn(e); m[k]=(m[k]||0)+1; });
+  return Object.entries(m).sort((a,b)=>b[1]-a[1]); }
+function bars(id, title, entries){
+  const max=Math.max(1,...entries.map(e=>e[1]));
+  document.getElementById(id).innerHTML='<h3>'+title+'</h3>'+ (entries.length?entries.map(([k,v])=>`
+    <div class="bar-row"><div class="bl">${anEsc(k)}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(v/max*100)}%"></div></div>
+      <div class="bv">${v}</div></div>`).join(''):'<div class="muted">Sem dados.</div>');
+}
+window.exportCSV=()=>{
+  const rows=[['Abertura','Tipo','Etapa','Mesa','Status','Resolucao','Minutos']];
+  statsCache.forEach(e=>{
+    const mins = e.resolved_at? ((new Date(e.resolved_at)-new Date(e.created_at))/60000).toFixed(1):'';
+    rows.push([ new Date(e.created_at).toLocaleString('pt-BR'), TYPES[e.type]?.label||e.type,
+      e.etapa||'', e.mesa??'', e.status, e.resolved_at? new Date(e.resolved_at).toLocaleString('pt-BR'):'', mins ]);
+  });
+  const csv='\uFEFF'+rows.map(r=>r.map(c=>{ c=String(c); return /[",;\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c; }).join(';')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download='andon_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+};
+
+/* ---------------- CONFIG DE MESAS (assistente) ---------------- */
+let cfgSel={};   // etapa -> Set(mesas)
+window.enterConfig=async ()=>{
+  view='config'; await loadEtapaMesas();
+  cfgSel={};
+  ETAPAS.forEach(e=>{ cfgSel[e]=new Set((ETAPA_MESAS[e]&&ETAPA_MESAS[e].length)?ETAPA_MESAS[e]:[]); });
+  const body=document.getElementById('config-body');
+  body.innerHTML = ETAPAS.map(e=>`
+    <div class="etapa-block">
+      <div class="eb-head"><div class="eb-name">${anEsc(e)}</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn ghost small" data-all="${anEsc(e)}">Todas</button>
+          <button class="btn ghost small" data-none="${anEsc(e)}">Nenhuma</button>
+        </div></div>
+      <div class="chips" data-etapa="${anEsc(e)}">
+        ${Array.from({length:25},(_,i)=>i+1).map(n=>`<button class="chip" data-n="${n}">${pad2(n)}</button>`).join('')}
+      </div>
+    </div>`).join('');
+  body.querySelectorAll('.chips').forEach(cont=>{
+    const e=cont.dataset.etapa;
+    cont.querySelectorAll('.chip').forEach(ch=>{
+      const n=+ch.dataset.n;
+      if(cfgSel[e].has(n)) ch.classList.add('on');
+      ch.onclick=()=>{ if(cfgSel[e].has(n)){cfgSel[e].delete(n); ch.classList.remove('on');}
+        else{cfgSel[e].add(n); ch.classList.add('on');} saveEtapa(e); };
+    });
+  });
+  body.querySelectorAll('[data-all]').forEach(b=> b.onclick=()=>{ const e=b.dataset.all;
+    cfgSel[e]=new Set(Array.from({length:25},(_,i)=>i+1));
+    document.querySelector('.chips[data-etapa="'+cssEsc(e)+'"]').querySelectorAll('.chip').forEach(c=>c.classList.add('on')); saveEtapa(e); });
+  body.querySelectorAll('[data-none]').forEach(b=> b.onclick=()=>{ const e=b.dataset.none;
+    cfgSel[e]=new Set();
+    document.querySelector('.chips[data-etapa="'+cssEsc(e)+'"]').querySelectorAll('.chip').forEach(c=>c.classList.remove('on')); saveEtapa(e); });
+  show('an-scr-config');
+};
+function cssEsc(s){ return (window.CSS&&CSS.escape)?CSS.escape(s):s.replace(/["\\]/g,'\\$&'); }
+let saveTimer=null;
+function saveEtapa(etapa){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(async ()=>{
+    const mesas=[...cfgSel[etapa]].sort((a,b)=>a-b);
+    await sb.from('etapa_config').upsert({etapa, mesas, updated_at:new Date().toISOString()});
+    await loadEtapaMesas();
+  }, 400);
+}
+
+/* ---------------- REALTIME + NOTIFICAÇÃO ---------------- */
+let realtimeCh=null;
+function startRealtime(){
+  if(!sb) return;
+  if(realtimeCh) sb.removeChannel(realtimeCh);
+  realtimeCh = sb.channel('andon-live')
+    .on('postgres_changes',{event:'*',schema:'public',table:'andon_events'}, async (p)=>{
+      if(p.eventType==='INSERT' && p.new && p.new.status==='aberto'
+         && (view==='board') && p.new.type===boardType){
+        notify(p.new);
+      }
+      await fetchOpen();
+      if(view==='op') refreshOp();
+      else if(view==='board') refreshBoard();
+    })
+    .on('postgres_changes',{event:'*',schema:'public',table:'etapa_config'}, ()=> loadEtapaMesas())
+    .subscribe();
+}
+function notify(ev){
+  const el=document.getElementById('notice');
+  el.className='notice show t-'+ev.type;
+  document.getElementById('n-t').textContent = TYPES[ev.type]?.label || 'Chamado';
+  document.getElementById('n-m').textContent = 'Mesa '+pad2(ev.mesa)+(ev.etapa?' · '+ev.etapa:'');
+  alarm();
+  clearTimeout(el._t); el._t=setTimeout(()=> el.classList.remove('show'), 8000);
+}
+
+/* ---------------- SOM (alto) ---------------- */
+function tone(peak, dur, freqs, type){
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    if(ctx.state==='suspended') ctx.resume();
+    const comp=ctx.createDynamicsCompressor(); comp.threshold.value=-14; comp.ratio.value=12;
+    const master=ctx.createGain(); master.gain.value=0.95; comp.connect(master); master.connect(ctx.destination);
+    freqs.forEach(([f,t0])=>{ const o=ctx.createOscillator(),g=ctx.createGain();
+      o.type=type; o.frequency.value=f;
+      g.gain.setValueAtTime(0.0001, ctx.currentTime+t0);
+      g.gain.exponentialRampToValueAtTime(peak, ctx.currentTime+t0+0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+t0+dur);
+      o.connect(g); g.connect(comp); o.start(ctx.currentTime+t0); o.stop(ctx.currentTime+t0+dur+0.05); });
+    setTimeout(()=>ctx.close().catch(()=>{}), (dur+0.6)*1000+400);
+  }catch(e){}
+}
+function beep(){ tone(0.9, 0.5, [[880,0],[1174.7,0.28]], 'sine'); }
+function alarm(){ tone(1.0, 0.4, [[659.3,0],[880,0.22],[1174.7,0.44]], 'triangle'); }
+
+/* atualiza os "há X min" a cada segundo (barato) */
+setInterval(()=>{ if(!andonReady) return; document.querySelectorAll('#andon-app [data-since]').forEach(el=>{ el.textContent=ageStr(el.dataset.since); }); }, 1000);
+
+/* ---------------- init (sob demanda, ao abrir o Andon) ---------------- */
+let andonReady = false;
+async function andonInit(){
+  if(andonReady) return;
+  andonReady = true;
+  if(!(await initClient())){ show('scr-setup'); return; }
+  startRealtime();
+  await fetchOpen();
+  goSelect();
+}
+
+/* ============================================================
    INICIALIZAÇÃO
    ============================================================ */
 async function initApp(){
   injectLogos();
   loadLocal();
   applyDisplay();
+  // Tablets do piso abrem em …#andon e vão direto ao app de chamados; não
+  // precisam do cronograma nem do modo automático.
+  if(location.hash === '#andon'){
+    abrirAndon();
+    return;
+  }
   // o cronograma vem do banco; sem rede, usa a última programação recebida
   await loadSchedule();
   // O sistema abre no menu principal. O modo automático (relógio + reuniões

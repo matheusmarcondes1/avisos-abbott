@@ -1,130 +1,125 @@
-# Andon para Produção: plataforma genérica e de código aberto
+# Screenplay 2.0 — versão em rede
 
-Plataforma **genérica de andon/pager para ambientes de produção**, criada por **iniciativa
-própria** e distribuída como **software livre** (licença MIT). Reúne dois módulos que rodam
-inteiramente no navegador, sem instalação e sem integração com sistemas corporativos:
+**Screenplay** é uma plataforma **genérica e de código aberto** de avisos e reuniões para o piso
+de produção. Esta branch é a **versão 2.0**: o mesmo sistema com **banco de dados**, alterações
+ao vivo em todas as TVs e o **andon** integrado.
 
-1. **Painel de Avisos** (`index.html`): telas para projeção em TVs do piso: reuniões
-   escalonadas (N1 e N2), busca por itens, avisos gerais, silêncio, microfone (push-to-talk) e
-   relógio. Os horários das reuniões ficam no banco e valem para todas as TVs.
-2. **Andon** (`andon/`): chamados de produção em tempo real (ex.: *falta de material*),
-   **sem login** — a operadora é identificada por mesa/etapa e cada perfil (Material Handler,
-   Coordenação Técnica, Inspeção, Assistente) acompanha e atende em um painel ao vivo. Usa
-   [Supabase](https://supabase.com) (Postgres + Realtime).
+Continua sendo **um arquivo só**. Baixe `index.html`, abra na TV e no tablet, e os dois falam com
+o mesmo banco.
 
-> **Disclaimer.** Projeto pessoal, de código aberto, criado por iniciativa própria. É uma
-> plataforma **genérica** de andon para produção, não é um produto oficial de nenhuma
-> empresa e não se integra a sistemas corporativos. Guarda apenas os **horários das reuniões**
-> cadastrados no próprio sistema e os **sinais operacionais de chamado** (tipo, mesa, etapa,
-> horário) usados para coordenar o atendimento — **nenhuma informação pessoal**.
+> **Marca de demonstração.** A identidade visual desta versão é **S.T.A.R. Labs**, uma marca
+> fictícia usada apenas como exemplo enquanto o sistema está em avaliação. Papéis, horários e
+> agenda são os reais; nome, cores e unidade são placeholder.
+>
+> **Disclaimer.** Projeto pessoal, criado por iniciativa própria e distribuído sob licença MIT.
+> Não é produto oficial de nenhuma empresa e **não se integra a sistemas corporativos**. Guarda
+> os **horários das reuniões** e os **sinais operacionais de chamado** (tipo, mesa, etapa,
+> horário) — **nenhuma informação pessoal**.
 
 ---
 
-## Módulo 1: Painel de Avisos (`index.html`)
+## O que muda em relação à 1.0
 
-Arquivo estático único. Abre no **menu principal**, de onde se escolhe a função: Reuniões
-Escalonadas, Busca por Válvulas/itens, Aviso Geral, Silêncio, Microfone e Relógio. O painel não
-força tela cheia — use o **F11** do navegador quando quiser.
+| | 1.0 — local | 2.0 — em rede |
+| --- | --- | --- |
+| Cronograma | no aparelho | no banco, igual em todas as TVs |
+| Alterações | uma TV por vez | ao vivo, em todas (Realtime) |
+| Andon | não tem | integrado, no mesmo arquivo |
+| Internet | dispensa | necessária |
 
-**Reuniões Escalonadas** reúne as duas reuniões do dia: **N1** (revisão do dia anterior) e
-**N2** (cronograma escalonado por área). Ao abrir, escolhe-se qual acompanhar. Na tela de N2 dá
-para escolher a **série** a projetar (manhã, tarde…) — com aviso quando o cronograma daquela série
-está longe do horário atual.
+## Instalar
 
-**Planejamento** mostra a linha do tempo do dia: uma coluna proporcional ao horário com uma marca
-que acompanha o relógio, indicando **em que momento cada tela entra nas TVs** — relógio, N1,
-antecipação, reunião de N2 e deslocamento. Serve para conferir a programação antes que ela vá ao ar.
-Ordem de prioridade: reunião de N2 (e seus deslocamentos) > reunião de N1 > antecipação de 5 min >
-relógio; ou seja, a antecipação não interrompe uma reunião de N1 em andamento.
+1. Prepare o banco: rode as migrações de [`supabase/`](supabase/) no seu projeto Supabase.
+   O passo a passo está em [`supabase/README.md`](supabase/README.md).
+2. Baixe [`index.html`](index.html) (**Download raw file**) e copie para as máquinas.
+3. Nas TVs, abra o arquivo. No primeiro uso, informe URL e chave em
+   **Configurações → Notificações de Andon**, se não quiser as padrão.
+4. Nos tablets do piso, abra o mesmo arquivo com `#andon` no fim do endereço. O app entra direto
+   na tela de seleção, sem passar pelo menu.
 
-O card **Relógio** liga o **modo automático**: o relógio fica no piso e as telas entram sozinhas —
-as **Reuniões Escalonadas** a partir de 5 min antes de cada janela (saindo quando ela acaba) e as
-**Reuniões de N1** durante os períodos configurados. Se os dois coincidirem, as Escalonadas têm
-prioridade. Dá para abrir direto nesse modo pela preferência em *Comportamento*.
+Também funciona publicado (GitHub Pages, `Settings → Pages`, branch desta versão): as TVs abrem a
+URL e os tablets a mesma URL com `#andon`.
 
-### Onde ficam os dados
+## Painel (nas TVs)
 
-Os **horários das reuniões ficam no banco** (Supabase), não no HTML nem no armazenamento do
-navegador: são cadastrados **uma vez** pela tela de Configurações e valem para **todas as TVs**,
-que recebem as alterações **na hora** (Realtime). Se o banco ficar inacessível, a TV continua
-exibindo a última programação recebida e avisa nas Configurações.
+Abre no **menu principal**, de onde se escolhe a função:
 
-No navegador ficam apenas as **preferências daquele aparelho** (tamanho da fonte, fundo do
-relógio, segundos/data), que podem variar de TV para TV.
+- **Reuniões Escalonadas** — **N1** (revisão do dia anterior, com barra de progresso) e **N2**
+  (cronograma escalonado por área, com escolha da série a projetar).
+- **Planejamento** — a linha do tempo do dia, mostrando em que momento cada tela entra na TV.
+  Ferramenta de conferência, para usar no computador.
+- **Busca por Válvulas**, **Aviso Geral**, **Silêncio** e **Microfone** (push-to-talk).
+- **Relógio** — modo automático: as telas entram sozinhas, as Escalonadas a partir de 5 minutos
+  antes de cada janela e as de N1 nos períodos configurados.
 
-### Configurações
+Prioridade quando duas telas disputam o mesmo minuto: reunião de N2 (e seus deslocamentos) >
+reunião de N1 > antecipação de 5 min > relógio.
 
-- **Séries de reuniões** *(no banco)*: janelas editáveis (início, fim, área, supervisor, Cadeia
-  de Ajuda) e **múltiplas séries** (ex.: *Turno da Manhã* e *Turno da Tarde*, com horários e
-  supervisores próprios). Por padrão a série é escolhida **automaticamente pelo horário**; dá
-  para fixar uma série específica.
-- **Reuniões de N1** *(no banco)*: períodos editáveis (padrão **08:00–09:00** e **14:00–15:00**)
-  com **título e mensagem personalizáveis** — por padrão *"Reuniões de N1 em andamento"* e
-  *"Agora é a hora de rever o dia anterior."*, exibidos com barra de progresso do tempo restante.
-- **Comportamento** *(local)*: abrir direto no modo automático (padrão: menu principal); retornar
-  ao relógio ao encerrar uma projeção.
-- **Exibição** *(local)*: tamanho das fontes (ampliado para TVs de ~50"), fundo do relógio,
-  segundos, data e Cadeia de Ajuda.
-- **Dados**: exportar o cronograma da série em **`.csv` que abre no Excel** e importar de volta —
-  a importação **substitui** as janelas daquela série **no banco**, para todas as TVs. Útil para
-  cadastrar muitas janelas de uma vez.
+Quando há **chamados de andon abertos**, a tela principal chega para o lado e a fila aparece numa
+coluna própria — cor do tipo e número da mesa, em caixa alta, com os mais antigos no topo. Nada do
+relógio é coberto.
 
-> **Como editar os horários.** As alterações ficam em rascunho enquanto você digita — a linha não
-> muda de lugar e nada é gravado no meio do caminho. Ao terminar, clique em **Gravar alterações**
-> (ou **Descartar**). Os campos de horário usam intervalos de **5 minutos**.
+## Andon (`index.html#andon`)
 
-### Versão offline
+**Sem login.** A tela de entrada é uma seleção em três colunas — **Perfil → Etapa → Mesa**:
 
-Existe uma versão **100% offline** (arquivo único, sem rede) na branch
-[`claude/versao-offline`](../../tree/claude/versao-offline) — **em hold**. Ela é incompatível com
-o cronograma no banco, então mantém os horários no próprio aparelho (com importação por planilha).
+- **Operadora** escolhe a etapa (Anel Revestido, Sizing & Trimming, SVE, SVS, Revisão Final) e a
+  mesa (1–25). É identificada só pelo número da mesa, e cada mesa pode ter vários tablets.
+- **Material Handler, Coordenação Técnica, Inspeção, Assistente** entram direto no painel.
 
-## Módulo 2: Andon (`andon/`)
+A tela da operadora é feita para tablet na horizontal, sem digitação nem rolagem: quatro botões
+grandes — **Falta de Material** (bronze → Material Handler), **Qualidade** (azul → Coordenação
+Técnica), **Inspeção** (teal → Inspeção) e **Assistente** (grafite → Assistentes). Cada botão
+mostra se há chamado em aberto e cancela num toque.
 
-**Sem login.** Ao abrir, o app mostra uma seleção em três colunas (**Perfil → Etapa → Mesa**):
-- **Operadora** escolhe a etapa (SVE, SVS, Anel Revestido, Sizing & Trimming, Revisão Final) e a
-  mesa (1–25). É identificada apenas pelo número da mesa. Cada mesa pode ter vários tablets — todos
-  compartilham o mesmo estado.
-- **Material Handler, Coordenação Técnica, Inspeção, Assistente** entram direto no seu painel.
+Cada perfil receptor vê a **fila** dos seus chamados em tempo real, com som ao chegar um novo e ✓
+para concluir. O **Assistente** tem ainda **Estatísticas** (com exportação CSV/Excel) e **Mesas**
+(quais mesas ficam disponíveis em cada etapa).
 
-Tela de chamado da operadora (tablet Windows na horizontal, sem digitação/rolagem): quatro botões
-retangulares grandes — **Falta de Material** (amarelo → Material Handler), **Qualidade** (roxo →
-Coordenação Técnica), **Inspeção** (laranja → Inspetores), **Assistente** (verde → Assistentes).
-Cada botão mostra se há chamado em aberto e permite cancelar num toque.
+## Configurações
 
-Cada perfil receptor vê, em tempo real, a **fila** dos seus chamados — um quadrado com o número da
-mesa, no fundo da cor do tipo — com som ao chegar um novo e ✓ para concluir. O **Assistente** tem
-ainda **Estatísticas** (com exportação CSV/Excel) e **Mesas** (define quais mesas ficam disponíveis
-por etapa).
+- **Séries de reuniões** *(no banco)* — janelas editáveis e múltiplas séries, com a série do
+  momento escolhida **automaticamente pelo horário**.
+- **Reuniões de N1** *(no banco)* — períodos, título e mensagem.
+- **Comportamento** e **Exibição** *(deste aparelho)* — modo automático, retorno ao relógio,
+  tamanho das fontes, fundo do relógio, segundos, data, Cadeia de Ajuda.
+- **Notificações de Andon** — liga a fila nas TVs e guarda URL e chave do Supabase.
+- **Dados** — exportar e importar o cronograma da série em `.csv` que abre no Excel.
 
-Segurança: ferramenta interna sem login; as tabelas expõem só dados operacionais (tipo, mesa,
-etapa, horário), sem nomes. Ver [`supabase/README.md`](supabase/README.md) para o passo a passo.
+> **Como editar os horários.** As alterações ficam em rascunho enquanto você digita. Ao terminar,
+> clique em **Gravar alterações** (ou **Descartar**). Os horários usam intervalos de 5 minutos.
 
----
+## Paleta
 
-## Publicar (GitHub Pages)
+| | | |
+| --- | --- | --- |
+| `#5F95E2` | Cornflower Blue | interação e progresso |
+| `#DC9F6C` | Light Bronze | deslocamento e atenção |
+| `#2E747B` | Stormy Teal | superfícies de destaque |
+| `#FAFAF9` | Bright Snow | fundo |
+| `#FDFDFE` | White | cartões e barras |
 
-1. **Settings → Pages** → branch `main`, pasta `/root`.
-2. Painel de Avisos: `https://avisos-abbott.marcondes.dev`
-   Andon: `https://avisos-abbott.marcondes.dev/andon`
+As demais cores do arquivo são derivações dessas — mesmo matiz, luminância ajustada — porque texto
+sobre cor precisa de contraste e a leitura acontece a alguns metros da TV.
 
-Os dois módulos usam o Supabase: o Painel para os horários das reuniões (e a fila de andon nas
-TVs) e o Andon para os chamados. A chave *publishable* é pública por design — a proteção real é
-o RLS. O Andon lê as credenciais de [`andon/config.js`](andon/config.js); o Painel usa as mesmas,
-ajustáveis em Configurações.
+## Segurança
+
+Ferramenta interna, sem login. A chave *publishable* é pública por design: a proteção real é o RLS
+do Postgres. As tabelas guardam só dados operacionais (horários, tipo, mesa, etapa), sem nomes de
+pessoas.
 
 ## Estrutura
 
 ```
-index.html                 Painel de Avisos (projeção nas TVs)
-andon/
-  index.html               App de andon (seleção + operadora + painéis)
-  config.js                URL + chave publishable do Supabase (editável)
-  config.example.js        Modelo de configuração
+index.html                 Painel + Andon, num arquivo só
 supabase/
-  migrations/0003_andon_sem_login.sql    Andon sem login + Realtime
-  migrations/0004_reunioes_no_banco.sql  Horários das reuniões no banco
-  migrations/0005_serie_automatica_padrao.sql  Série de N2 automática por padrão
+  migrations/*.sql         Tabelas, RLS e Realtime
   README.md                Passo a passo de configuração
 LICENSE                    MIT
 ```
+
+## Versões
+
+- **1.0 — local** (branch [`screenplay-1.0`](../../tree/screenplay-1.0)): arquivo único, offline,
+  cronograma no próprio aparelho. Roda a operação de hoje.
+- **2.0 — em rede** *(esta branch)*: banco de dados, tempo real e andon.
