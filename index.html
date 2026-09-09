@@ -4,59 +4,55 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Screenplay — S.T.A.R. Labs</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232E747B'/%3E%3Cpath d='M16 6l2.6 6.1L25 14l-6.4 1.9L16 22l-2.6-6.1L7 14l6.4-1.9z' fill='%23FDFDFE'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2314505C'/%3E%3Cpath fill='%23FFFFFF' fill-rule='evenodd' d='M5 5H27V27H5Z M13 16 8 5 11 5Z M13 16 16 5 19 5Z M13 16 27 10 27 12Z M13 16 27 15 27 18Z M13 16 27 21 27 23Z M13 16 19 27 16 27Z M13 16 11 27 8 27Z M13 16 5 22 5 19Z M13 16 5 13 5 10Z'/%3E%3C/svg%3E">
 <style>
 /* ============================================================
    PALETA
-   Cinco cores de marca. As demais são derivações delas — mesmo
-   matiz, luminância ajustada — porque texto sobre cor precisa de
-   contraste e a leitura acontece a alguns metros da TV.
+   Tudo sai de um eixo frio azul-teal: os neutros têm o mesmo viés,
+   e os acentos quentes foram dessaturados até caberem ao lado dele.
+   A ideia é que nenhuma cor pareça vinda de outro sistema.
 
-     #5F95E2  Cornflower Blue   interação, progresso
-     #DC9F6C  Light Bronze      deslocamento, atenção
-     #2E747B  Stormy Teal       superfícies de destaque
-     #FAFAF9  Bright Snow       fundo da página
-     #FDFDFE  White             superfícies elevadas
+     espinha    #14505C → #2E747B → #3E86C9   teal profundo a azul
+     quente     #C08A46 (âmbar) e #A8462A (terracota)
+     neutros    #F4F7F8 fundo · #FFFFFF cartão · #0E1A20 texto
+
+   As variações de cada cor mudam luminância, não matiz — texto sobre
+   cor precisa de contraste e a TV é lida a alguns metros.
    ============================================================ */
 :root{
-  --cornflower:   #5F95E2;
-  --bronze:       #DC9F6C;
-  --teal:         #2E747B;
-  --snow:         #FAFAF9;
-  --white:        #FDFDFE;
+  --ink:          #0E1A20;   /* texto principal */
+  --ink-soft:     #566B75;   /* texto secundário */
+  --paper:        #F4F7F8;   /* fundo da página */
+  --card:         #FFFFFF;   /* cartões e barras */
+  --paper-dim:    #E8EEF0;   /* fundo de blocos */
+  --line:         #DDE6E9;   /* hairlines */
+  --line-strong:  #BECCD1;   /* trilhos e bordas de campo */
+  --accent:       #14505C;   /* teal profundo — superfícies de destaque */
+  --accent-2:     #2E747B;   /* teal médio — apoio */
+  --accent-bright:#3E86C9;   /* azul — progresso e preenchimentos */
+  --accent-link:  #1F5E9E;   /* azul escurecido, legível em texto */
+  --accent-soft:  #E3EDF0;   /* apoio sobre fundo claro */
+  --accent-ink:   #FFFFFF;   /* texto sobre teal/azul */
+  --warn:         #C08A46;   /* âmbar — deslocamento */
+  --warn-soft:    #F6ECDB;
+  --warn-ink:     #3A2405;   /* texto sobre o âmbar */
+  --ok:           #1B6B54;   /* estados concluídos */
+  --ember:        #A8462A;   /* terracota — aviso de silêncio */
+  --ember-ink:    #45180D;
+  --ember-soft:   #F6E4DE;
 
-  --ink:          #16292C;   /* teal profundo — texto principal */
-  --ink-soft:     #5A6E71;   /* teal dessaturado — texto secundário */
-  --paper:        #FAFAF9;   /* Bright Snow — fundo */
-  --card:         #FDFDFE;   /* White — cartões e barras */
-  --paper-dim:    #EFF3F3;   /* fundo de blocos */
-  --line:         #E1E7E7;   /* hairlines */
-  --line-strong:  #C7D3D4;   /* trilhos e bordas de campo */
-  --accent:       #2E747B;   /* Stormy Teal — superfícies de destaque */
-  --accent-bright:#5F95E2;   /* Cornflower Blue — progresso e interação */
-  --accent-link:  #2C5FA8;   /* Cornflower escurecido, legível em texto */
-  --accent-soft:  #E4EFF0;   /* apoio sobre fundo claro */
-  --accent-ink:   #FDFDFE;   /* texto sobre Teal/Cornflower */
-  --warn:         #DC9F6C;   /* Light Bronze — deslocamento */
-  --warn-soft:    #F8ECE1;
-  --warn-ink:     #4E2C0C;   /* texto sobre o bronze */
-  --ok:           #1F6B57;   /* estados concluídos */
-  --ember:        #A9521F;   /* bronze aprofundado — aviso de silêncio */
-  --ember-ink:    #46220A;
-  --ember-soft:   #F8E9DE;
-
-  /* Cores por tipo de chamado. Precisam ser distinguíveis à distância, então
-     usam os três matizes da marca mais um grafite: bronze, azul, teal, quase
-     preto — quatro valores bem separados, não quatro variações de um só.
-     -ink é o rótulo sobre fundo claro; -on é o texto sobre a cor cheia. */
-  --mat:#DC9F6C; --mat-soft:#F8ECE1; --mat-ink:#6B3F17; --mat-on:#3D2109;  /* Falta de material */
-  --qua:#5F95E2; --qua-soft:#E9F1FB; --qua-ink:#235092; --qua-on:#0E2140;  /* Qualidade */
-  --ins:#2E747B; --ins-soft:#E4EFF0; --ins-ink:#235B61; --ins-on:#FDFDFE;  /* Inspeção */
-  --ass:#26383C; --ass-soft:#E7ECED; --ass-ink:#26383C; --ass-on:#FDFDFE;  /* Assistente */
+  /* Cores por tipo de chamado. Precisam ser distinguíveis a alguns metros,
+     então são quatro valores separados — âmbar, azul, teal, grafite — e não
+     quatro variações de um só. -ink é o rótulo sobre fundo claro; -on é o
+     texto sobre a cor cheia. */
+  --mat:#C08A46; --mat-soft:#F6ECDB; --mat-ink:#6B4711; --mat-on:#3A2405;  /* Falta de material */
+  --qua:#3E86C9; --qua-soft:#E6EFF8; --qua-ink:#1F5E9E; --qua-on:#0C233C;  /* Qualidade */
+  --ins:#2E747B; --ins-soft:#E4EFF0; --ins-ink:#235B61; --ins-on:#FFFFFF;  /* Inspeção */
+  --ass:#22303A; --ass-soft:#E7EBEE; --ass-ink:#22303A; --ass-on:#FFFFFF;  /* Assistente */
 
   --r-sm: 10px;  --r-md: 14px;  --r-lg: 20px;
-  --sh-1: 0 1px 2px rgba(22,41,44,.05), 0 1px 3px rgba(22,41,44,.04);
-  --sh-2: 0 2px 4px rgba(22,41,44,.05), 0 8px 24px rgba(22,41,44,.07);
+  --sh-1: 0 1px 2px rgba(14,26,32,.05), 0 1px 3px rgba(14,26,32,.04);
+  --sh-2: 0 2px 4px rgba(14,26,32,.05), 0 8px 24px rgba(14,26,32,.07);
 
   /* Escala tipográfica das telas de TV (ajustável nas Configurações).
      Como serão projetadas em televisões de ~50", o padrão já é ampliado. */
@@ -86,8 +82,7 @@ input, select, textarea{ font-family: inherit; }
 .logo-slot .lg-fallback svg{ height:100%; width:auto; display:block; }
 /* display:block garante que a marca fique na própria linha, sem o botão
    "voltar" (inline-block) empurrá-la para o lado. */
-.control-logo{ display: block; height: 30px; width: fit-content; margin-bottom: 22px;
-  opacity: .9; }
+.control-logo{ display: block; height: 34px; width: fit-content; margin-bottom: 22px; }
 
 /* ---------- gerenciamento de telas ---------- */
 .screen{ display:none; }
@@ -111,32 +106,76 @@ h3{ font-size: 19px; font-weight: 700; letter-spacing: -0.01em; }
 .hint-url{ font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .92em;
   background: var(--paper-dim); border-radius: 5px; padding: 1px 6px; }
 
-.menu-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 36px; }
-@media (max-width:640px){ .menu-grid{ grid-template-columns: 1fr; } }
+/* ---------- menu principal ----------
+   Cada função é um cartão de ícone + nome, agrupado por finalidade: o que vai
+   para a TV, o que roda nos aparelhos do piso e o que fica no computador. A
+   explicação longa saiu do menu — ela aparece na própria tela, quando é útil. */
+.menu-sec{ margin-top: 28px; }
+.menu-sec-h{
+  font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-soft); margin-bottom: 12px;
+}
+.menu-grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width:900px){ .menu-grid{ grid-template-columns: repeat(2, 1fr); } }
+@media (max-width:560px){ .menu-grid{ grid-template-columns: 1fr; } }
 
-/* Cartões do menu: superfície branca sobre o fundo Bright Snow, sombra
-   discreta e um fio de Cornflower que aparece ao passar o cursor. */
 .func-card{
-  position: relative; text-align:left; background: var(--card);
-  border: 1px solid var(--line); border-radius: var(--r-md); padding: 24px 26px;
-  box-shadow: var(--sh-1); overflow: hidden;
+  display:flex; align-items:center; gap: 15px; text-align:left; width:100%;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md);
+  padding: 15px 16px; min-height: 78px; box-shadow: var(--sh-1);
   transition: border-color .16s, transform .16s, box-shadow .16s;
 }
-.func-card::before{
-  content:''; position:absolute; inset: 0 auto 0 0; width: 3px;
-  background: var(--accent-bright); transform: scaleY(0); transform-origin: 50% 0;
-  transition: transform .18s ease;
-}
-.func-card:hover{ border-color: var(--line-strong); transform: translateY(-2px);
+.func-card:hover{ border-color: var(--line-strong); transform: translateY(-1px);
   box-shadow: var(--sh-2); }
-.func-card:hover::before{ transform: scaleY(1); }
 .func-card:focus-visible{ outline: 2px solid var(--accent-bright); outline-offset: 2px; }
-.func-card .fc-title{ font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
-.func-card .fc-desc{ color: var(--ink-soft); font-size: 15px; margin-top: 6px; line-height:1.55; }
-.func-card .fc-go{ color: var(--accent-link); font-size: 12px; font-weight: 800; margin-top: 16px;
-  letter-spacing:.1em; text-transform: uppercase; }
-.func-card.wide{ grid-column: 1 / -1; }
-.func-card.cfg{ background: var(--accent-soft); border-color: transparent; box-shadow: none; }
+.fc-icon{
+  flex:none; width: 44px; height: 44px; border-radius: 12px; display:flex;
+  align-items:center; justify-content:center;
+  background: var(--accent-soft); color: var(--accent);
+}
+.fc-icon svg{ width: 24px; height: 24px; display:block; }
+.fc-text{ min-width: 0; }
+.fc-title{ display:block; font-size: 17px; font-weight: 600; letter-spacing: -.01em; line-height: 1.25; }
+.fc-hint{ display:block; color: var(--ink-soft); font-size: 13.5px; margin-top: 2px; line-height: 1.3; }
+.fc-chev{ margin-left: auto; flex:none; color: var(--line-strong); display:flex; }
+.fc-chev svg{ width: 18px; height: 18px; display:block; }
+.func-card:hover .fc-chev{ color: var(--ink-soft); }
+
+/* ---------- Andon: como instalar ----------
+   Um cartão por papel: ícone do aparelho, endereço que ele abre e três passos.
+   O texto é curto de propósito — quem está instalando lê em pé, no piso. */
+.setup-list{ display:flex; flex-direction:column; gap: 12px; margin-top: 26px; }
+.setup-card{
+  display:flex; gap: 18px; background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-md); padding: 20px 22px; box-shadow: var(--sh-1);
+}
+.sc-icon{
+  flex:none; width: 46px; height: 46px; border-radius: 12px; display:flex;
+  align-items:center; justify-content:center;
+  background: var(--accent-soft); color: var(--accent);
+}
+.sc-icon svg{ width: 25px; height: 25px; display:block; }
+.sc-body{ min-width: 0; flex: 1; }
+.sc-body h3{ display:flex; align-items:center; gap: 10px; flex-wrap: wrap; }
+.sc-tag{
+  font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ink-soft); background: var(--paper-dim); border-radius: 999px; padding: 3px 10px;
+}
+.sc-url{ display:flex; align-items:center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.sc-url code{
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+  background: var(--paper-dim); border-radius: var(--r-sm); padding: 7px 12px;
+  overflow-wrap: anywhere; color: var(--ink);
+}
+.sc-steps{ margin: 14px 0 0 18px; color: var(--ink-soft); font-size: 15px; line-height: 1.65; }
+.sc-steps li{ padding-left: 4px; }
+.sc-steps b{ color: var(--ink); font-weight: 600; }
+.setup-note{
+  margin-top: 16px; background: var(--accent-soft); border-radius: var(--r-md);
+  padding: 16px 20px; font-size: 14.5px; line-height: 1.65; color: var(--ink);
+}
+.setup-note code{ font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .92em; }
+@media (max-width:560px){ .setup-card{ flex-direction: column; gap: 14px; } }
 
 .btn{
   border: none; border-radius: var(--r-sm); padding: 11px 20px; font-size: 15px; font-weight: 700;
@@ -202,7 +241,7 @@ h3{ font-size: 19px; font-weight: 700; letter-spacing: -0.01em; }
 /* Marca nas telas de TV: teal sobre os fundos claros (padrão) e branca no
    relógio, que tem fundo escuro. */
 .tv-brand{ color: var(--accent); height: calc(clamp(22px, 2.6vw, 44px) * var(--fs)); }
-.tv.clkmode .tv-brand{ color: var(--white); }
+.tv.clkmode .tv-brand{ color: var(--card); }
 .tv-eyebrow{
   display:inline-block; font-size: calc(clamp(16px, 1.9vw, 30px) * var(--fs)); font-weight: 700;
   letter-spacing: .16em; text-transform: uppercase; color: var(--accent-ink);
@@ -587,6 +626,23 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
 
 #andon-app .opt:active{ transform:scale(.99); }
 
+/* Perfil: ícone + nome + o que aquele perfil faz. Quem abre o tablet pela
+   primeira vez reconhece o seu lugar sem ler tudo. */
+#andon-app .opt-row{
+  display:flex; align-items:center; gap:16px; text-align:left; padding:16px 18px;
+}
+#andon-app .opt-icon{
+  flex:none; width:48px; height:48px; border-radius:14px; display:flex;
+  align-items:center; justify-content:center;
+  background:var(--accent-soft); color:var(--accent);
+}
+#andon-app .opt-icon svg{ width:26px; height:26px; display:block; }
+#andon-app .opt-name{ display:block; font-size:19px; font-weight:700; line-height:1.2; }
+#andon-app .opt-note{ display:block; font-size:13.5px; font-weight:600; color:var(--ink-soft);
+  margin-top:2px; }
+#andon-app .opt-row.on .opt-icon{ background:var(--accent); color:var(--accent-ink); }
+#andon-app .opt-row.on .opt-note{ color:var(--accent); }
+
 #andon-app .opt.on{ border-color:var(--accent); background:var(--accent-soft); color:var(--accent); }
 
 
@@ -823,57 +879,104 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
     <div class="logo-slot control-logo"></div>
     <p class="eyebrow plain">Central City · Linha CC-01</p>
     <h1>Screenplay</h1>
-    <p class="sub">O que vai para as televisões do piso, e o que sustenta isso. Selecione a função.
-      <strong>Planejamento</strong> e <strong>Configurações</strong> são ferramentas de apoio,
-      para uso aqui no computador.</p>
 
-    <div class="menu-grid">
-      <button class="func-card" onclick="goReunioes()">
-        <div class="fc-title">Reuniões Escalonadas</div>
-        <div class="fc-desc">Acompanha as reuniões do dia nas TVs: <strong>N1</strong> (revisão do dia anterior) e <strong>N2</strong> (cronograma escalonado por área).</div>
-        <div class="fc-go">Abrir →</div>
-      </button>
-      <button class="func-card" onclick="goPlano()">
-        <div class="fc-title">Planejamento</div>
-        <div class="fc-desc">Ferramenta de conferência: linha do tempo do dia mostrando em que horário cada tela entra nas TVs, com uma marca acompanhando o relógio.</div>
-        <div class="fc-go">Conferir →</div>
-      </button>
-      <button class="func-card" onclick="goValSelect()">
-        <div class="fc-title">Busca por Válvulas</div>
-        <div class="fc-desc">Solicita a busca de válvulas por número de série, com entrega a um assistente ou supervisor.</div>
-        <div class="fc-go">Abrir →</div>
-      </button>
-      <button class="func-card" onclick="goGerSelect()">
-        <div class="fc-title">Aviso Geral</div>
-        <div class="fc-desc">Projeta um texto livre em tela cheia, com duração configurável ou sem limite.</div>
-        <div class="fc-go">Abrir →</div>
-      </button>
-      <button class="func-card" onclick="startSil()">
-        <div class="fc-title">Silêncio</div>
-        <div class="fc-desc">Pede a redução do ruído no piso, com sinal sonoro e encerramento automático em 3 minutos.</div>
-        <div class="fc-go">Projetar →</div>
-      </button>
-      <button class="func-card" onclick="goMicSetup()">
-        <div class="fc-title">Microfone</div>
-        <div class="fc-desc">Sistema de aviso por voz (push to talk) usando o microfone do dispositivo.</div>
-        <div class="fc-go">Abrir →</div>
-      </button>
-      <button class="func-card" onclick="enterStandby()">
-        <div class="fc-title">Relógio</div>
-        <div class="fc-desc">Modo de espera: relógio em tela cheia. As Reuniões Escalonadas entram sozinhas 5 min antes de cada janela.</div>
-        <div class="fc-go">Projetar →</div>
-      </button>
-      <button class="func-card wide" onclick="abrirAndon()">
-        <div class="fc-title">Andon</div>
-        <div class="fc-desc">Chamados de produção em tempo real. Nos tablets do piso, abra direto em
-          <code class="hint-url">…/index.html#andon</code> — o app já entra na tela de seleção.</div>
-        <div class="fc-go">Abrir →</div>
-      </button>
-      <button class="func-card cfg wide" onclick="goConfig()">
-        <div class="fc-title">Configurações</div>
-        <div class="fc-desc">Editar as janelas e séries de reuniões, o comportamento de inicialização, a exibição e as informações do sistema.</div>
-        <div class="fc-go">Abrir →</div>
-      </button>
+    <div class="menu-sec">
+      <div class="menu-sec-h">Projetar na TV</div>
+      <div class="menu-grid">
+        <button class="func-card" onclick="goReunioes()">
+          <span class="fc-icon" data-icon="reunioes"></span>
+          <span class="fc-text">
+            <span class="fc-title">Reuniões Escalonadas</span>
+            <span class="fc-hint">N1 e N2</span>
+          </span>
+          <span class="fc-chev" data-icon="chevron"></span>
+        </button>
+        <button class="func-card" onclick="enterStandby()">
+          <span class="fc-icon" data-icon="relogio"></span>
+          <span class="fc-text">
+            <span class="fc-title">Relógio</span>
+            <span class="fc-hint">Modo automático</span>
+          </span>
+          <span class="fc-chev" data-icon="chevron"></span>
+        </button>
+        <button class="func-card" onclick="goValSelect()">
+          <span class="fc-icon" data-icon="valvulas"></span>
+          <span class="fc-text">
+            <span class="fc-title">Busca por Válvulas</span>
+            <span class="fc-hint">Por número de série</span>
+          </span>
+          <span class="fc-chev" data-icon="chevron"></span>
+        </button>
+        <button class="func-card" onclick="goGerSelect()">
+          <span class="fc-icon" data-icon="aviso"></span>
+          <span class="fc-text">
+            <span class="fc-title">Aviso Geral</span>
+            <span class="fc-hint">Texto em tela cheia</span>
+          </span>
+          <span class="fc-chev" data-icon="chevron"></span>
+        </button>
+        <button class="func-card" onclick="startSil()">
+          <span class="fc-icon" data-icon="silencio"></span>
+          <span class="fc-text">
+            <span class="fc-title">Silêncio</span>
+            <span class="fc-hint">Encerra em 3 minutos</span>
+          </span>
+          <span class="fc-chev" data-icon="chevron"></span>
+        </button>
+        <button class="func-card" onclick="goMicSetup()">
+          <span class="fc-icon" data-icon="microfone"></span>
+          <span class="fc-text">
+            <span class="fc-title">Microfone</span>
+            <span class="fc-hint">Aviso por voz</span>
+          </span>
+          <span class="fc-chev" data-icon="chevron"></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="menu-sec">
+      <div class="menu-sec-h">No piso</div>
+      <div class="menu-grid">
+        <button class="func-card" onclick="goAndonInfo()">
+          <span class="fc-icon" data-icon="andon"></span>
+          <span class="fc-text">
+            <span class="fc-title">Andon</span>
+            <span class="fc-hint">Como instalar nos aparelhos</span>
+          </span>
+          <span class="fc-chev" data-icon="chevron"></span>
+        </button>
+        <button class="func-card" onclick="abrirAndon()">
+          <span class="fc-icon" data-icon="fila"></span>
+          <span class="fc-text">
+            <span class="fc-title">Abrir o Andon</span>
+            <span class="fc-hint">Chamados em tempo real</span>
+          </span>
+          <span class="fc-chev" data-icon="chevron"></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="menu-sec">
+      <div class="menu-sec-h">No computador</div>
+      <div class="menu-grid">
+        <button class="func-card" onclick="goPlano()">
+          <span class="fc-icon" data-icon="planejamento"></span>
+          <span class="fc-text">
+            <span class="fc-title">Planejamento</span>
+            <span class="fc-hint">Linha do tempo do dia</span>
+          </span>
+          <span class="fc-chev" data-icon="chevron"></span>
+        </button>
+        <button class="func-card" onclick="goConfig()">
+          <span class="fc-icon" data-icon="config"></span>
+          <span class="fc-text">
+            <span class="fc-title">Configurações</span>
+            <span class="fc-hint">Horários, exibição e conexão</span>
+          </span>
+          <span class="fc-chev" data-icon="chevron"></span>
+        </button>
+      </div>
+    </div>
     </div>
   </div>
 </section>
@@ -885,19 +988,24 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
     <div class="logo-slot control-logo"></div>
     <p class="eyebrow">Reuniões Escalonadas</p>
     <h2>Qual reunião acompanhar?</h2>
-    <p class="sub">No <strong>modo automático</strong> (card Relógio) as duas entram sozinhas nos
-      horários configurados. Use as opções abaixo para projetar agora.</p>
+    <p class="sub">No modo automático as duas entram sozinhas nos horários configurados.</p>
 
-    <div class="menu-grid">
+    <div class="menu-grid" style="margin-top:22px">
       <button class="func-card" onclick="startN1()">
-        <div class="fc-title">Reuniões de N1</div>
-        <div class="fc-desc" id="n1-card-desc">Revisão do dia anterior, com barra de progresso do tempo restante.</div>
-        <div class="fc-go">Projetar →</div>
+        <span class="fc-icon" data-icon="reunioes"></span>
+        <span class="fc-text">
+          <span class="fc-title">Reuniões de N1</span>
+          <span class="fc-hint" id="n1-card-desc">Revisão do dia anterior</span>
+        </span>
+        <span class="fc-chev" data-icon="chevron"></span>
       </button>
       <button class="func-card" onclick="goN2Select()">
-        <div class="fc-title">Reuniões de N2</div>
-        <div class="fc-desc" id="n2-card-desc">Cronograma escalonado por área, com janelas e deslocamentos acompanhando o relógio.</div>
-        <div class="fc-go">Abrir →</div>
+        <span class="fc-icon" data-icon="planejamento"></span>
+        <span class="fc-text">
+          <span class="fc-title">Reuniões de N2</span>
+          <span class="fc-hint" id="n2-card-desc">Cronograma escalonado por área</span>
+        </span>
+        <span class="fc-chev" data-icon="chevron"></span>
       </button>
     </div>
   </div>
@@ -1184,6 +1292,77 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
     </svg>
     <div class="mic-topic" id="mic-topic">Aviso por voz</div>
     <div class="mic-status" id="mic-status">Pressione e segure a barra de espaço para falar</div>
+  </div>
+</section>
+
+<!-- ================= ANDON — COMO INSTALAR ================= -->
+<section id="scr-andon-info" class="screen control">
+  <div class="wrap">
+    <button class="back" onclick="showScreen('scr-menu')">← Menu principal</button>
+    <div class="logo-slot control-logo"></div>
+    <p class="eyebrow">Andon</p>
+    <h2>Como instalar nos aparelhos</h2>
+    <p class="sub">O mesmo arquivo atende os três papéis. O que muda é o endereço que cada aparelho
+      abre e a escolha feita na primeira vez.</p>
+
+    <div class="setup-list">
+
+      <article class="setup-card">
+        <span class="sc-icon" data-icon="tv"></span>
+        <div class="sc-body">
+          <h3>Tela principal <span class="sc-tag">TV do piso</span></h3>
+          <div class="sc-url"><code id="url-painel">…</code>
+            <button class="btn ghost small" onclick="copiarUrl('url-painel', this)">Copiar</button></div>
+          <ol class="sc-steps">
+            <li>Abra o endereço e escolha <b>Relógio</b>.</li>
+            <li>Em <b>Configurações → Notificações de Andon</b>, mantenha a fila ligada.</li>
+            <li>Ao chegar um chamado, a tela chega para o lado e a fila aparece sozinha.</li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="setup-card">
+        <span class="sc-icon" data-icon="tablet"></span>
+        <div class="sc-body">
+          <h3>Quem chama <span class="sc-tag">um tablet por mesa</span></h3>
+          <div class="sc-url"><code id="url-tablet">…</code>
+            <button class="btn ghost small" onclick="copiarUrl('url-tablet', this)">Copiar</button></div>
+          <ol class="sc-steps">
+            <li>Abra o endereço e escolha <b>Operadora</b>, a <b>etapa</b> e a <b>mesa</b>.</li>
+            <li>Deixe o tablet nessa tela: são quatro botões, um toque cada.</li>
+            <li>Vários tablets podem ficar na mesma mesa — todos mostram o mesmo estado.</li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="setup-card">
+        <span class="sc-icon" data-icon="fila"></span>
+        <div class="sc-body">
+          <h3>Quem recebe <span class="sc-tag">celular ou tablet</span></h3>
+          <div class="sc-url"><code id="url-receb">…</code>
+            <button class="btn ghost small" onclick="copiarUrl('url-receb', this)">Copiar</button></div>
+          <ol class="sc-steps">
+            <li>Abra o endereço e escolha o perfil: Material Handler, Coordenação Técnica,
+              Inspeção ou Assistente.</li>
+            <li>A fila do perfil chega em tempo real, com som. O ✓ conclui o chamado.</li>
+            <li>O Assistente tem ainda <b>Estatísticas</b> e <b>Mesas</b> por etapa.</li>
+          </ol>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="setup-note">
+      <b>Antes de tudo:</b> o banco precisa estar criado. As migrações de <code>supabase/</code>
+      criam as tabelas, a leitura anônima e o tempo real. Depois disso, URL e chave ficam em
+      <b>Configurações → Notificações de Andon</b> e valem para todos os aparelhos que abrirem
+      este arquivo.
+    </div>
+
+    <div class="action-bar">
+      <span class="action-note">Para conferir agora, sem sair daqui.</span>
+      <button class="btn" onclick="abrirAndon()">Abrir o Andon</button>
+    </div>
   </div>
 </section>
 
@@ -1484,18 +1663,73 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
    requisição externa. S.T.A.R. Labs é a marca de demonstração desta
    versão: para trocar, basta reescrever o SVG abaixo e a linha da unidade.
    ============================================================ */
-const MARCA_NOME    = 'S.T.A.R. Labs';
+const MARCA_NOME    = 'S.T.A.R. Laboratories';
 const MARCA_UNIDADE = 'S.T.A.R. Labs · Central City';
-const LOGO_SVG = `<span class="lg-fallback"><svg viewBox="0 0 306 60" role="img" aria-label="${MARCA_NOME}">
-  <path d="M26 6 L31.6 24.4 L50 30 L31.6 35.6 L26 54 L20.4 35.6 L2 30 L20.4 24.4 Z"
-        fill="currentColor"/>
-  <text x="62" y="40" fill="currentColor" font-family="inherit" font-weight="800"
-        font-size="30" letter-spacing="1">S.T.A.R.<tspan font-weight="400"
-        letter-spacing="4"> LABS</tspan></text>
+/* O sinal é um quadrado cheio com os raios recortados nele (fill-rule evenodd),
+   então o vazado mostra o fundo e a marca funciona igual sobre claro e escuro.
+   "LABORATORIES" vai um pouco maior que no letreiro original, para continuar
+   legível quando a marca aparece pequena na barra das telas. */
+const LOGO_SVG = `<span class="lg-fallback"><svg viewBox="0 0 274 80" role="img" aria-label="${MARCA_NOME}">
+  <path fill="currentColor" fill-rule="evenodd" d="M0 2H76V78H0Z
+    M26 42 7 2 17 2Z M26 42 30.5 2 37.5 2Z M26 42 53.5 2 58.5 2Z
+    M26 42 76 13 76 19Z M26 42 76 35.5 76 44.5Z M26 42 76 61 76 67Z
+    M26 42 55.5 78 48.5 78Z M26 42 34.5 78 25.5 78Z M26 42 14.5 78 9.5 78Z
+    M26 42 0 66 0 58Z M26 42 0 43 0 37Z M26 42 0 21.5 0 14.5Z"/>
+  <text x="92" y="54" fill="currentColor" font-family="inherit" font-weight="700"
+        font-size="52" textLength="178" lengthAdjust="spacingAndGlyphs">S.T.A.R.</text>
+  <text x="93" y="75" fill="currentColor" font-family="inherit" font-weight="600"
+        font-size="15" textLength="176" lengthAdjust="spacing">LABORATORIES</text>
 </svg></span>`;
 function injectLogos(){
   document.querySelectorAll('.logo-slot, #andon-app .logo').forEach(el => {
     el.innerHTML = LOGO_SVG;
+  });
+}
+
+/* ============================================================
+   ÍCONES — traço de 1.75 em grade de 24, pontas arredondadas, herdando a cor
+   do contexto. Um símbolo por função: no menu, o ícone identifica antes da
+   leitura, e o nome confirma.
+   ============================================================ */
+const ICONS = {
+  reunioes:     '<circle cx="9" cy="8" r="3.2"/><path d="M3.4 20.2a5.6 5.6 0 0 1 11.2 0"/>' +
+                '<path d="M16.6 5.9a3.2 3.2 0 0 1 0 6.2"/><path d="M17.4 14.6a5.6 5.6 0 0 1 3.2 5.6"/>',
+  relogio:      '<circle cx="12" cy="12" r="9"/><path d="M12 6.4V12l3.8 2.6"/>',
+  valvulas:     '<circle cx="10.6" cy="10.6" r="6.6"/><path d="m15.3 15.3 5.4 5.4"/>',
+  aviso:        '<path d="M20.5 14.6a3.2 3.2 0 0 1-3.2 3.2H8.6L4 21.2V6.2A3.2 3.2 0 0 1 7.2 3h10.1a3.2 3.2 0 0 1 3.2 3.2z"/>' +
+                '<path d="M8.4 8.6h8M8.4 12.6h5"/>',
+  silencio:     '<path d="M11.2 4.6 6.6 8.8H3.2v6.4h3.4l4.6 4.2z"/><path d="m15.8 9.4 5 5.2M20.8 9.4l-5 5.2"/>',
+  microfone:    '<rect x="9" y="2.4" width="6" height="11.2" rx="3"/><path d="M4.8 11.2a7.2 7.2 0 0 0 14.4 0"/>' +
+                '<path d="M12 18.4v3.2"/>',
+  planejamento: '<path d="M6 3.2v17.6"/><circle cx="6" cy="7.6" r="1.9"/><circle cx="6" cy="16.4" r="1.9"/>' +
+                '<path d="M11 7.6h9.2M11 16.4h6.2"/>',
+  config:       '<path d="M3.4 7.4h9M17.2 7.4h3.4M3.4 16.6h4M11.8 16.6h8.8"/>' +
+                '<circle cx="14.8" cy="7.4" r="2.4"/><circle cx="9.4" cy="16.6" r="2.4"/>',
+  andon:        '<path d="M18.2 9.6a6.2 6.2 0 1 0-12.4 0c0 4.8-2 6-2 6h16.4s-2-1.2-2-6"/>' +
+                '<path d="M10.2 19.8a2.2 2.2 0 0 0 3.6 0"/>',
+  tv:           '<rect x="2.6" y="4" width="18.8" height="13" rx="2.4"/><path d="M8.4 20.6h7.2"/>',
+  tablet:       '<rect x="6" y="2.6" width="12" height="18.8" rx="2.6"/><path d="M10.8 18.4h2.4"/>',
+  fila:         '<rect x="3.4" y="3.4" width="7" height="7" rx="1.8"/><rect x="13.6" y="3.4" width="7" height="7" rx="1.8"/>' +
+                '<rect x="3.4" y="13.6" width="7" height="7" rx="1.8"/><rect x="13.6" y="13.6" width="7" height="7" rx="1.8"/>',
+  operadora:    '<circle cx="12" cy="7.8" r="3.4"/><path d="M4.8 20.4a7.2 7.2 0 0 1 14.4 0"/>',
+  caixa:        '<path d="m12 2.8 8.4 4.4v9.6L12 21.2l-8.4-4.4V7.2z"/><path d="m3.6 7.2 8.4 4.4 8.4-4.4M12 11.6v9.6"/>',
+  qualidade:    '<path d="M12 2.8 4.8 5.8v6.1c0 4.3 3 7.9 7.2 9.3 4.2-1.4 7.2-5 7.2-9.3V5.8z"/>' +
+                '<path d="m8.8 11.8 2.4 2.4 4.2-4.6"/>',
+  inspecao:     '<path d="M2.4 12S6 5.6 12 5.6 21.6 12 21.6 12 18 18.4 12 18.4 2.4 12 2.4 12"/>' +
+                '<circle cx="12" cy="12" r="3"/>',
+  assistente:   '<path d="M4 13.2v-1.4a8 8 0 0 1 16 0v1.4"/><rect x="2.4" y="13.2" width="4.2" height="6.2" rx="2.1"/>' +
+                '<rect x="17.4" y="13.2" width="4.2" height="6.2" rx="2.1"/>',
+  chevron:      '<path d="m9.5 5.5 6.5 6.5-6.5 6.5"/>'
+};
+function iconSvg(nome){
+  const d = ICONS[nome];
+  if(!d) return '';
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" ' +
+         'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
+}
+function injectIcons(raiz){
+  (raiz || document).querySelectorAll('[data-icon]').forEach(el => {
+    el.innerHTML = iconSvg(el.dataset.icon);
   });
 }
 
@@ -1749,7 +1983,34 @@ function showScreen(id){
 }
 
 /* ---------- Andon: o mesmo arquivo, outra função ----------
-   Nos tablets do piso a URL termina em #andon e o app abre direto. */
+   Nos tablets do piso a URL termina em #andon e o app abre direto. A tela de
+   instalação mostra o endereço real desta página, para copiar aparelho a
+   aparelho sem ninguém precisar decorar nada. */
+function goAndonInfo(){
+  const base = location.href.replace(/#.*$/, '');
+  document.getElementById('url-painel').textContent = base;
+  document.getElementById('url-tablet').textContent = base + '#andon';
+  document.getElementById('url-receb').textContent  = base + '#andon';
+  showScreen('scr-andon-info');
+}
+function copiarUrl(id, btn){
+  const txt = document.getElementById(id).textContent;
+  const original = btn.textContent;
+  const feito = ()=>{ btn.textContent = 'Copiado'; setTimeout(()=> btn.textContent = original, 1600); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(feito, ()=> selecionar(id));
+  } else {
+    selecionar(id);
+  }
+}
+/* Sem área de transferência (arquivo local, navegador antigo): seleciona o
+   endereço para o usuário copiar com o teclado. */
+function selecionar(id){
+  const el = document.getElementById(id);
+  const r = document.createRange(); r.selectNodeContents(el);
+  const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+}
+
 function abrirAndon(){
   stopStandby();
   document.querySelectorAll('body > .screen').forEach(s => s.classList.remove('active'));
@@ -2084,17 +2345,16 @@ function buildWindows(roteiro){
 
 /* Hub das Reuniões Escalonadas: escolhe entre N1 e N2. */
 function goReunioes(){
+  // a dica de cada cartão mostra o horário, que é o que se quer saber aqui
   const ps = n1Periodos();
   document.getElementById('n1-card-desc').textContent = ps.length
-    ? 'Revisão do dia anterior, com barra de progresso. Períodos: ' +
-      ps.map(p => fmtHM(p.inicio) + '–' + fmtHM(p.fim)).join(' · ')
-    : 'Revisão do dia anterior. Nenhum período configurado — cadastre em Configurações.';
+    ? ps.map(p => fmtHM(p.inicio) + '–' + fmtHM(p.fim)).join(' · ')
+    : 'Nenhum período configurado';
   const serie = activeSeriesResolved();
   const wins = buildWindows(serie.roteiro);
   document.getElementById('n2-card-desc').textContent = wins.length
-    ? 'Cronograma escalonado por área. Série: ' + serie.nome + ' · ' +
-      fmtHM(wins[0].inicio) + '–' + fmtHM(wins[wins.length-1].fim)
-    : 'Cronograma escalonado por área. Nenhuma janela configurada.';
+    ? serie.nome + ' · ' + fmtHM(wins[0].inicio) + '–' + fmtHM(wins[wins.length-1].fim)
+    : 'Nenhuma janela configurada';
   showScreen('scr-reunioes');
 }
 
@@ -3307,11 +3567,11 @@ let sb=null;
 
 const ETAPAS=['Anel Revestido','Sizing & Trimming','SVE','SVS','Revisão Final'];
 const PERFIS=[
-  {id:'operadora', label:'Operadora'},
-  {id:'falta_material', label:'Material Handler'},
-  {id:'qualidade', label:'Coordenação Técnica'},
-  {id:'inspecao', label:'Inspeção'},
-  {id:'assistente', label:'Assistente'},
+  {id:'operadora',      label:'Operadora',           icone:'operadora', nota:'Abre um chamado'},
+  {id:'falta_material', label:'Material Handler',    icone:'caixa',     nota:'Recebe os chamados'},
+  {id:'qualidade',      label:'Coordenação Técnica', icone:'qualidade', nota:'Recebe os chamados'},
+  {id:'inspecao',       label:'Inspeção',            icone:'inspecao',  nota:'Recebe os chamados'},
+  {id:'assistente',     label:'Assistente',          icone:'assistente',nota:'Recebe, e vê os números'},
 ];
 const TYPES={
   falta_material:{label:'Falta de Material', target:'Material Handler'},
@@ -3374,7 +3634,11 @@ window.goSelect=async ()=>{
   document.getElementById('col-etapa').classList.add('hidden');
   document.getElementById('col-mesa').classList.add('hidden');
   document.getElementById('perfil-body').innerHTML = PERFIS.map(p=>
-    `<button class="opt" data-p="${p.id}">${anEsc(p.label)}</button>`).join('');
+    `<button class="opt opt-row" data-p="${p.id}">
+       <span class="opt-icon">${iconSvg(p.icone)}</span>
+       <span class="opt-text"><span class="opt-name">${anEsc(p.label)}</span>
+         <span class="opt-note">${anEsc(p.nota)}</span></span>
+     </button>`).join('');
   document.querySelectorAll('#perfil-body .opt').forEach(b=> b.onclick=()=>pickPerfil(b.dataset.p, b));
   await loadEtapaMesas();
   show('scr-select');
@@ -3628,6 +3892,7 @@ async function andonInit(){
    ============================================================ */
 async function initApp(){
   injectLogos();
+  injectIcons();
   loadLocal();
   applyDisplay();
   // Tablets do piso abrem em …#andon e vão direto ao app de chamados; não

@@ -7,9 +7,9 @@ ao vivo em todas as TVs e o **andon** integrado.
 Continua sendo **um arquivo só**. Baixe `index.html`, abra na TV e no tablet, e os dois falam com
 o mesmo banco.
 
-> **Marca de demonstração.** A identidade visual desta versão é **S.T.A.R. Labs**, uma marca
-> fictícia usada apenas como exemplo enquanto o sistema está em avaliação. Papéis, horários e
-> agenda são os reais; nome, cores e unidade são placeholder.
+> **Marca de demonstração.** A identidade visual desta versão é **S.T.A.R. Laboratories**, uma
+> marca fictícia usada apenas como exemplo enquanto o sistema está em avaliação. Papéis, horários
+> e agenda são os reais; nome, cores e unidade são placeholder.
 >
 > **Disclaimer.** Projeto pessoal, criado por iniciativa própria e distribuído sob licença MIT.
 > Não é produto oficial de nenhuma empresa e **não se integra a sistemas corporativos**. Guarda
@@ -31,18 +31,18 @@ o mesmo banco.
 
 1. Prepare o banco: rode as migrações de [`supabase/`](supabase/) no seu projeto Supabase.
    O passo a passo está em [`supabase/README.md`](supabase/README.md).
-2. Baixe [`index.html`](index.html) (**Download raw file**) e copie para as máquinas.
-3. Nas TVs, abra o arquivo. No primeiro uso, informe URL e chave em
-   **Configurações → Notificações de Andon**, se não quiser as padrão.
-4. Nos tablets do piso, abra o mesmo arquivo com `#andon` no fim do endereço. O app entra direto
-   na tela de seleção, sem passar pelo menu.
+2. Baixe [`index.html`](index.html) (**Download raw file**) e copie para as máquinas, ou publique
+   (GitHub Pages, `Settings → Pages`, branch desta versão).
+3. Abra o arquivo e vá em **Andon → Como instalar**. A tela mostra, aparelho por aparelho, o
+   endereço a abrir e os três passos de cada papel — com botão para copiar o endereço.
 
-Também funciona publicado (GitHub Pages, `Settings → Pages`, branch desta versão): as TVs abrem a
-URL e os tablets a mesma URL com `#andon`.
+O resumo: a TV abre o endereço direto; os tablets de quem chama e os aparelhos de quem recebe
+abrem o mesmo endereço com `#andon` no fim, e escolhem o perfil na primeira vez.
 
 ## Painel (nas TVs)
 
-Abre no **menu principal**, de onde se escolhe a função:
+Abre no **menu principal**: cartões de ícone e nome, em três grupos — *Projetar na TV*, *No piso*
+e *No computador*. As funções:
 
 - **Reuniões Escalonadas** — **N1** (revisão do dia anterior, com barra de progresso) e **N2**
   (cronograma escalonado por área, com escolha da série a projetar).
@@ -91,16 +91,21 @@ para concluir. O **Assistente** tem ainda **Estatísticas** (com exportação CS
 
 ## Paleta
 
+Tudo sai de um eixo frio azul-teal. Os neutros carregam o mesmo viés e os acentos quentes foram
+dessaturados até caberem ao lado dele, para que nenhuma cor pareça vinda de outro sistema.
+
 | | | |
 | --- | --- | --- |
-| `#5F95E2` | Cornflower Blue | interação e progresso |
-| `#DC9F6C` | Light Bronze | deslocamento e atenção |
-| `#2E747B` | Stormy Teal | superfícies de destaque |
-| `#FAFAF9` | Bright Snow | fundo |
-| `#FDFDFE` | White | cartões e barras |
+| `#14505C` | teal profundo | superfícies de destaque, marca |
+| `#2E747B` | teal médio | apoio |
+| `#3E86C9` | azul | progresso e preenchimentos |
+| `#C08A46` | âmbar | deslocamento e atenção |
+| `#A8462A` | terracota | aviso de silêncio |
+| `#F4F7F8` | fundo | · `#FFFFFF` cartões · `#0E1A20` texto |
 
-As demais cores do arquivo são derivações dessas — mesmo matiz, luminância ajustada — porque texto
-sobre cor precisa de contraste e a leitura acontece a alguns metros da TV.
+As variações de cada cor mudam luminância, não matiz. Texto sobre cor precisa de contraste e a
+leitura acontece a alguns metros da TV — por isso o contador grande usa o azul escurecido, e cada
+tipo de chamado tem uma cor de rótulo separada da cor de texto sobre o cheio.
 
 ## Segurança
 
@@ -120,6 +125,6 @@ LICENSE                    MIT
 
 ## Versões
 
-- **1.0 — local** (branch [`screenplay-1.0`](../../tree/screenplay-1.0)): arquivo único, offline,
-  cronograma no próprio aparelho. Roda a operação de hoje.
+- **1.0 — local** (branch [`main`](../../tree/main)): arquivo único, offline, cronograma no
+  próprio aparelho. Roda a operação de hoje.
 - **2.0 — em rede** *(esta branch)*: banco de dados, tempo real e andon.
