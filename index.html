@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel de Avisos — Abbott BR-SH-M</title>
-<link rel="icon" type="image/jpeg" href="https://cdn.brandfetch.io/idtqCIB40M/w/200/h/200/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&amp;t=1756696667154">
+<title>Screenplay — Painel de Reuniões e Avisos</title>
 <style>
 /* ============================================================
    PALETA — Abbott Color Palette
@@ -392,39 +391,12 @@ table.editor td.xcol{ width: 44px; text-align:center; }
 .savebar .save-note{ flex:1; font-size:13px; font-weight:700; color:var(--ink-soft); }
 .savebar.on .save-note{ color:var(--warn-ink); }
 
-/* estado da conexão com o banco (tela de configurações) */
+/* aviso sobre onde os dados ficam (tela de configurações) */
 .msg-db{ margin-top: 14px; border-radius: 10px; padding: 12px 16px; font-size: 14px;
   line-height: 1.5; font-weight: 700; }
 .msg-db.ok{ background: var(--accent-soft); color: var(--accent); }
 .msg-db.off{ background: var(--ember-soft); color: var(--ember-ink); }
 
-/* ---------- fila de andon na lateral da TV ----------
-   Ao receber chamados, a tela principal "encolhe" (right = --qw) e a fila
-   aparece numa coluna própria — sem cobrir o relógio. Os mais antigos ficam
-   no topo. Tudo em caixa alta e alto contraste (TV vista de longe). */
-:root{ --qw: clamp(200px, 20vw, 340px); }
-#tv-queue{
-  position: fixed; top: 0; right: 0; bottom: 0; width: var(--qw); z-index: 40;
-  background: #fff; display: none; flex-direction: column; gap: 12px;
-  padding: 14px; overflow: hidden; border-left: 2px solid #e5ecf0;
-}
-body.has-calls #tv-queue{ display: flex; }
-body.has-calls .tv{ right: var(--qw); }   /* a tela principal chega pro lado */
-.tvq{
-  flex: 0 0 auto; border-radius: 16px; padding: 12px 10px 14px; text-align: center;
-  color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  text-transform: uppercase;
-}
-.tvq.t-falta_material{ background:#ffbf21; color:#3d2f00; }
-.tvq.t-qualidade{ background:#7c4bd0; }
-.tvq.t-inspecao{ background:#ff5729; }
-.tvq.t-assistente{ background:#1f8f57; }
-.tvq .q-type{ font-size: clamp(13px, 1.4vw, 22px); font-weight: 800; letter-spacing: .06em; line-height: 1.05; }
-.tvq .q-mesa{ font-size: clamp(44px, 5.4vw, 90px); font-weight: 900; line-height: 1;
-  font-variant-numeric: tabular-nums; margin: 2px 0; }
-.tvq .q-etapa{ font-size: clamp(13px, 1.4vw, 22px); font-weight: 800; letter-spacing: .04em; line-height: 1.05; }
-/* com a fila aberta, o relógio encolhe um pouco para caber à esquerda */
-body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
 .clk-date{ text-transform: uppercase; letter-spacing: .04em; }
 
 @media (prefers-reduced-motion: reduce){
@@ -805,9 +777,9 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
     <div class="logo-slot control-logo"></div>
     <p class="eyebrow">Configurações</p>
     <h2>Ajustes do painel</h2>
-    <p class="sub">Os <strong>horários das reuniões ficam no banco</strong>: são cadastrados aqui uma
-      única vez e valem para todas as TVs, que recebem as alterações na hora. As preferências de
-      <em>exibição</em> (fonte, fundo do relógio) são deste aparelho.</p>
+    <p class="sub">Tudo o que é ajustado aqui — <strong>horários das reuniões</strong> e preferências
+      de <em>exibição</em> — fica gravado <strong>neste aparelho</strong>. Para levar a mesma
+      configuração a outra TV, use <strong>Baixar cópia configurada</strong>, em <em>Dados</em>.</p>
     <div class="msg-db" id="db-status"></div>
 
     <!-- Séries de reuniões -->
@@ -815,7 +787,7 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
       <h3>Séries de reuniões</h3>
       <p class="sub">Crie mais de uma série para cobrir turnos diferentes — por exemplo, manhã e tarde,
         com horários e supervisores próprios. Edite as janelas da série selecionada abaixo.
-        As alterações são salvas no banco automaticamente.</p>
+        Use <strong>Gravar alterações</strong> ao terminar.</p>
 
       <div class="series-tabs" id="series-tabs"></div>
       <div class="series-actions">
@@ -838,7 +810,7 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
     <div class="cfg-sec">
       <h3>Reuniões de N1</h3>
       <p class="sub">Nos períodos abaixo, a TV acompanha a reunião de N1 com barra de progresso.
-        O texto é personalizável. Estes ajustes ficam no banco e valem para todas as TVs.</p>
+        O texto é personalizável.</p>
       <label class="cfg-row check">
         <input type="checkbox" id="cfg-n1" onchange="setN1Cfg('n1_enabled', this.checked)">
         <span class="cfg-label">Entrar automaticamente nos períodos de <strong>Reuniões de N1</strong></span>
@@ -915,34 +887,18 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
       </div>
     </div>
 
-    <!-- Integração Andon -->
-    <div class="cfg-sec">
-      <h3>Notificações de Andon</h3>
-      <p class="sub">Quando há chamados de andon abertos, a TV exibe a fila na coluna lateral
-        e emite o sinal sonoro ao chegar um novo. Requer a política de leitura anônima
-        (ver <code>supabase/migrations/0003_andon_sem_login.sql</code>).</p>
-      <label class="cfg-row check">
-        <input type="checkbox" id="cfg-andon" onchange="setCfg('andonNotify', this.checked)">
-        <span class="cfg-label">Exibir notificações de chamados de andon nas TVs</span>
-      </label>
-      <div class="cfg-row">
-        <span class="cfg-label">URL do Supabase (opcional; vazio usa o padrão)</span>
-        <input type="text" id="cfg-andon-url" placeholder="https://…supabase.co"
-          onchange="setCfg('sbUrl', this.value.trim())" style="min-width:240px">
-      </div>
-      <div class="cfg-row">
-        <span class="cfg-label">Chave publishable (opcional; vazio usa o padrão)</span>
-        <input type="text" id="cfg-andon-key" placeholder="sb_publishable_…"
-          onchange="setCfg('sbKey', this.value.trim())" style="min-width:240px">
-      </div>
-    </div>
-
     <!-- Dados (backup / planilha) -->
     <div class="cfg-sec">
       <h3>Dados</h3>
-      <p class="sub">O cronograma vive no banco. Use a planilha para conferir os horários ou para
-        cadastrar muitas janelas de uma vez — a importação <strong>substitui</strong> as janelas da
-        série selecionada, no banco, para todas as TVs.</p>
+      <p class="sub">Tudo fica neste aparelho. Para levar a configuração a outra TV, baixe uma
+        <strong>cópia configurada</strong>: um HTML novo, com o cronograma já embutido, pronto para
+        copiar para as outras telas.</p>
+      <div class="cfg-row">
+        <span class="cfg-label">Arquivo do sistema com o cronograma atual</span>
+        <span style="display:flex; gap:8px; flex-wrap:wrap">
+          <button class="btn small" onclick="baixarCopiaConfigurada()">Baixar cópia configurada</button>
+        </span>
+      </div>
       <div class="cfg-row">
         <span class="cfg-label">Cronograma da série selecionada (abre no Excel)</span>
         <span style="display:flex; gap:8px; flex-wrap:wrap">
@@ -952,21 +908,24 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
         </span>
       </div>
       <p class="sub" style="margin-top:6px">Colunas do CSV: <code>Início; Fim; Área; Supervisor; Cadeia</code>
-        (horários como <code>09:00</code>; Cadeia em branco ou SEG…SÁB).</p>
+        (horários como <code>09:00</code>; Cadeia em branco ou SEG…SÁB). A importação
+        <strong>substitui</strong> as janelas da série selecionada.</p>
     </div>
 
     <!-- Informações / Disclaimer -->
     <div class="cfg-sec">
       <h3>Informações</h3>
       <div class="info-card">
-        <p>Este é um <strong>projeto pessoal e de código aberto</strong> — uma <strong>plataforma
-          genérica de avisos/andon para produção</strong>, criada por iniciativa própria. Funciona
-          apenas como apoio à organização e à gestão da rotina e <strong>não se integra a sistemas
-          corporativos</strong>. Guarda somente os <strong>horários das reuniões</strong> cadastrados
-          aqui e os sinais operacionais de chamado (tipo, mesa, etapa, horário) —
-          <strong>nenhuma informação pessoal</strong>.</p>
+        <p>O <strong>Screenplay</strong> é um <strong>projeto pessoal e de código aberto</strong> —
+          uma <strong>plataforma genérica de avisos para produção</strong>, criada por iniciativa
+          própria. Serve apenas como apoio à organização e à gestão da rotina e
+          <strong>não se integra a sistemas corporativos</strong>.</p>
+        <p>Esta é a <strong>versão local</strong>: um único arquivo HTML, sem internet, sem servidor
+          e sem contas de usuário. Guarda somente os <strong>horários das reuniões</strong>
+          cadastrados aqui, no próprio aparelho — <strong>nenhuma informação pessoal</strong> e
+          nenhum dado sai desta tela.</p>
         <p class="sig">Desenvolvido por Matheus Marcondes.</p>
-        <p class="meta" id="info-meta">Plataforma de avisos para produção · código aberto</p>
+        <p class="meta" id="info-meta">Screenplay 1.0 · versão local · código aberto</p>
       </div>
       <div style="margin-top:16px">
         <button class="btn danger small" onclick="resetAll()">Restaurar preferências deste aparelho</button>
@@ -975,54 +934,45 @@ body.has-calls .clk-time{ font-size: clamp(56px, 17vw, 300px); }
   </div>
 </section>
 
-<!-- ================= FILA DE ANDON (overlay) ================= -->
-<!-- fila de chamados de andon (coluna lateral da TV) -->
-<div id="tv-queue" role="status" aria-live="polite"></div>
+<!-- Semente da configuração. "Baixar cópia configurada" reescreve este bloco,
+     de modo que o arquivo baixado já abre com o cronograma pronto. -->
+<script id="screenplay-seed"></script>
 
 <script>
+/* Retrato do documento exatamente como ele veio do arquivo, tirado antes de
+   qualquer alteração feita pelo próprio sistema. É a base de "Baixar cópia
+   configurada": o arquivo se reescreve a partir daqui, não do que está na tela. */
+const DOC_HEAD_ORIG = document.head.innerHTML;
+const DOC_BODY_ORIG = document.body.innerHTML;
+
 /* ============================================================
    LOGO ABBOTT — wordmark vetorial embutido, sempre disponível. Na versão
    online, as imagens oficiais da marca são carregadas por cima (azul escuro
    em fundos claros; branca no relógio) e o wordmark serve de reserva.
    ============================================================ */
-const LOGO_BLUE  = 'https://cdn.brandfetch.io/idtqCIB40M/theme/dark/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1756696705337';
-const LOGO_WHITE = 'https://cdn.brandfetch.io/idtqCIB40M/theme/light/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1756696575880';
 const LOGO_FALLBACK = `<span class="lg-fallback"><svg viewBox="0 0 236 60" role="img" aria-label="Abbott">
   <text x="0" y="47" fill="currentColor" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif"
         font-weight="700" font-size="56" letter-spacing="-3">Abbott</text></svg></span>`;
-/* Na versão offline (OFFLINE = true) usa apenas o wordmark vetorial embutido,
-   sem nenhuma requisição externa. */
-const OFFLINE = false;
 function injectLogos(){
-  document.querySelectorAll('.logo-slot').forEach(el => {
-    el.innerHTML = (OFFLINE || typeof LOGO_BLUE === 'undefined') ? LOGO_FALLBACK :
-      '<img class="lg lg-blue" src="' + LOGO_BLUE + '" alt="Abbott"' +
-        ' onload="this.closest(\'.logo-slot\').classList.add(\'img-ok\')">' +
-      '<img class="lg lg-white" src="' + LOGO_WHITE + '" alt="Abbott"' +
-        ' onload="this.closest(\'.logo-slot\').classList.add(\'img-ok\')">' +
-      LOGO_FALLBACK;
-  });
+  document.querySelectorAll('.logo-slot').forEach(el => { el.innerHTML = LOGO_FALLBACK; });
 }
 
 /* ============================================================
-   DADOS
+   DADOS — Screenplay 1.0 (local)
 
-   Os horários das reuniões (séries/janelas das Escalonadas e períodos de N1)
-   ficam NO BANCO (Supabase) — não no HTML nem no armazenamento do navegador.
-   São cadastrados uma vez e valem para todas as TVs, que recebem as
-   alterações na hora (Realtime).
+   Esta versão não fala com nenhum servidor. O cronograma (séries/janelas das
+   Reuniões Escalonadas e períodos de N1) e as preferências de exibição ficam
+   no navegador deste aparelho.
 
-   No navegador ficam apenas as preferências DESTE aparelho (tamanho da
-   fonte, fundo do relógio, etc.), que podem variar de TV para TV, e uma
-   cópia de segurança do último cronograma lido — usada só se o banco estiver
-   inacessível, para a TV não ficar sem programação.
+   Para levar a configuração a outra TV, em Configurações › Dados:
+     • "Baixar cópia configurada" gera um HTML novo com o cronograma já
+       embutido — é esse arquivo que se copia para as outras telas;
+     • exportar/importar o cronograma em CSV, para editar no Excel.
    ============================================================ */
-const LOCAL_KEY = 'painel-avisos-local';   // preferências deste aparelho
-const CACHE_KEY = 'painel-avisos-cache';   // espelho do banco (contingência)
-
+const STORE_KEY = 'screenplay-v1';
 const DIA_TAG = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
 
-/* Preferências locais (por TV) */
+/* Preferências de exibição (deste aparelho) */
 const LOCAL_PADRAO = {
   autoStart: false,       // padrão: abrir no menu principal (true = modo automático)
   autoReturnClock: true,  // voltar ao relógio ao encerrar uma projeção
@@ -1030,142 +980,87 @@ const LOCAL_PADRAO = {
   clockBg: 'preto',       // 'preto' | 'azul'
   showSeconds: true,
   showDate: true,
-  showChain: true,
-  andonNotify: true,      // exibir a fila de chamados de andon nas TVs
-  sbUrl: '',              // vazio -> usa SB_URL_DEFAULT
-  sbKey: ''               // vazio -> usa SB_KEY_DEFAULT
+  showChain: true
 };
 
-/* Conexão ao Supabase (valores publicáveis; a proteção real é o RLS).
-   Podem ser trocados nas Configurações. */
-const SB_URL_DEFAULT = 'https://swcflnemmjnrvbqbrguw.supabase.co';
-const SB_KEY_DEFAULT = 'sb_publishable_cT0lJ0L1ZtXTy8XPsgFFRA_TfMb6YwA';
-const ANDON_TIPO = { falta_material:'Falta de material', qualidade:'Qualidade',
-  inspecao:'Inspeção', assistente:'Assistente' };
+const N1_PADRAO = {
+  enabled: true,
+  titulo: 'Reuniões de N1 em andamento',
+  mensagem: 'Agora é a hora de rever o dia anterior.',
+  periodos: [ { inicio: 480, fim: 540 }, { inicio: 840, fim: 900 } ]
+};
 
-const N1_PADRAO = { enabled: true, titulo: 'Reuniões de N1 em andamento',
-  mensagem: 'Agora é a hora de rever o dia anterior.', periodos: [] };
+/* Cronograma que nasce junto com o arquivo. "Baixar cópia configurada"
+   reescreve este bloco, de modo que o HTML baixado já abre programado. */
+const SEED_PADRAO = {
+  series: [
+    { id: 'manha', nome: 'Turno da Manhã', roteiro: [
+      { inicio: 540, fim: 555, area: 'Material Biológico', supervisor: 'Márcia',    cadeia: 2 },
+      { inicio: 540, fim: 555, area: 'SVE',                supervisor: 'Deivid',    cadeia: 4 },
+      { inicio: 560, fim: 575, area: 'Anel Revestido',     supervisor: 'Henrique',  cadeia: 2 },
+      { inicio: 560, fim: 575, area: 'SVE',                supervisor: 'Julia',     cadeia: 4 },
+      { inicio: 560, fim: 575, area: 'SVS',                supervisor: 'Silvia',    cadeia: 5 },
+      { inicio: 580, fim: 595, area: 'Sizing & Trimming',  supervisor: 'Guilherme', cadeia: 2 },
+      { inicio: 580, fim: 595, area: 'SVE',                supervisor: 'Inês',      cadeia: 4 },
+      { inicio: 580, fim: 595, area: 'Revisão Final',      supervisor: 'Regina',    cadeia: 5 }
+    ]},
+    { id: 'tarde', nome: 'Turno da Tarde', roteiro: [
+      { inicio: 840, fim: 855, area: 'Material Biológico', supervisor: 'Márcia',    cadeia: 2 },
+      { inicio: 840, fim: 855, area: 'SVE',                supervisor: 'Deivid',    cadeia: 4 },
+      { inicio: 860, fim: 875, area: 'Anel Revestido',     supervisor: 'Henrique',  cadeia: 2 },
+      { inicio: 860, fim: 875, area: 'SVE',                supervisor: 'Julia',     cadeia: 4 },
+      { inicio: 860, fim: 875, area: 'SVS',                supervisor: 'Silvia',    cadeia: 5 },
+      { inicio: 880, fim: 895, area: 'Sizing & Trimming',  supervisor: 'Guilherme', cadeia: 2 },
+      { inicio: 880, fim: 895, area: 'SVE',                supervisor: 'Inês',      cadeia: 4 },
+      { inicio: 880, fim: 895, area: 'Revisão Final',      supervisor: 'Regina',    cadeia: 5 }
+    ]}
+  ],
+  activeSeriesId: 'auto',      // 'auto' = escolhe a série pelo horário
+  n1: { ...N1_PADRAO }
+};
+
+function uid(){ return 'i' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 
 let DATA = {
-  series: [],            // do banco: [{ id, nome, roteiro: [...] }]
-  activeSeriesId: null,  // do banco: uuid da série, ou 'auto'
-  n1: { ...N1_PADRAO },  // do banco
-  config: { ...LOCAL_PADRAO },
-  dbOk: false            // true quando o cronograma veio do banco
+  series: [], activeSeriesId: 'auto', n1: { ...N1_PADRAO }, config: { ...LOCAL_PADRAO }
 };
 
-/* ---------- preferências locais ---------- */
-function loadLocal(){
-  try{
-    const raw = localStorage.getItem(LOCAL_KEY);
-    if(raw) DATA.config = { ...LOCAL_PADRAO, ...JSON.parse(raw) };
-  }catch(e){ /* dados corrompidos: mantém o padrão */ }
-}
-function saveLocal(){
-  try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(DATA.config)); }catch(e){}
-}
-
-/* ---------- cliente Supabase compartilhado ---------- */
-let SB = null, sbLoading = null;
-async function getSB(){
-  if(SB) return SB;
-  if(sbLoading) return sbLoading;
-  const url = (DATA.config.sbUrl || SB_URL_DEFAULT).trim();
-  const key = (DATA.config.sbKey || SB_KEY_DEFAULT).trim();
-  if(!url || !key) return null;
-  sbLoading = (async ()=>{
-    try{
-      const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-      SB = createClient(url, key, { auth: { persistSession: false } });
-      return SB;
-    }catch(e){ return null; }
-    finally{ sbLoading = null; }
-  })();
-  return sbLoading;
-}
-
-/* ---------- leitura do cronograma ---------- */
-async function loadSchedule(){
-  const sb = await getSB();
-  if(!sb){ loadCache(); return false; }
-  try{
-    const [rs, rw, rn, rc] = await Promise.all([
-      sb.from('meeting_series').select('*').order('sort_order').order('nome'),
-      sb.from('meeting_windows').select('*').order('inicio'),
-      sb.from('n1_periods').select('*').order('inicio'),
-      sb.from('panel_settings').select('*').eq('id', 1).maybeSingle()
-    ]);
-    if(rs.error || rw.error) throw rs.error || rw.error;
-
-    DATA.series = (rs.data || []).map(s => ({
-      id: s.id, nome: s.nome,
-      roteiro: (rw.data || [])
-        .filter(w => w.series_id === s.id)
-        .map(w => ({ id: w.id, inicio: w.inicio, fim: w.fim, area: w.area,
-                     supervisor: w.supervisor, cadeia: w.cadeia }))
-        .sort((a,b) => a.inicio - b.inicio || String(a.area).localeCompare(b.area))
-    }));
-
-    const cfg = rc && rc.data ? rc.data : null;
-    DATA.activeSeriesId = cfg
-      ? (cfg.auto_series ? 'auto' : (cfg.active_series_id || (DATA.series[0] && DATA.series[0].id) || null))
-      : 'auto';   // sem ajustes gravados: escolhe a série pelo horário
-    DATA.n1 = {
-      enabled:  cfg ? !!cfg.n1_enabled : N1_PADRAO.enabled,
-      titulo:   (cfg && cfg.n1_titulo)   || N1_PADRAO.titulo,
-      mensagem: (cfg && cfg.n1_mensagem) || N1_PADRAO.mensagem,
-      periodos: (rn.data || []).map(p => ({ id: p.id, inicio: p.inicio, fim: p.fim }))
-    };
-    DATA.dbOk = true;
-    saveCache();
-    return true;
-  }catch(e){
-    loadCache();
-    return false;
+/* ---------- carregar / gravar (localStorage) ---------- */
+function loadData(){
+  const semente = (typeof window !== 'undefined' && window.SCREENPLAY_SEED) || SEED_PADRAO;
+  let d = null;
+  try{ d = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); }catch(e){}
+  const base = (d && Array.isArray(d.series) && d.series.length) ? d : semente;
+  DATA.series = (base.series || []).map(s => ({
+    id: s.id || uid(), nome: s.nome || 'Série',
+    roteiro: (s.roteiro || []).map(r => ({ id: r.id || uid(), inicio: r.inicio, fim: r.fim,
+      area: r.area || '', supervisor: r.supervisor || '', cadeia: (r.cadeia ?? null) }))
+  }));
+  DATA.activeSeriesId = base.activeSeriesId || 'auto';
+  DATA.n1 = { ...N1_PADRAO, ...(base.n1 || {}) };
+  DATA.n1.periodos = (DATA.n1.periodos || []).map(p => ({ id: p.id || uid(), inicio: p.inicio, fim: p.fim }));
+  DATA.config = { ...LOCAL_PADRAO, ...((d && d.config) || {}) };
+  if(DATA.activeSeriesId !== 'auto' && !DATA.series.some(s => s.id === DATA.activeSeriesId)){
+    DATA.activeSeriesId = 'auto';
   }
 }
-/* espelho local: só entra em cena se o banco estiver inacessível */
-function saveCache(){
-  try{
-    localStorage.setItem(CACHE_KEY, JSON.stringify({
-      series: DATA.series, activeSeriesId: DATA.activeSeriesId, n1: DATA.n1,
-      em: new Date().toISOString()
-    }));
-  }catch(e){}
+function dadosDoCronograma(){
+  return { series: DATA.series, activeSeriesId: DATA.activeSeriesId, n1: DATA.n1 };
 }
-function loadCache(){
+function saveData(){
   try{
-    const raw = localStorage.getItem(CACHE_KEY);
-    if(!raw) return;
-    const c = JSON.parse(raw);
-    if(c && Array.isArray(c.series)){
-      DATA.series = c.series;
-      DATA.activeSeriesId = c.activeSeriesId;
-      DATA.n1 = { ...N1_PADRAO, ...(c.n1 || {}) };
-    }
-  }catch(e){}
-  DATA.dbOk = false;
-}
-
-/* ---------- escrita no banco ---------- */
-async function dbWrite(fn){
-  const sb = await getSB();
-  if(!sb){ alert('Sem conexão com o banco. As alterações não foram salvas.'); return false; }
-  try{
-    const { error } = await fn(sb);
-    if(error) throw error;
-    await loadSchedule();
-    return true;
+    localStorage.setItem(STORE_KEY, JSON.stringify({ ...dadosDoCronograma(), config: DATA.config }));
   }catch(e){
-    alert('Não foi possível salvar no banco: ' + (e && e.message ? e.message : e));
-    return false;
+    alert('Não foi possível gravar neste navegador. Verifique se o modo privado está desligado.');
   }
 }
+const saveLocal = saveData;   // preferências e cronograma vivem no mesmo lugar
 
 function resetAll(){
-  if(!confirm('Restaurar as preferências de exibição DESTE aparelho para o padrão?\n\nO cronograma das reuniões fica no banco e não é alterado.')) return;
-  DATA.config = { ...LOCAL_PADRAO };
-  saveLocal();
+  if(!confirm('Restaurar TODAS as configurações deste aparelho (cronograma e exibição) para o padrão do arquivo?')) return;
+  try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+  loadData();
+  rotDraft = null; n1Draft = null;
   applyDisplay();
   renderConfig();
 }
@@ -1248,7 +1143,6 @@ function parseTempo(v){
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  if(typeof renderTvQueue === 'function') renderTvQueue();  // fila só sobre telas de TV
 }
 function showMenu(){
   stopStandby();
@@ -1738,7 +1632,7 @@ function posicionarPlano(){
   document.getElementById('plan-now-label').textContent = fmtClock(m);
 }
 
-/* Série escolhida na tela de N2 (só para esta projeção; não altera o banco).
+/* Série escolhida na tela de N2 (só para esta projeção; não altera a configuração).
    null = usa a série resolvida automaticamente. */
 let n2SelId = null;
 
@@ -2221,7 +2115,7 @@ function exitMic(){
 let cfgEditId = null;
 
 function goConfig(){
-  rotDraft = null; n1Draft = null;     // começa sincronizado com o banco
+  rotDraft = null; n1Draft = null;     // começa sincronizado com os dados gravados
   renderConfig();
   showScreen('scr-config');
 }
@@ -2238,13 +2132,12 @@ function editingSeries(){
 function renderConfig(){
   if(!seriesById(cfgEditId)) cfgEditId = DATA.series[0] ? DATA.series[0].id : null;
 
-  // estado da conexão com o banco
+  // aviso: os dados vivem neste aparelho
   const st = document.getElementById('db-status');
   if(st){
-    st.className = 'msg-db ' + (DATA.dbOk ? 'ok' : 'off');
-    st.textContent = DATA.dbOk
-      ? 'Conectado ao banco — as alterações valem para todas as TVs.'
-      : 'Sem conexão com o banco: exibindo a última programação recebida. As alterações não serão salvas.';
+    st.className = 'msg-db ok';
+    st.textContent = 'Tudo é salvo neste aparelho. Para levar a configuração a outra TV, use ' +
+      '"Baixar cópia configurada" em Dados, no fim desta página.';
   }
 
   // abas de séries
@@ -2275,13 +2168,10 @@ function renderConfig(){
   document.getElementById('cfg-n1-msg').value       = DATA.n1.mensagem || '';
   renderN1Editor();
 
-  document.getElementById('cfg-andon').checked   = !!DATA.config.andonNotify;
-  document.getElementById('cfg-andon-url').value = DATA.config.sbUrl || '';
-  document.getElementById('cfg-andon-key').value = DATA.config.sbKey || '';
 }
 
 /* ---------- editor dos períodos de N1 (rascunho + Gravar) ---------- */
-let n1Draft = null;          // cópia em edição; null = sincronizado com o banco
+let n1Draft = null;          // cópia em edição; null = sincronizado com os dados gravados
 
 function n1DraftInit(force){
   if(n1Draft && !force) return;
@@ -2335,7 +2225,7 @@ function descartarN1(){
   n1DraftInit(true);
   renderN1Editor();
 }
-async function salvarN1(){
+function salvarN1(){
   const ps = n1Draft || [];
   const ruim = ps.find(p => p.fim <= p.inicio);
   if(ruim){
@@ -2343,41 +2233,17 @@ async function salvarN1(){
           fmtClock(ruim.inicio) + ').');
     return;
   }
-  const sb = await getSB();
-  if(!sb){ alert('Sem conexão com o banco. Nada foi gravado.'); return; }
-  const orig = DATA.n1.periodos || [];
-  const vivos = ps.filter(p => p.id).map(p => p.id);
-  try{
-    for(const p of orig){
-      if(!vivos.includes(p.id)){
-        const r = await sb.from('n1_periods').delete().eq('id', p.id);
-        if(r.error) throw r.error;
-      }
-    }
-    for(const p of ps){
-      if(p.id){
-        const antes = orig.find(o => o.id === p.id);
-        if(antes && antes.inicio === p.inicio && antes.fim === p.fim) continue;
-        const r = await sb.from('n1_periods').update({ inicio: p.inicio, fim: p.fim }).eq('id', p.id);
-        if(r.error) throw r.error;
-      } else {
-        const r = await sb.from('n1_periods').insert({ inicio: p.inicio, fim: p.fim });
-        if(r.error) throw r.error;
-      }
-    }
-  }catch(e){
-    alert('Não foi possível gravar: ' + (e && e.message ? e.message : e));
-    return;
-  }
-  await loadSchedule();
+  DATA.n1.periodos = ps.map(p => ({ id: p.id || uid(), inicio: p.inicio, fim: p.fim }))
+                       .sort((a,b) => a.inicio - b.inicio);
+  saveData();
   n1Draft = null;
   renderConfig();
 }
 
 /* ============================================================
-   DADOS — cronograma em planilha
-   A exportação gera o arquivo no navegador; a importação grava as janelas
-   no banco (substituindo as da série selecionada).
+   DADOS — cronograma em planilha e cópia configurada
+   Tudo acontece no próprio navegador: a exportação monta o arquivo aqui e a
+   importação substitui as janelas da série selecionada, neste aparelho.
    ============================================================ */
 function baixarArquivo(nome, conteudo, tipo){
   const a = document.createElement('a');
@@ -2387,6 +2253,26 @@ function baixarArquivo(nome, conteudo, tipo){
   setTimeout(()=> URL.revokeObjectURL(a.href), 2000);
 }
 function hojeTag(){ return new Date().toISOString().slice(0,10); }
+
+/* ---------- cópia configurada ----------
+   O navegador não pode reescrever o arquivo que ele abriu. Então gera-se um
+   arquivo novo: o mesmo sistema, com o cronograma atual gravado na semente.
+   Basta copiar esse HTML para as outras telas — ele já abre programado. */
+function baixarCopiaConfigurada(){
+  if(typeof haPendencias === 'function' && haPendencias() &&
+     !confirm('Há alterações ainda não gravadas na configuração. Elas não entram na cópia. Baixar assim mesmo?')) return;
+  const json = JSON.stringify(dadosDoCronograma(), null, 2).replace(/</g, '\\u003C');
+  const bloco = '<script id="screenplay-seed">\nwindow.SCREENPLAY_SEED = ' + json + ';\n<\/script>';
+  const re = /<script[^>]*id=["']screenplay-seed["'][^>]*>[\s\S]*?<\/script>/i;
+  if(!re.test(DOC_BODY_ORIG)){
+    alert('Não foi possível montar a cópia: o bloco de configuração não foi encontrado no arquivo.');
+    return;
+  }
+  const corpo = DOC_BODY_ORIG.replace(re, () => bloco);
+  const html = '<!DOCTYPE html>\n<html lang="pt-BR">\n<head>' + DOC_HEAD_ORIG +
+               '</head>\n<body>' + corpo + '</body>\n</html>\n';
+  baixarArquivo('screenplay-' + hojeTag() + '.html', html, 'text/html;charset=utf-8');
+}
 
 function csvEscape(v){
   v = String(v ?? '');
@@ -2424,7 +2310,7 @@ function importCronogramaCSV(input){
         const area = c[2] || '';
         if(inicio == null || fim == null || fim <= inicio || !area) continue;
         const dia = c[4] ? DIA_TAG.indexOf(String(c[4]).toUpperCase()) : -1;
-        roteiro.push({ series_id: serie.id, inicio, fim, area,
+        roteiro.push({ id: uid(), inicio, fim, area,
                        supervisor: c[3] || '', cadeia: dia >= 0 ? dia : null });
       }
       if(!roteiro.length) throw new Error('sem linhas válidas');
@@ -2433,14 +2319,10 @@ function importCronogramaCSV(input){
       return;
     }
     if(!confirm('Substituir as ' + serie.roteiro.length + ' janela(s) da série “' + serie.nome +
-                '” por ' + roteiro.length + ' do arquivo?\n\nA alteração vale para todas as TVs.')) return;
-    const sb = await getSB();
-    if(!sb){ alert('Sem conexão com o banco. Nada foi alterado.'); return; }
-    const del = await sb.from('meeting_windows').delete().eq('series_id', serie.id);
-    if(del.error){ alert('Falha ao limpar as janelas: ' + del.error.message); return; }
-    const ins = await sb.from('meeting_windows').insert(roteiro);
-    if(ins.error){ alert('Falha ao gravar as janelas: ' + ins.error.message); return; }
-    await loadSchedule();
+                '” por ' + roteiro.length + ' do arquivo?')) return;
+    roteiro.sort((a,b) => a.inicio - b.inicio || String(a.area).localeCompare(b.area));
+    serie.roteiro = roteiro;
+    saveData();
     rotDraft = null;
     renderConfig();
     alert(roteiro.length + ' janela(s) importada(s) para “' + serie.nome + '”.');
@@ -2539,7 +2421,7 @@ function descartarRoteiro(){
   renderRoteiroEditor();
 }
 
-async function salvarRoteiro(){
+function salvarRoteiro(){
   const s = editingSeries();
   if(!s.id) return;
   const linhas = rotDraft || [];
@@ -2552,36 +2434,10 @@ async function salvarRoteiro(){
   const semArea = linhas.find(r => !String(r.area || '').trim());
   if(semArea && !confirm('Há janela(s) sem área preenchida. Gravar mesmo assim?')) return;
 
-  const sb = await getSB();
-  if(!sb){ alert('Sem conexão com o banco. Nada foi gravado.'); return; }
-  const orig = s.roteiro || [];
-  const vivos = linhas.filter(r => r.id).map(r => r.id);
-  try{
-    for(const r of orig){
-      if(!vivos.includes(r.id)){
-        const res = await sb.from('meeting_windows').delete().eq('id', r.id);
-        if(res.error) throw res.error;
-      }
-    }
-    for(const r of linhas){
-      const campos = { inicio: r.inicio, fim: r.fim, area: r.area || '',
-                       supervisor: r.supervisor || '', cadeia: r.cadeia };
-      if(r.id){
-        const antes = orig.find(o => o.id === r.id);
-        if(antes && antes.inicio === r.inicio && antes.fim === r.fim && antes.area === r.area &&
-           antes.supervisor === r.supervisor && antes.cadeia === r.cadeia) continue;
-        const res = await sb.from('meeting_windows').update(campos).eq('id', r.id);
-        if(res.error) throw res.error;
-      } else {
-        const res = await sb.from('meeting_windows').insert({ series_id: s.id, ...campos });
-        if(res.error) throw res.error;
-      }
-    }
-  }catch(e){
-    alert('Não foi possível gravar: ' + (e && e.message ? e.message : e));
-    return;
-  }
-  await loadSchedule();
+  s.roteiro = linhas.map(r => ({ id: r.id || uid(), inicio: r.inicio, fim: r.fim,
+    area: r.area || '', supervisor: r.supervisor || '', cadeia: (r.cadeia ?? null) }))
+    .sort((a,b) => a.inicio - b.inicio || String(a.area).localeCompare(b.area));
+  saveData();
   rotDraft = null;
   renderConfig();
 }
@@ -2603,85 +2459,73 @@ function confirmarDescarte(){
   return confirm('Há alterações não gravadas. Descartar?');
 }
 
-async function addSeries(){
+function addSeries(){
+  if(!confirmarDescarte()) return;
   const nome = (prompt('Nome da nova série (ex.: Turno da Tarde):', 'Nova série') || '').trim();
   if(!nome) return;
-  const sb = await getSB();
-  if(!sb){ alert('Sem conexão com o banco.'); return; }
-  const { data, error } = await sb.from('meeting_series')
-    .insert({ nome, sort_order: (DATA.series.length + 1) * 10 }).select('id').single();
-  if(error){ alert('Não foi possível criar a série: ' + error.message); return; }
-  await loadSchedule();
-  cfgEditId = data.id;
+  const nova = { id: uid(), nome, roteiro: [] };
+  DATA.series.push(nova);
+  saveData();
+  cfgEditId = nova.id;
+  rotDraft = null;
   renderConfig();
 }
 
-async function duplicateSeries(){
+function duplicateSeries(){
+  if(!confirmarDescarte()) return;
   const s = editingSeries();
   if(!s.id) return;
-  const sb = await getSB();
-  if(!sb){ alert('Sem conexão com o banco.'); return; }
-  const { data, error } = await sb.from('meeting_series')
-    .insert({ nome: s.nome + ' (cópia)', sort_order: (DATA.series.length + 1) * 10 })
-    .select('id').single();
-  if(error){ alert('Não foi possível duplicar: ' + error.message); return; }
-  if(s.roteiro.length){
-    const linhas = s.roteiro.map(r => ({ series_id: data.id, inicio: r.inicio, fim: r.fim,
-      area: r.area, supervisor: r.supervisor, cadeia: r.cadeia }));
-    await sb.from('meeting_windows').insert(linhas);
-  }
-  await loadSchedule();
-  cfgEditId = data.id;
+  const nova = { id: uid(), nome: s.nome + ' (cópia)',
+    roteiro: s.roteiro.map(r => ({ ...r, id: uid() })) };
+  DATA.series.push(nova);
+  saveData();
+  cfgEditId = nova.id;
+  rotDraft = null;
   renderConfig();
 }
 
-async function renameSeries(){
+function renameSeries(){
   const s = editingSeries();
   const nome = (prompt('Novo nome da série:', s.nome) || '').trim();
   if(!nome || !s.id) return;
-  await dbWrite(sb => sb.from('meeting_series').update({ nome }).eq('id', s.id));
+  s.nome = nome;
+  saveData();
   renderConfig();
 }
 
-async function deleteSeries(){
+function deleteSeries(){
   if(DATA.series.length <= 1){
     alert('É necessário manter pelo menos uma série.');
     return;
   }
   const s = editingSeries();
   if(!s.id) return;
-  if(!confirm('Excluir a série “' + s.nome + '”? As janelas dela serão removidas do banco para todas as TVs.')) return;
-  await dbWrite(sb => sb.from('meeting_series').delete().eq('id', s.id));
+  if(!confirm('Excluir a série “' + s.nome + '”? Esta ação não pode ser desfeita.')) return;
+  DATA.series = DATA.series.filter(x => x.id !== s.id);
+  if(DATA.activeSeriesId === s.id) DATA.activeSeriesId = 'auto';
+  saveData();
   cfgEditId = DATA.series[0] ? DATA.series[0].id : null;
+  rotDraft = null;
   renderConfig();
 }
 
-async function setActiveSeries(id){
-  await dbWrite(sb => sb.from('panel_settings').upsert({
-    id: 1,
-    auto_series: id === 'auto',
-    active_series_id: id === 'auto' ? null : id
-  }));
+function setActiveSeries(id){
+  DATA.activeSeriesId = id;
+  saveData();
 }
 
-/* Ajustes do N1 que ficam no banco (valem para todas as TVs) */
-async function setN1Cfg(campo, valor){
-  const patch = { id: 1 };
-  patch[campo] = valor;
-  await dbWrite(sb => sb.from('panel_settings').upsert(patch));
+/* Título, mensagem e ativação do N1 */
+function setN1Cfg(campo, valor){
+  const mapa = { n1_enabled:'enabled', n1_titulo:'titulo', n1_mensagem:'mensagem' };
+  DATA.n1[mapa[campo] || campo] = valor;
+  saveData();
 }
 
-/* Preferências deste aparelho (não vão para o banco) */
+/* Preferências de exibição deste aparelho */
 function setCfg(key, value){
   DATA.config[key] = value;
-  saveLocal();
+  saveData();
   applyDisplay();
-  if(key === 'andonNotify' || key === 'sbUrl' || key === 'sbKey'){
-    if(key !== 'andonNotify'){ SB = null; }      // reconecta com a nova credencial
-    if(typeof stopAndonNotify === 'function') stopAndonNotify();
-    if(typeof initAndonNotify === 'function') initAndonNotify();
-    loadSchedule().then(()=>{ renderConfig(); });
-  }
 }
 
 /* ============================================================
@@ -2695,97 +2539,12 @@ function applyDisplay(){
 }
 
 /* ============================================================
-   FILA DE ANDON NAS TVs
-   O painel assina (somente leitura) os chamados de andon no Supabase. Quando
-   há chamados abertos, a tela principal "encolhe" e a fila aparece na coluna
-   lateral — só cor + número da mesa, em caixa alta e alto contraste, com os
-   mais antigos no topo. Emite o sinal sonoro ao chegar um novo chamado.
-   Requer a política de leitura anônima (migração 0003).
-   ============================================================ */
-let andonCh = null, panelCalls = [];
-
-function renderTvQueue(){
-  const wrap = document.getElementById('tv-queue');
-  if(!wrap) return;
-  const tvActive = !!document.querySelector('.screen.tv.active');
-  document.body.classList.toggle('has-calls', tvActive && panelCalls.length > 0);
-  wrap.innerHTML = panelCalls.map(c => `
-    <div class="tvq t-${c.type}">
-      <div class="q-type">${esc((ANDON_TIPO[c.type] || 'Chamado').toUpperCase())}</div>
-      <div class="q-mesa">${c.mesa != null ? String(c.mesa).padStart(2,'0') : '—'}</div>
-      ${c.etapa ? '<div class="q-etapa">' + esc(String(c.etapa).toUpperCase()) + '</div>' : ''}
-    </div>`).join('');
-}
-
-async function fetchPanelCalls(){
-  const sb = await getSB();
-  if(!sb) return;
-  try{
-    const { data } = await sb.from('andon_events')
-      .select('*').eq('status','aberto').order('created_at', { ascending: true }); // mais antigos primeiro
-    panelCalls = data || [];
-    renderTvQueue();
-  }catch(e){}
-}
-
-async function initAndonNotify(){
-  if(!DATA.config.andonNotify) return;
-  const sb = await getSB();
-  if(!sb) return;
-  try{
-    andonCh = sb.channel('tv-andon')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'andon_events' }, payload => {
-        if(payload.eventType === 'INSERT' && payload.new && payload.new.status === 'aberto') alertTone();
-        fetchPanelCalls();
-      })
-      .subscribe();
-    fetchPanelCalls();
-  }catch(e){ /* sem rede: o painel segue funcionando com o cronograma em cache */ }
-}
-function stopAndonNotify(){
-  try{ if(andonCh && SB) SB.removeChannel(andonCh); }catch(e){}
-  andonCh = null;
-  panelCalls = [];
-  renderTvQueue();
-}
-
-/* ============================================================
-   REALTIME DO CRONOGRAMA
-   Alterações feitas em qualquer TV (ou direto no banco) chegam às demais.
-   ============================================================ */
-let schedCh = null;
-async function initScheduleRealtime(){
-  const sb = await getSB();
-  if(!sb || schedCh) return;
-  const recarregar = debounce(async ()=>{
-    // não recarrega por cima de uma edição em andamento (perderia o que foi digitado)
-    if(haPendencias()) return;
-    await loadSchedule();
-    if(document.getElementById('scr-config').classList.contains('active')) renderConfig();
-    if(autoActive){ dirMode = null; dirBlockKey = null; directorTick(); }  // reavalia a tela
-  }, 400);
-  try{
-    schedCh = sb.channel('tv-cronograma');
-    ['meeting_series','meeting_windows','n1_periods','panel_settings'].forEach(t => {
-      schedCh.on('postgres_changes', { event: '*', schema: 'public', table: t }, recarregar);
-    });
-    schedCh.subscribe();
-  }catch(e){}
-}
-function debounce(fn, ms){
-  let t = null;
-  return (...a)=>{ clearTimeout(t); t = setTimeout(()=> fn(...a), ms); };
-}
-
-/* ============================================================
    INICIALIZAÇÃO
    ============================================================ */
-async function initApp(){
+function initApp(){
   injectLogos();
-  loadLocal();
+  loadData();
   applyDisplay();
-  // o cronograma vem do banco; sem rede, usa a última programação recebida
-  await loadSchedule();
   // O sistema abre no menu principal. O modo automático (relógio + reuniões
   // no horário) é acionado pelo card "Relógio" ou pela preferência abaixo.
   if(DATA.config.autoStart){
@@ -2793,16 +2552,6 @@ async function initApp(){
   } else {
     showMenu();
   }
-  initScheduleRealtime();
-  initAndonNotify();
-  // reconciliação periódica, caso o Realtime caia sem aviso
-  setInterval(async ()=>{
-    const antes = JSON.stringify(DATA.series) + DATA.activeSeriesId + JSON.stringify(DATA.n1);
-    await loadSchedule();
-    if(JSON.stringify(DATA.series) + DATA.activeSeriesId + JSON.stringify(DATA.n1) !== antes && autoActive){
-      dirMode = null; dirBlockKey = null; directorTick();
-    }
-  }, 5 * 60 * 1000);
 }
 initApp();
 </script>
